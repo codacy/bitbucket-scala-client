@@ -15,12 +15,6 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
   private lazy val KEY = ConsumerKey(key, secretKey)
   private lazy val TOKEN = RequestToken(token, secretToken)
 
-  private lazy val BITBUCKET = OAuth(ServiceInfo(
-    "https://bitbucket.org/!api/1.0/oauth/request_token",
-    "https://bitbucket.org/!api/1.0/oauth/access_token",
-    "https://bitbucket.org/!api/1.0/oauth/authenticate", KEY),
-    use10a = true)
-
   /*
    * Does an API request and parses the json output into a class
    */

@@ -22,7 +22,7 @@ class UserServices(client: BitbucketClient) {
   /*
    * Creates a ssh key
    */
-  def createKey[T](username: String, key: String): RequestResponse[SshKey] = {
+  def createKey(username: String, key: String): RequestResponse[SshKey] = {
     val url = s"https://bitbucket.org/!api/1.0/users/$username/ssh-keys"
 
     val values = Map(
