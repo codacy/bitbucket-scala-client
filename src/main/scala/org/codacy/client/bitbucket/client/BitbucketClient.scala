@@ -56,7 +56,7 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
   def post[T](request: Request[T], values: Map[String, Seq[String]])(implicit reader: Reads[T]): RequestResponse[T] = {
     val client: WSClient = new NingWSClient(new AsyncHttpClient().getConfig)
 
-    val jpromise = client.url(request.url).sign(OAuthCalculator(KEY, TOKEN)).post(values)
+    val jpromise = client.url(request.url).sign(OAuthCalculator(KEY, TOKEN)).withFollowRedirects(follow = true).post(values)
     val result = Await.result(jpromise, Duration(10, SECONDS))
 
     if (Seq(HTTPStatusCodes.OK, HTTPStatusCodes.CREATED).contains(result.status)) {
@@ -84,7 +84,7 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
   private def get(url: String): Either[ResponseError, JsValue] = {
     val client: WSClient = new NingWSClient(new AsyncHttpClient().getConfig)
 
-    val jpromise = client.url(url).sign(OAuthCalculator(KEY, TOKEN)).get()
+    val jpromise = client.url(url).sign(OAuthCalculator(KEY, TOKEN)).withFollowRedirects(follow = true).get()
     val result = Await.result(jpromise, Duration(10, SECONDS))
 
     if (Seq(HTTPStatusCodes.OK, HTTPStatusCodes.CREATED).contains(result.status)) {
