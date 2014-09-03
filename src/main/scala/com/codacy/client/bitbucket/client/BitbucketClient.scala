@@ -1,7 +1,7 @@
 package com.codacy.client.bitbucket.client
 
-import com.ning.http.client.AsyncHttpClient
 import com.codacy.client.bitbucket.util.HTTPStatusCodes
+import com.ning.http.client.AsyncHttpClient
 import play.api.libs.json.{JsValue, Json, Reads}
 import play.api.libs.oauth._
 import play.api.libs.ws.WSClient
@@ -64,11 +64,11 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
       //    println("\n\n")
 
       val jsValue = parseJson(body)
-      if (jsValue.isRight) {
-        jsValue.right.get.as[T]
-        RequestResponse(jsValue.right.get.asOpt[T])
-      } else {
-        RequestResponse(None, message = jsValue.left.get.detail, hasError = true)
+      jsValue match {
+        case Right(responseObj) =>
+          RequestResponse(responseObj.asOpt[T])
+        case Left(message) =>
+          RequestResponse(None, message = message.detail, hasError = true)
       }
     } else {
       RequestResponse(None, result.statusText, hasError = true)

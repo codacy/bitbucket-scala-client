@@ -7,11 +7,11 @@ This is a simple library that aims to have basic functions of the Bitbucket API.
 This library was meant to support Codacy when interacting with Bitbucket.
 It is in a very early stage and all the contributions are welcome.
 
-### Build
+### Usage
 
-It is built using Play Framework:
+Import on SBT:
 
-* `activator package`
+    "com.codacy" % "bitbucket-scala-client_2.11" % "1.0"
 
 ### Creators
 
