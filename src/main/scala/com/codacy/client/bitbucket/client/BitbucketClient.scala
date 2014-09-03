@@ -1,7 +1,7 @@
-package org.codacy.client.bitbucket.client
+package com.codacy.client.bitbucket.client
 
 import com.ning.http.client.AsyncHttpClient
-import org.codacy.client.bitbucket.util.HTTPStatusCodes
+import com.codacy.client.bitbucket.util.HTTPStatusCodes
 import play.api.libs.json.{JsValue, Json, Reads}
 import play.api.libs.oauth._
 import play.api.libs.ws.WSClient

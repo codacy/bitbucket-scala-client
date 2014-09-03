@@ -1,4 +1,4 @@
-package org.codacy.client.bitbucket
+package com.codacy.client.bitbucket
 
 import org.joda.time.DateTime
 import play.api.libs.functional.syntax._
