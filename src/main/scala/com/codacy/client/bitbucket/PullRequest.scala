@@ -4,9 +4,13 @@ import org.joda.time.DateTime
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
-case class PullRequest(id: Long, title: String, description: String, author: String,
+case class PullRequest(id: Long, title: String, description: String,
+                       authorUsername: String, authorAvatar: String,
                        state: String, created_on: DateTime, updated_on: DateTime,
-                       destBranch: String, destCommit: String)
+                       sourceRepository: String, sourceBranch: String, sourceCommit: String,
+                       destRepository: String, destBranch: String, destCommit: String) {
+  val url: String = s"https://bitbucket.org/$destRepository/pull-request/$id"
+}
 
 object PullRequest {
   val dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSZZ"
@@ -17,9 +21,14 @@ object PullRequest {
       (__ \ "title").read[String] and
       (__ \ "description").read[String] and
       (__ \ "author" \ "username").read[String] and
+      (__ \ "author" \ "links" \ "avatar").read[String] and
       (__ \ "state").read[String] and
       (__ \ "created_on").read[DateTime] and
       (__ \ "updated_on").read[DateTime] and
+      (__ \ "source" \ "repository" \ "full_name").read[String] and
+      (__ \ "source" \ "branch" \ "name").read[String] and
+      (__ \ "source" \ "commit" \ "hash").read[String] and
+      (__ \ "destination" \ "repository" \ "full_name").read[String] and
       (__ \ "destination" \ "branch" \ "name").read[String] and
       (__ \ "destination" \ "commit" \ "hash").read[String]
     )(PullRequest.apply _)
