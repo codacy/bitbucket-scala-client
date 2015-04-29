@@ -74,6 +74,36 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
       RequestResponse(None, result.statusText, hasError = true)
     }
   }
+  /* copy paste from post ... */
+  def delete[T](request: Request[T])(implicit reader: Reads[T]): RequestResponse[T] = {
+    val client: WSClient = new NingWSClient(new AsyncHttpClient().getConfig)
+
+    val jpromise = client.url(request.url).sign(OAuthCalculator(KEY, TOKEN)).withFollowRedirects(follow = true).delete()
+    val result = Await.result(jpromise, Duration(10, SECONDS))
+
+    if (Seq(HTTPStatusCodes.OK, HTTPStatusCodes.CREATED).contains(result.status)) {
+      val body = result.body
+
+      /* TODO: remove this when not needed (only keep for debug purposes) */
+      //    println("\n\n")
+      //    println(s"STATUS: ${result.status}")
+      //    println("\n\n")
+      //    println(body)
+      //    println("\n\n")
+
+      val jsValue = parseJson(body)
+      jsValue match {
+        case Right(responseObj) =>
+          RequestResponse(responseObj.asOpt[T])
+        case Left(message) =>
+          RequestResponse(None, message = message.detail, hasError = true)
+      }
+    } else {
+      RequestResponse(None, result.statusText, hasError = true)
+    }
+  }
+
+
 
   private def get(url: String): Either[ResponseError, JsValue] = {
     val client: WSClient = new NingWSClient(new AsyncHttpClient().getConfig)
