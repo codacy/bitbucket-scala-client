@@ -2,9 +2,11 @@ import Dependencies._
 
 name := """bitbucket-scala-client"""
 
-version := "1.1"
+version := "1.1-SNAPSHOT"
 
-scalaVersion := "2.11.1"
+scalaVersion := "2.10.5"
+
+crossScalaVersions := Seq("2.10.5", "2.11.6")
 
 scalacOptions := Seq("-deprecation", "-feature", "-unchecked", "-Ywarn-adapted-args", "-Xlint")
 
@@ -25,7 +27,7 @@ publishMavenStyle := true
 
 publishArtifact in Test := false
 
-pomIncludeRepository := { _ => false}
+pomIncludeRepository := { _ => false }
 
 publishTo := {
   val nexus = "https://oss.sonatype.org/"

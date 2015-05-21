@@ -5,7 +5,7 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
 case class PullRequest(id: Long, title: String, description: String,
-                       authorUsername: String, authorAvatar: String,
+                       authorUsername: String, authorAvatar: Option[String],
                        state: String, created_on: DateTime, updated_on: DateTime,
                        sourceRepository: String, sourceBranch: String, sourceCommit: String,
                        destRepository: String, destBranch: String, destCommit: String) {
@@ -21,7 +21,7 @@ object PullRequest {
       (__ \ "title").read[String] and
       (__ \ "description").read[String] and
       (__ \ "author" \ "username").read[String] and
-      (__ \ "author" \ "links" \ "avatar").read[String] and
+      (__ \ "author" \ "links" \ "avatar").read[Option[String]] and
       (__ \ "state").read[String] and
       (__ \ "created_on").read[DateTime] and
       (__ \ "updated_on").read[DateTime] and
