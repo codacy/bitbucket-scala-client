@@ -56,13 +56,6 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
     if (Seq(HTTPStatusCodes.OK, HTTPStatusCodes.CREATED).contains(result.status)) {
       val body = result.body
 
-      /* TODO: remove this when not needed (only keep for debug purposes) */
-      //    println("\n\n")
-      //    println(s"STATUS: ${result.status}")
-      //    println("\n\n")
-      //    println(body)
-      //    println("\n\n")
-
       val jsValue = parseJson(body)
       jsValue match {
         case Right(responseObj) =>
@@ -74,6 +67,7 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
       RequestResponse(None, result.statusText, hasError = true)
     }
   }
+
   /* copy paste from post ... */
   def delete[T](url: String): RequestResponse[Boolean] = {
     val client: WSClient = new NingWSClient(new AsyncHttpClient().getConfig)
@@ -83,8 +77,7 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
 
     if (Seq(HTTPStatusCodes.OK, HTTPStatusCodes.CREATED, HTTPStatusCodes.NO_CONTENT).contains(result.status)) {
       RequestResponse(Option(true))
-    }
-    else {
+    } else {
       RequestResponse(None, result.statusText, hasError = true)
     }
   }
@@ -97,14 +90,6 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
 
     if (Seq(HTTPStatusCodes.OK, HTTPStatusCodes.CREATED).contains(result.status)) {
       val body = result.body
-
-      /* TODO: remove this when not needed (only keep for debug purposes) */
-      //      println("\n\n")
-      //      println(s"STATUS: ${result.status}")
-      //      println("\n\n")
-      //      println(body)
-      //      println("\n\n")
-
       parseJson(body)
     } else {
       Left(ResponseError(java.util.UUID.randomUUID().toString, result.statusText, result.statusText))
