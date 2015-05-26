@@ -47,7 +47,7 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
   /*
    * Does an API post
    */
-  def post[T](request: Request[T], values: Map[String, Seq[String]])(implicit reader: Reads[T]): RequestResponse[T] = {
+  def post[T](request: Request[T], values: JsValue)(implicit reader: Reads[T]): RequestResponse[T] = {
     val client: WSClient = new NingWSClient(new AsyncHttpClient().getConfig)
 
     val jpromise = client.url(request.url).sign(OAuthCalculator(KEY, TOKEN)).withFollowRedirects(follow = true).post(values)

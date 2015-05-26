@@ -2,7 +2,7 @@ package com.codacy.client.bitbucket.service
 
 import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
 import com.codacy.client.bitbucket.{Commit, PullRequest}
-import play.api.libs.json.JsObject
+import play.api.libs.json.{JsNull, JsObject, Json}
 
 class PullRequestServices(client: BitbucketClient) {
 
@@ -28,9 +28,29 @@ class PullRequestServices(client: BitbucketClient) {
     client.executePaginated(Request(url, classOf[Seq[Commit]]))
   }
 
+  def create(owner: String, repository: String, title: String, sourceBranch: String, destinationBranch: String): RequestResponse[JsObject] = {
+    val url = s"https://bitbucket.org/!api/2.0/repositories/$owner/$repository/pullrequests"
+
+    val payload = Json.obj(
+      "title" -> title,
+      "source" -> Json.obj(
+        "branch" -> Json.obj(
+          "name" -> sourceBranch
+        )
+      ),
+      "destination" -> Json.obj(
+        "branch" -> Json.obj(
+          "name" -> destinationBranch
+        )
+      )
+    )
+
+    client.post(Request(url, classOf[JsObject]), payload)
+  }
+
   def postApprove(owner: String, repository: String, prId: Long): RequestResponse[JsObject] = {
     val url = s"https://bitbucket.org/!api/2.0/repositories/$owner/$repository/pullrequests/$prId/approve"
-    client.post(Request(url, classOf[JsObject]), Map.empty)
+    client.post(Request(url, classOf[JsObject]), JsNull)
   }
 
   def deleteApprove(owner: String, repository: String, prId: Long): RequestResponse[Boolean] = {
@@ -40,12 +60,12 @@ class PullRequestServices(client: BitbucketClient) {
 
   def merge(owner: String, repository: String, prId: Long): RequestResponse[JsObject] = {
     val url = s"https://bitbucket.org/!api/2.0/repositories/$owner/$repository/pullrequests/$prId/merge"
-    client.post(Request(url, classOf[JsObject]), Map.empty)
+    client.post(Request(url, classOf[JsObject]), JsNull)
   }
 
   def decline(owner: String, repository: String, prId: Long): RequestResponse[JsObject] = {
     val url = s"https://bitbucket.org/!api/2.0/repositories/$owner/$repository/pullrequests/$prId/decline"
-    client.post(Request(url, classOf[JsObject]), Map.empty)
+    client.post(Request(url, classOf[JsObject]), JsNull)
   }
 
 }
