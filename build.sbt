@@ -2,7 +2,7 @@ import Dependencies._
 
 name := """bitbucket-scala-client"""
 
-version := "1.1-SNAPSHOT"
+version := "1.1"
 
 scalaVersion := "2.10.5"
 
@@ -41,7 +41,7 @@ startYear := Some(2014)
 
 description := "Bitbucket Scala Client"
 
-licenses := Seq("GNU GENERAL PUBLIC LICENSE, Version 3.0" -> url("http://www.gnu.org/licenses/gpl-3.0.txt"))
+licenses := Seq("The Apache Software License, Version 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
 
 homepage := Some(url("https://github.com/codacy/bitbucket-scala-client.git"))
 
