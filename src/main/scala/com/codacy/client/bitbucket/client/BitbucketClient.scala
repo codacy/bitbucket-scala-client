@@ -47,7 +47,7 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
   /*
    * Does an API post
    */
-  def post[T](request: Request[T], values: Map[String, Seq[String]])(implicit reader: Reads[T]): RequestResponse[T] = {
+  def post[T](request: Request[T], values: JsValue)(implicit reader: Reads[T]): RequestResponse[T] = {
     val client: WSClient = new NingWSClient(new AsyncHttpClient().getConfig)
 
     val jpromise = client.url(request.url).sign(OAuthCalculator(KEY, TOKEN)).withFollowRedirects(follow = true).post(values)
@@ -55,13 +55,6 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
 
     if (Seq(HTTPStatusCodes.OK, HTTPStatusCodes.CREATED).contains(result.status)) {
       val body = result.body
-
-      /* TODO: remove this when not needed (only keep for debug purposes) */
-      //    println("\n\n")
-      //    println(s"STATUS: ${result.status}")
-      //    println("\n\n")
-      //    println(body)
-      //    println("\n\n")
 
       val jsValue = parseJson(body)
       jsValue match {
@@ -75,6 +68,20 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
     }
   }
 
+  /* copy paste from post ... */
+  def delete[T](url: String): RequestResponse[Boolean] = {
+    val client: WSClient = new NingWSClient(new AsyncHttpClient().getConfig)
+
+    val jpromise = client.url(url).sign(OAuthCalculator(KEY, TOKEN)).withFollowRedirects(follow = true).delete()
+    val result = Await.result(jpromise, Duration(10, SECONDS))
+
+    if (Seq(HTTPStatusCodes.OK, HTTPStatusCodes.CREATED, HTTPStatusCodes.NO_CONTENT).contains(result.status)) {
+      RequestResponse(Option(true))
+    } else {
+      RequestResponse(None, result.statusText, hasError = true)
+    }
+  }
+
   private def get(url: String): Either[ResponseError, JsValue] = {
     val client: WSClient = new NingWSClient(new AsyncHttpClient().getConfig)
 
@@ -83,14 +90,6 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
 
     if (Seq(HTTPStatusCodes.OK, HTTPStatusCodes.CREATED).contains(result.status)) {
       val body = result.body
-
-      /* TODO: remove this when not needed (only keep for debug purposes) */
-      //      println("\n\n")
-      //      println(s"STATUS: ${result.status}")
-      //      println("\n\n")
-      //      println(body)
-      //      println("\n\n")
-
       parseJson(body)
     } else {
       Left(ResponseError(java.util.UUID.randomUUID().toString, result.statusText, result.statusText))

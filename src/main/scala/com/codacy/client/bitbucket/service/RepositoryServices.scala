@@ -2,6 +2,7 @@ package com.codacy.client.bitbucket.service
 
 import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
 import com.codacy.client.bitbucket.{Repository, SimpleRepository, SshKey}
+import play.api.libs.json.Json
 
 class RepositoryServices(client: BitbucketClient) {
 
@@ -27,9 +28,9 @@ class RepositoryServices(client: BitbucketClient) {
   def createKey(username: String, repo: String, key: String): RequestResponse[SshKey] = {
     val url = s"https://bitbucket.org/!api/1.0/repositories/$username/$repo/deploy-keys"
 
-    val values = Map(
-      "key" -> Seq(key),
-      "label" -> Seq("Codacy Key")
+    val values = Json.obj(
+      "key" -> key,
+      "label" -> "Codacy Key"
     )
 
     client.post(Request(url, classOf[SshKey]), values)
