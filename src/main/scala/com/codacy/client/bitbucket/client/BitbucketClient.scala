@@ -53,7 +53,7 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
     val jpromise = client.url(request.url).sign(OAuthCalculator(KEY, TOKEN)).withFollowRedirects(follow = true).post(values)
     val result = Await.result(jpromise, Duration(10, SECONDS))
 
-    if (Seq(HTTPStatusCodes.OK, HTTPStatusCodes.CREATED).contains(result.status)) {
+    val value = if (Seq(HTTPStatusCodes.OK, HTTPStatusCodes.CREATED).contains(result.status)) {
       val body = result.body
 
       val jsValue = parseJson(body)
@@ -61,11 +61,13 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
         case Right(responseObj) =>
           RequestResponse(responseObj.asOpt[T])
         case Left(message) =>
-          RequestResponse(None, message = message.detail, hasError = true)
+          RequestResponse[T](None, message = message.detail, hasError = true)
       }
     } else {
-      RequestResponse(None, result.statusText, hasError = true)
+      RequestResponse[T](None, result.statusText, hasError = true)
     }
+    client.close()
+    value
   }
 
   /* copy paste from post ... */
@@ -75,11 +77,13 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
     val jpromise = client.url(url).sign(OAuthCalculator(KEY, TOKEN)).withFollowRedirects(follow = true).delete()
     val result = Await.result(jpromise, Duration(10, SECONDS))
 
-    if (Seq(HTTPStatusCodes.OK, HTTPStatusCodes.CREATED, HTTPStatusCodes.NO_CONTENT).contains(result.status)) {
+    val value = if (Seq(HTTPStatusCodes.OK, HTTPStatusCodes.CREATED, HTTPStatusCodes.NO_CONTENT).contains(result.status)) {
       RequestResponse(Option(true))
     } else {
-      RequestResponse(None, result.statusText, hasError = true)
+      RequestResponse[Boolean](None, result.statusText, hasError = true)
     }
+    client.close()
+    value
   }
 
   private def get(url: String): Either[ResponseError, JsValue] = {
@@ -88,12 +92,14 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
     val jpromise = client.url(url).sign(OAuthCalculator(KEY, TOKEN)).withFollowRedirects(follow = true).get()
     val result = Await.result(jpromise, Duration(10, SECONDS))
 
-    if (Seq(HTTPStatusCodes.OK, HTTPStatusCodes.CREATED).contains(result.status)) {
+    val value = if (Seq(HTTPStatusCodes.OK, HTTPStatusCodes.CREATED).contains(result.status)) {
       val body = result.body
       parseJson(body)
     } else {
       Left(ResponseError(java.util.UUID.randomUUID().toString, result.statusText, result.statusText))
     }
+    client.close()
+    value
   }
 
   private def parseJson(input: String): Either[ResponseError, JsValue] = {

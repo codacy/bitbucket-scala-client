@@ -36,6 +36,13 @@ object PullRequest {
   val dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSZZ"
   implicit val jodaDateTimeReads = Reads.jodaDateReads(dateFormat)
 
+  implicit def optionStringReader: Reads[Option[String]] = Reads { (json: JsValue) =>
+    json match {
+      case JsString(value) => JsSuccess(Some(value))
+      case _ => JsSuccess(None)
+    }
+  }
+
   implicit val reader: Reads[PullRequest] = (
     (__ \ "id").read[Long] and
       (__ \ "title").read[String] and

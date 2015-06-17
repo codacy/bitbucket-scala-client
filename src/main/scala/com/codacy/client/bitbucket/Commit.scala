@@ -10,6 +10,13 @@ object Commit {
   val dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZ"
   implicit val jodaDateTimeReads = Reads.jodaDateReads(dateFormat)
 
+  implicit def optionSeqStringReader: Reads[Option[Seq[String]]] = Reads { (json: JsValue) =>
+    json match {
+      case JsArray(value) => JsSuccess(Some(value.flatMap(_.asOpt[String])))
+      case _ => JsSuccess(None)
+    }
+  }
+
   implicit val reader: Reads[Commit] = (
     (__ \ "hash").read[String] and
       (__ \ "author" \ "user" \ "username").read[String] and
