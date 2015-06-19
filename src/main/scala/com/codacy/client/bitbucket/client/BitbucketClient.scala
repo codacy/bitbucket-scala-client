@@ -26,7 +26,7 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
   }
 
   /*
-   * Does an paginated API request and parses the json output into a sequence of classes
+   * Does a paginated API request and parses the json output into a sequence of classes
    */
   def executePaginated[T](request: Request[Seq[T]])(implicit reader: Reads[T]): RequestResponse[Seq[T]] = {
     get(request.url) match {
@@ -37,7 +37,8 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
             executePaginated(Request(nextUrl, request.classType)).value.getOrElse(Seq())
         }.getOrElse(Seq())
 
-        RequestResponse(Some((json \ "values").as[Seq[T]] ++ nextRepos))
+        val values = (json \ "values").asOpt[Seq[T]].getOrElse(Seq())
+        RequestResponse(Some(values ++ nextRepos))
 
       case Left(error) =>
         RequestResponse[Seq[T]](None, error.detail, hasError = true)
