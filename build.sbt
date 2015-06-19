@@ -2,7 +2,7 @@ import Dependencies._
 
 name := """bitbucket-scala-client"""
 
-version := "1.2"
+version := "1.3"
 
 scalaVersion := "2.10.5"
 
