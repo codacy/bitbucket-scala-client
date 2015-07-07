@@ -1,7 +1,7 @@
 package com.codacy.client.bitbucket.service
 
 import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
-import com.codacy.client.bitbucket.{Commit, PullRequest}
+import com.codacy.client.bitbucket.{PullRequest, SimpleCommit}
 import play.api.libs.json.{JsNull, JsObject, Json}
 
 class PullRequestServices(client: BitbucketClient) {
@@ -22,10 +22,10 @@ class PullRequestServices(client: BitbucketClient) {
    * Gets the list of commits of a pull request
    *
    */
-  def getPullRequestCommits(owner: String, repository: String, prId: Long): RequestResponse[Seq[Commit]] = {
+  def getPullRequestCommits(owner: String, repository: String, prId: Long): RequestResponse[Seq[SimpleCommit]] = {
     val url = s"https://bitbucket.org/!api/2.0/repositories/$owner/$repository/pullrequests/$prId/commits"
 
-    client.executePaginated(Request(url, classOf[Seq[Commit]]))
+    client.executePaginated(Request(url, classOf[Seq[SimpleCommit]]))
   }
 
   def create(owner: String, repository: String, title: String, sourceBranch: String, destinationBranch: String): RequestResponse[JsObject] = {

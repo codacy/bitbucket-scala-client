@@ -2,11 +2,11 @@ import Dependencies._
 
 name := """bitbucket-scala-client"""
 
-version := "1.3"
+version := "1.3.1"
 
 scalaVersion := "2.10.5"
 
-crossScalaVersions := Seq("2.10.5", "2.11.6")
+crossScalaVersions := Seq("2.10.5", "2.11.7")
 
 scalacOptions := Seq("-deprecation", "-feature", "-unchecked", "-Ywarn-adapted-args", "-Xlint")
 
