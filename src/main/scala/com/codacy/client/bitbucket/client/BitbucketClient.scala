@@ -67,7 +67,6 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
     } else {
       RequestResponse[T](None, result.statusText, hasError = true)
     }
-    client.close()
     value
   }
 
@@ -83,7 +82,6 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
     } else {
       RequestResponse[Boolean](None, result.statusText, hasError = true)
     }
-    client.close()
     value
   }
 
@@ -99,7 +97,6 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
     } else {
       Left(ResponseError(java.util.UUID.randomUUID().toString, result.statusText, result.statusText))
     }
-    client.close()
     value
   }
 
