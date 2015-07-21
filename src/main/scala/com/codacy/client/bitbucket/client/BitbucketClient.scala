@@ -4,16 +4,18 @@ import com.codacy.client.bitbucket.util.HTTPStatusCodes
 import com.ning.http.client.AsyncHttpClient
 import play.api.libs.json.{JsValue, Json, Reads}
 import play.api.libs.oauth._
-import play.api.libs.ws.WSClient
 import play.api.libs.ws.ning.NingWSClient
 
 import scala.concurrent.Await
-import scala.concurrent.duration._
+import scala.concurrent.duration.{Duration, SECONDS}
 
 class BitbucketClient(key: String, secretKey: String, token: String, secretToken: String) {
 
   private lazy val KEY = ConsumerKey(key, secretKey)
   private lazy val TOKEN = RequestToken(token, secretToken)
+
+  private lazy val requestTimeout = Duration(10, SECONDS)
+  private lazy val requestSigner = OAuthCalculator(KEY, TOKEN)
 
   /*
    * Does an API request and parses the json output into a class
@@ -49,10 +51,13 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
    * Does an API post
    */
   def post[T](request: Request[T], values: JsValue)(implicit reader: Reads[T]): RequestResponse[T] = {
-    val client: WSClient = new NingWSClient(new AsyncHttpClient().getConfig)
+    val client = new NingWSClient(new AsyncHttpClient().getConfig)
 
-    val jpromise = client.url(request.url).sign(OAuthCalculator(KEY, TOKEN)).withFollowRedirects(follow = true).post(values)
-    val result = Await.result(jpromise, Duration(10, SECONDS))
+    val jpromise = client.url(request.url)
+      .sign(requestSigner)
+      .withFollowRedirects(follow = true)
+      .post(values)
+    val result = Await.result(jpromise, requestTimeout)
 
     val value = if (Seq(HTTPStatusCodes.OK, HTTPStatusCodes.CREATED).contains(result.status)) {
       val body = result.body
@@ -67,29 +72,39 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
     } else {
       RequestResponse[T](None, result.statusText, hasError = true)
     }
+
+    client.close()
     value
   }
 
   /* copy paste from post ... */
   def delete[T](url: String): RequestResponse[Boolean] = {
-    val client: WSClient = new NingWSClient(new AsyncHttpClient().getConfig)
+    val client = new NingWSClient(new AsyncHttpClient().getConfig)
 
-    val jpromise = client.url(url).sign(OAuthCalculator(KEY, TOKEN)).withFollowRedirects(follow = true).delete()
-    val result = Await.result(jpromise, Duration(10, SECONDS))
+    val jpromise = client.url(url)
+      .sign(requestSigner)
+      .withFollowRedirects(follow = true)
+      .delete()
+    val result = Await.result(jpromise, requestTimeout)
 
     val value = if (Seq(HTTPStatusCodes.OK, HTTPStatusCodes.CREATED, HTTPStatusCodes.NO_CONTENT).contains(result.status)) {
       RequestResponse(Option(true))
     } else {
       RequestResponse[Boolean](None, result.statusText, hasError = true)
     }
+
+    client.close()
     value
   }
 
   private def get(url: String): Either[ResponseError, JsValue] = {
-    val client: WSClient = new NingWSClient(new AsyncHttpClient().getConfig)
+    val client = new NingWSClient(new AsyncHttpClient().getConfig)
 
-    val jpromise = client.url(url).sign(OAuthCalculator(KEY, TOKEN)).withFollowRedirects(follow = true).get()
-    val result = Await.result(jpromise, Duration(10, SECONDS))
+    val jpromise = client.url(url)
+      .sign(requestSigner)
+      .withFollowRedirects(follow = true)
+      .get()
+    val result = Await.result(jpromise, requestTimeout)
 
     val value = if (Seq(HTTPStatusCodes.OK, HTTPStatusCodes.CREATED).contains(result.status)) {
       val body = result.body
@@ -97,6 +112,8 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
     } else {
       Left(ResponseError(java.util.UUID.randomUUID().toString, result.statusText, result.statusText))
     }
+
+    client.close()
     value
   }
 
