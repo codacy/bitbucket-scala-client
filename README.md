@@ -11,7 +11,7 @@ It is in a very early stage and all the contributions are welcome.
 
 Import on SBT:
 
-    "com.codacy" % "bitbucket-scala-client_2.11" % "1.0"
+    "com.codacy" %% "bitbucket-scala-client" % "1.3.3"
 
 ### Creators
 
@@ -21,4 +21,4 @@ Import on SBT:
 
 ### License
 
-bitbucket-scala-client is available under the GPLv3 license. See the LICENSE file for more info.
+bitbucket-scala-client is available under the The Apache Software License, Version 2.0.
