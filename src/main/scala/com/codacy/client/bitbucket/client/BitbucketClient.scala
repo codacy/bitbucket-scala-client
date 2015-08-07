@@ -1,13 +1,17 @@
 package com.codacy.client.bitbucket.client
 
+import java.util.concurrent.{SynchronousQueue, ThreadPoolExecutor, TimeUnit}
+
 import com.codacy.client.bitbucket.util.HTTPStatusCodes
-import com.ning.http.client.AsyncHttpClient
+import com.ning.http.client.AsyncHttpClientConfig
 import play.api.libs.json.{JsValue, Json, Reads}
 import play.api.libs.oauth._
-import play.api.libs.ws.ning.NingWSClient
+import play.api.libs.ws.DefaultWSClientConfig
+import play.api.libs.ws.ning.{NingAsyncHttpClientConfigBuilder, NingWSClient}
 
 import scala.concurrent.Await
 import scala.concurrent.duration.{Duration, SECONDS}
+import scala.util.{Failure, Properties, Success, Try}
 
 class BitbucketClient(key: String, secretKey: String, token: String, secretToken: String) {
 
@@ -50,9 +54,7 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
   /*
    * Does an API post
    */
-  def post[T](request: Request[T], values: JsValue)(implicit reader: Reads[T]): RequestResponse[T] = {
-    val client = new NingWSClient(new AsyncHttpClient().getConfig)
-
+  def post[T](request: Request[T], values: JsValue)(implicit reader: Reads[T]): RequestResponse[T] = withClientRequest { client =>
     val jpromise = client.url(request.url)
       .sign(requestSigner)
       .withFollowRedirects(follow = true)
@@ -73,14 +75,11 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
       RequestResponse[T](None, result.statusText, hasError = true)
     }
 
-    client.close()
     value
   }
 
   /* copy paste from post ... */
-  def delete[T](url: String): RequestResponse[Boolean] = {
-    val client = new NingWSClient(new AsyncHttpClient().getConfig)
-
+  def delete[T](url: String): RequestResponse[Boolean] = withClientRequest { client =>
     val jpromise = client.url(url)
       .sign(requestSigner)
       .withFollowRedirects(follow = true)
@@ -93,13 +92,10 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
       RequestResponse[Boolean](None, result.statusText, hasError = true)
     }
 
-    client.close()
     value
   }
 
-  private def get(url: String): Either[ResponseError, JsValue] = {
-    val client = new NingWSClient(new AsyncHttpClient().getConfig)
-
+  private def get(url: String): Either[ResponseError, JsValue] = withClientEither { client =>
     val jpromise = client.url(url)
       .sign(requestSigner)
       .withFollowRedirects(follow = true)
@@ -113,7 +109,6 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
       Left(ResponseError(java.util.UUID.randomUUID().toString, result.statusText, result.statusText))
     }
 
-    client.close()
     value
   }
 
@@ -127,4 +122,45 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
         Left(error)
     }.getOrElse(Right(json))
   }
+
+  private def withClientEither[T](block: NingWSClient => Either[ResponseError, T]): Either[ResponseError, T] = {
+    withClient(block) match {
+      case Success(res) => res
+      case Failure(error) =>
+        Left(ResponseError("Request failed", getFullStackTrace(error), error.getMessage))
+    }
+  }
+
+  private def withClientRequest[T](block: NingWSClient => RequestResponse[T]): RequestResponse[T] = {
+    withClient(block) match {
+      case Success(res) => res
+      case Failure(error) =>
+        val statusMessage =
+          s"""
+             |Failed request:
+             |
+             |${getFullStackTrace(error)}
+          """.stripMargin
+        RequestResponse[T](None, statusMessage, hasError = true)
+    }
+  }
+
+  private def withClient[T](block: NingWSClient => T): Try[T] = {
+    val config = new NingAsyncHttpClientConfigBuilder(DefaultWSClientConfig()).build()
+    val clientConfig = new AsyncHttpClientConfig.Builder(config)
+      .setExecutorService(new ThreadPoolExecutor(0, 2, 30L, TimeUnit.SECONDS, new SynchronousQueue[Runnable]))
+      .build()
+    val client = new NingWSClient(clientConfig)
+    val result = Try(block(client))
+    client.close()
+    result
+  }
+
+  private def getFullStackTrace(throwableOpt: Throwable, accumulator: String = ""): String = {
+    Option(throwableOpt).map { throwable =>
+      val newAccumulator = s"$accumulator${Properties.lineSeparator}${throwable.getStackTraceString}"
+      getFullStackTrace(throwable.getCause, newAccumulator)
+    }.getOrElse(accumulator)
+  }
+
 }
