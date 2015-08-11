@@ -148,7 +148,7 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
   private def withClient[T](block: NingWSClient => T): Try[T] = {
     val config = new NingAsyncHttpClientConfigBuilder(DefaultWSClientConfig()).build()
     val clientConfig = new AsyncHttpClientConfig.Builder(config)
-      .setExecutorService(new ThreadPoolExecutor(0, 2, 30L, TimeUnit.SECONDS, new SynchronousQueue[Runnable]))
+      .setExecutorService(new ThreadPoolExecutor(5, 15, 30L, TimeUnit.SECONDS, new SynchronousQueue[Runnable]))
       .build()
     val client = new NingWSClient(clientConfig)
     val result = Try(block(client))
