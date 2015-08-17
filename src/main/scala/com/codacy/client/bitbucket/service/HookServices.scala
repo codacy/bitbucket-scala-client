@@ -11,7 +11,7 @@ class HookServices(client: BitbucketClient) {
     client.executePaginated(Request(servicesUrl, classOf[Seq[Webhook]]))
   }
 
-  def create(author: String, repo: String, description: String, hookUrl: String,events:Set[String]): RequestResponse[Webhook] = {
+  def create(author: String, repo: String, description: String, hookUrl: String, events:Set[String]): RequestResponse[Webhook] = {
     val servicesUrl = getServicesUrl(author, repo)
     val payload = Json.obj(
       "active"      -> true,
