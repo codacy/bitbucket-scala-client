@@ -1,8 +1,8 @@
 package com.codacy.client.bitbucket.service
 
 import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
-import com.codacy.client.bitbucket.{PullRequest, SimpleCommit}
-import play.api.libs.json.{JsNull, JsObject, Json}
+import com.codacy.client.bitbucket.{PullRequestComment, PullRequest, SimpleCommit}
+import play.api.libs.json._
 
 class PullRequestServices(client: BitbucketClient) {
 
@@ -66,6 +66,23 @@ class PullRequestServices(client: BitbucketClient) {
   def decline(owner: String, repository: String, prId: Long): RequestResponse[JsObject] = {
     val url = s"https://bitbucket.org/!api/2.0/repositories/$owner/$repository/pullrequests/$prId/decline"
     client.post(Request(url, classOf[JsObject]), JsNull)
+  }
+
+  def createComment(author: String, repo: String, prId: Int, commitUUID: String, body: String, file: Option[String], line: Option[Int]): RequestResponse[PullRequestComment] = {
+    val url = s"https://bitbucket.org/api/1.0/repositories/$author/$repo/pullrequests/$prId/comments"
+
+    val params = file.map(filename => "filename" -> JsString(filename)) ++
+      line.map(lineTo => "line_to" -> JsNumber(lineTo))
+
+    val values = JsObject(params.toSeq :+ "content" -> JsString(body) :+ "anchor" -> JsString(commitUUID.take(12)))
+
+    client.post(Request(url, classOf[PullRequestComment]), values)
+  }
+
+  def deleteComment(author: String, repo: String, commitUUID: String, pullRequestId: Int, commentId: Long): Unit = {
+    val url = s"https://bitbucket.org/api/1.0/repositories/$author/$repo/pullrequests/$pullRequestId/comments/$commentId"
+
+    client.delete(url)
   }
 
 }
