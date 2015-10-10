@@ -11,7 +11,7 @@ It is in a very early stage and all the contributions are welcome.
 
 Import on SBT:
 
-    "com.codacy" %% "bitbucket-scala-client" % "1.3.3"
+    "com.codacy" %% "bitbucket-scala-client" % "1.5.0"
 
 ### Creators
 
