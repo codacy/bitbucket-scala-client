@@ -48,7 +48,7 @@ object PullRequest {
       (__ \ "title").read[String] and
       (__ \ "description").read[String] and
       (__ \ "author" \ "username").read[String] and
-      (__ \ "author" \ "links" \ "avatar").read[Option[String]] and
+      (__ \ "author" \ "links" \ "avatar" \ "href").read[Option[String]] and
       (__ \ "state").read[String] and
       (__ \ "created_on").read[DateTime] and
       (__ \ "updated_on").read[DateTime] and
