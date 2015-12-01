@@ -14,7 +14,7 @@ class CommitServices(client: BitbucketClient) {
 
     val values = JsObject(params.toSeq :+ "content" -> JsString(body))
 
-    client.post(Request(url, classOf[CommitComment]), values)
+    client.postJson(Request(url, classOf[CommitComment]), values)
   }
 
   def deleteComment(author: String, repo: String, commit: String, commentId: Long): Unit = {

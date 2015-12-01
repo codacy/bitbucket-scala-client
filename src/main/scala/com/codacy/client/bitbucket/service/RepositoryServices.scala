@@ -33,7 +33,7 @@ class RepositoryServices(client: BitbucketClient) {
       "label" -> "Codacy Key"
     )
 
-    client.post(Request(url, classOf[SshKey]), values)
+    client.postJson(Request(url, classOf[SshKey]), values)
   }
 
 }

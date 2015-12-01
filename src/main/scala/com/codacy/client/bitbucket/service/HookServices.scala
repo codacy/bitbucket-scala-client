@@ -1,6 +1,6 @@
 package com.codacy.client.bitbucket.service
 
-import com.codacy.client.bitbucket.{Webhook, Service}
+import com.codacy.client.bitbucket.Webhook
 import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
 import play.api.libs.json.Json
 
@@ -19,7 +19,8 @@ class HookServices(client: BitbucketClient) {
       "url"         -> hookUrl,
       "events"      -> events
     )
-    client.post(Request(servicesUrl, classOf[Webhook]), payload)
+    
+    client.postJson(Request(servicesUrl, classOf[Webhook]), payload)
   }
 
   def delete(author: String, repo: String, uuid: String): RequestResponse[Boolean] = {

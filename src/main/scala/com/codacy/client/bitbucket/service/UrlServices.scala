@@ -9,7 +9,7 @@ class UrlServices(client: BitbucketClient) {
    * Post to a api url
    */
   def post(url: String): RequestResponse[JsObject] = {
-    client.post(Request(url, classOf[JsObject]), JsNull)
+    client.postJson(Request(url, classOf[JsObject]), JsNull)
   }
 
 }

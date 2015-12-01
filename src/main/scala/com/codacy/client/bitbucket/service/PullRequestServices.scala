@@ -45,12 +45,12 @@ class PullRequestServices(client: BitbucketClient) {
       )
     )
 
-    client.post(Request(url, classOf[JsObject]), payload)
+    client.postJson(Request(url, classOf[JsObject]), payload)
   }
 
   def postApprove(owner: String, repository: String, prId: Long): RequestResponse[JsObject] = {
     val url = s"https://bitbucket.org/!api/2.0/repositories/$owner/$repository/pullrequests/$prId/approve"
-    client.post(Request(url, classOf[JsObject]), JsNull)
+    client.postJson(Request(url, classOf[JsObject]), JsNull)
   }
 
   def deleteApprove(owner: String, repository: String, prId: Long): RequestResponse[Boolean] = {
@@ -60,12 +60,12 @@ class PullRequestServices(client: BitbucketClient) {
 
   def merge(owner: String, repository: String, prId: Long): RequestResponse[JsObject] = {
     val url = s"https://bitbucket.org/!api/2.0/repositories/$owner/$repository/pullrequests/$prId/merge"
-    client.post(Request(url, classOf[JsObject]), JsNull)
+    client.postJson(Request(url, classOf[JsObject]), JsNull)
   }
 
   def decline(owner: String, repository: String, prId: Long): RequestResponse[JsObject] = {
     val url = s"https://bitbucket.org/!api/2.0/repositories/$owner/$repository/pullrequests/$prId/decline"
-    client.post(Request(url, classOf[JsObject]), JsNull)
+    client.postJson(Request(url, classOf[JsObject]), JsNull)
   }
 
   def createComment(author: String, repo: String, prId: Int, commitUUID: String, body: String, file: Option[String], line: Option[Int]): RequestResponse[PullRequestComment] = {
@@ -76,7 +76,7 @@ class PullRequestServices(client: BitbucketClient) {
 
     val values = JsObject(params.toSeq :+ "content" -> JsString(body) :+ "anchor" -> JsString(commitUUID.take(12)))
 
-    client.post(Request(url, classOf[PullRequestComment]), values)
+    client.postJson(Request(url, classOf[PullRequestComment]), values)
   }
 
   def deleteComment(author: String, repo: String, commitUUID: String, pullRequestId: Int, commentId: Long): Unit = {
