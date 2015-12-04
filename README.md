@@ -11,7 +11,7 @@ This library is meant to support Codacy when interacting with Bitbucket.
 
 Import on SBT:
 
-    "com.codacy" %% "bitbucket-scala-client" % "1.5.1"
+    "com.codacy" %% "bitbucket-scala-client" % "1.6.1"
 
 ### Creators
 
