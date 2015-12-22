@@ -6,7 +6,6 @@ import java.util.concurrent.{SynchronousQueue, ThreadPoolExecutor, TimeUnit}
 import play.api.http.{ContentTypeOf, Writeable}
 import play.api.libs.json.{JsValue, Json, Reads}
 import play.api.libs.oauth._
-import play.api.libs.ws.DefaultWSClientConfig
 import play.api.libs.ws.ning.{NingAsyncHttpClientConfigBuilder, NingWSClient}
 import scala.concurrent.Await
 import scala.concurrent.duration.{Duration, SECONDS}
@@ -154,7 +153,7 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
   }
 
   private def withClient[T](block: NingWSClient => T): Try[T] = {
-    val config = new NingAsyncHttpClientConfigBuilder(DefaultWSClientConfig()).build()
+    val config = new NingAsyncHttpClientConfigBuilder().build()
     val clientConfig = new AsyncHttpClientConfig.Builder(config)
       .setExecutorService(new ThreadPoolExecutor(5, 15, 30L, TimeUnit.SECONDS, new SynchronousQueue[Runnable]))
       .build()
