@@ -6,6 +6,6 @@ object Dependencies {
   lazy val jodaTime = "joda-time" % "joda-time" % "2.7"
 
   // Play framework
-  lazy val playWS = "com.typesafe.play" %% "play-ws" % "2.4.6"
+  lazy val playWS = "com.typesafe.play" %% "play-ws" % "2.4.3"
 
 }
