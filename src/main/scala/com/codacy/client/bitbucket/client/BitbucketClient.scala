@@ -1,12 +1,14 @@
 package com.codacy.client.bitbucket.client
 
+import java.util.concurrent.{SynchronousQueue, ThreadPoolExecutor, TimeUnit}
+
 import com.codacy.client.bitbucket.util.HTTPStatusCodes
 import com.ning.http.client.AsyncHttpClientConfig
-import java.util.concurrent.{SynchronousQueue, ThreadPoolExecutor, TimeUnit}
 import play.api.http.{ContentTypeOf, Writeable}
 import play.api.libs.json.{JsValue, Json, Reads}
 import play.api.libs.oauth._
 import play.api.libs.ws.ning.{NingAsyncHttpClientConfigBuilder, NingWSClient}
+
 import scala.concurrent.Await
 import scala.concurrent.duration.{Duration, SECONDS}
 import scala.util.{Failure, Properties, Success, Try}
@@ -50,14 +52,13 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
   }
 
   /*
-   * Does an API post
+   * Does an API request
    */
-  private def post[D,T](request: Request[T], values: D)(implicit reader: Reads[T], writer: Writeable[D], contentType: ContentTypeOf[D]): RequestResponse[T] = withClientRequest { client =>
-
+  private def performRequest[D, T](method: String, request: Request[T], values: D)(implicit reader: Reads[T], writer: Writeable[D], contentType: ContentTypeOf[D]): RequestResponse[T] = withClientRequest { client =>
     val jpromise = client.url(request.url)
       .sign(requestSigner)
       .withFollowRedirects(follow = true)
-      .post(values)
+      .withMethod(method).withBody(values).execute()
     val result = Await.result(jpromise, requestTimeout)
 
     val value = if (Seq(HTTPStatusCodes.OK, HTTPStatusCodes.CREATED).contains(result.status)) {
@@ -78,11 +79,19 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
   }
 
   def postForm[T](request: Request[T], values: Map[String, Seq[String]])(implicit reader: Reads[T]): RequestResponse[T] = {
-    post(request, values)
+    performRequest("POST", request, values)
   }
 
   def postJson[T](request: Request[T], values: JsValue)(implicit reader: Reads[T]): RequestResponse[T] = {
-    post(request, values)
+    performRequest("POST", request, values)
+  }
+
+  def putForm[T](request: Request[T], values: Map[String, Seq[String]])(implicit reader: Reads[T]): RequestResponse[T] = {
+    performRequest("PUT", request, values)
+  }
+
+  def putJson[T](request: Request[T], values: JsValue)(implicit reader: Reads[T]): RequestResponse[T] = {
+    performRequest("PUT", request, values)
   }
 
   /* copy paste from post ... */
