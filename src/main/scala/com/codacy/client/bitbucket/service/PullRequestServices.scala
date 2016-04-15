@@ -68,15 +68,22 @@ class PullRequestServices(client: BitbucketClient) {
     client.postJson(Request(url, classOf[JsObject]), JsNull)
   }
 
-  def createComment(author: String, repo: String, prId: Int, commitUUID: String, body: String, file: Option[String], line: Option[Int]): RequestResponse[PullRequestComment] = {
+  private[this] def postNewComment(author: String, repo: String, prId: Int, values: JsObject): RequestResponse[PullRequestComment] = {
     val url = s"https://bitbucket.org/api/1.0/repositories/$author/$repo/pullrequests/$prId/comments"
+    client.postJson(Request(url, classOf[PullRequestComment]), values)
+  }
 
+  def createPullRequestComment(author: String, repo: String, prId: Int, content: String): RequestResponse[PullRequestComment] = {
+    val values = Json.obj("content" -> JsString(content))
+    postNewComment(author, repo, prId, values)
+  }
+
+  def createComment(author: String, repo: String, prId: Int, commitUUID: String, body: String, file: Option[String], line: Option[Int]): RequestResponse[PullRequestComment] = {
     val params = file.map(filename => "filename" -> JsString(filename)) ++
       line.map(lineTo => "line_to" -> JsNumber(lineTo))
 
     val values = JsObject(params.toSeq :+ "content" -> JsString(body) :+ "anchor" -> JsString(commitUUID.take(12)))
-
-    client.postJson(Request(url, classOf[PullRequestComment]), values)
+    postNewComment(author, repo, prId, values = values)
   }
 
   def deleteComment(author: String, repo: String, commitUUID: String, pullRequestId: Int, commentId: Long): Unit = {
