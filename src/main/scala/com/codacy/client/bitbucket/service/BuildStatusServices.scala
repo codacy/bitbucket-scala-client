@@ -24,7 +24,7 @@ class BuildStatusServices(client: BitbucketClient) {
   def createBuildStatus(owner: String, repository: String, commit: String, buildStatus: BuildStatus): RequestResponse[BuildStatus] = {
     val url = s"https://bitbucket.org/!api/2.0/repositories/$owner/$repository/commit/$commit/statuses/build"
 
-    val values = Map("state" -> Seq(buildStatus.state), "key" -> Seq(buildStatus.key),
+    val values = Map("state" -> Seq(buildStatus.state.toString), "key" -> Seq(buildStatus.key),
       "name" -> Seq(buildStatus.name), "url" -> Seq(buildStatus.url),
       "description" -> Seq(buildStatus.description))
 
