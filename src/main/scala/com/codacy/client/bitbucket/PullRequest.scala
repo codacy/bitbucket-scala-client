@@ -58,8 +58,9 @@ object PullRequest {
       (__ \ "destination" \ "repository" \ "full_name").read[String] and
       (__ \ "destination" \ "branch" \ "name").read[String] and
       (__ \ "destination" \ "commit" \ "hash").read[String] and
+      // TODO: (__ \ "destination" \ "commit" \ "hash").read[Option[String]] and
       (__ \ "links").read[Map[String, Map[String, String]]].map(parseLinks)
-    )(PullRequest.apply _)
+    ) (PullRequest.apply _)
 
   private def parseLinks(links: Map[String, Map[String, String]]): Seq[ApiUrl] = {
     (for {

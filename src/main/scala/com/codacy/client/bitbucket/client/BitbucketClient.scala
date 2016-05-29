@@ -26,8 +26,8 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
    */
   def execute[T](request: Request[T])(implicit reader: Reads[T]): RequestResponse[T] = {
     get(request.url) match {
-      case Right(json) => RequestResponse(json.asOpt[T])
-      case Left(error) => RequestResponse(None, error.detail, hasError = true)
+      case Right(json) => json.validate[T].fold(_ => FailedResponse(s"Failed to parse json: $json"), a => SuccessfulResponse(a))
+      case Left(error) => FailedResponse(error.detail)
     }
   }
 
@@ -40,14 +40,14 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
         val nextPage = (json \ "next").asOpt[String]
         val nextRepos = nextPage.map {
           nextUrl =>
-            executePaginated(Request(nextUrl, request.classType)).value.getOrElse(Seq())
-        }.getOrElse(Seq())
+            executePaginated(Request(nextUrl, request.classType))
+        }.getOrElse(SuccessfulResponse(Seq.empty))
 
-        val values = (json \ "values").asOpt[Seq[T]].getOrElse(Seq())
-        RequestResponse(Some(values ++ nextRepos))
+        val values = (json \ "values").validate[Seq[T]].fold(_ => FailedResponse(s"Failed to parse json: $json"), a => SuccessfulResponse(a))
+        RequestResponse.apply(values, nextRepos)
 
       case Left(error) =>
-        RequestResponse[Seq[T]](None, error.detail, hasError = true)
+        FailedResponse(error.detail)
     }
   }
 
@@ -66,13 +66,13 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
 
       val jsValue = parseJson(body)
       jsValue match {
-        case Right(responseObj) =>
-          RequestResponse(responseObj.asOpt[T])
+        case Right(json) =>
+          json.validate[T].fold(_ => FailedResponse(s"Failed to parse json: $json"), a => SuccessfulResponse(a))
         case Left(message) =>
-          RequestResponse[T](None, message = message.detail, hasError = true)
+          FailedResponse(message.detail)
       }
     } else {
-      RequestResponse[T](None, result.statusText, hasError = true)
+      FailedResponse(result.statusText)
     }
 
     value
@@ -103,9 +103,9 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
     val result = Await.result(jpromise, requestTimeout)
 
     val value = if (Seq(HTTPStatusCodes.OK, HTTPStatusCodes.CREATED, HTTPStatusCodes.NO_CONTENT).contains(result.status)) {
-      RequestResponse(Option(true))
+      SuccessfulResponse(true)
     } else {
-      RequestResponse[Boolean](None, result.statusText, hasError = true)
+      FailedResponse(result.statusText)
     }
 
     value
@@ -157,7 +157,7 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
              |
              |${getFullStackTrace(error)}
           """.stripMargin
-        RequestResponse[T](None, statusMessage, hasError = true)
+        FailedResponse(statusMessage)
     }
   }
 
