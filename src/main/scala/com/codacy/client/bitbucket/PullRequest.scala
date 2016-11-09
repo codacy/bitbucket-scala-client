@@ -8,7 +8,7 @@ case class PullRequest(id: Long, title: String, description: String,
                        authorUsername: String, authorAvatar: Option[String],
                        state: String, created_on: DateTime, updated_on: DateTime,
                        sourceRepository: String, sourceBranch: String, sourceCommit: String,
-                       destRepository: String, destBranch: String, destCommit: String,
+                       destRepository: String, destBranch: String, destCommit: Option[String],
                        apiUrls: Seq[ApiUrl]) {
   val url = s"https://bitbucket.org/$destRepository/pull-request/$id"
 }
@@ -57,7 +57,7 @@ object PullRequest {
       (__ \ "source" \ "commit" \ "hash").read[String] and
       (__ \ "destination" \ "repository" \ "full_name").read[String] and
       (__ \ "destination" \ "branch" \ "name").read[String] and
-      (__ \ "destination" \ "commit" \ "hash").read[String] and
+      (__ \ "destination" \ "commit" \ "hash").readNullable[String] and
       // TODO: (__ \ "destination" \ "commit" \ "hash").read[Option[String]] and
       (__ \ "links").read[Map[String, Map[String, String]]].map(parseLinks)
     ) (PullRequest.apply _)
