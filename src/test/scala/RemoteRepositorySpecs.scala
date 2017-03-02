@@ -265,4 +265,126 @@ class RemoteRepositorySpecs extends FlatSpec with Matchers {
 
     parsed shouldBe true
   }
+
+  it should "successfully parse a JSON with null author while getting info for PRs" in {
+
+    val input =
+      """
+        |{
+        |  "description": "",
+        |  "links": {
+        |    "decline": {
+        |      "href": "https://bitbucket.org/wtv"
+        |    },
+        |    "commits": {
+        |      "href": "https://bitbucket.org/wtv"
+        |    },
+        |    "self": {
+        |      "href": "https://bitbucket.org/wtv"
+        |    },
+        |    "comments": {
+        |      "href": "https://bitbucket.org/wtv"
+        |    },
+        |    "merge": {
+        |      "href": "https://bitbucket.org/wtv"
+        |    },
+        |    "html": {
+        |      "href": "https://bitbucket.org/wtv"
+        |    },
+        |    "activity": {
+        |      "href": "https://bitbucket.org/wtv"
+        |    },
+        |    "diff": {
+        |      "href": "https://bitbucket.org/wtv"
+        |    },
+        |    "approve": {
+        |      "href": "https://bitbucket.org/wtv"
+        |    },
+        |    "statuses": {
+        |      "href": "https://bitbucket.org/wtv"
+        |    }
+        |  },
+        |  "title": "Potatos",
+        |  "close_source_branch": true,
+        |  "merge_commit": null,
+        |  "destination": {
+        |    "commit": {
+        |      "hash": "aaaaaaaaaaaa",
+        |      "links": {
+        |        "self": {
+        |          "href": "https://bitbucket.org/wtv"
+        |        }
+        |      }
+        |    },
+        |    "repository": {
+        |      "links": {
+        |        "self": {
+        |          "href": "https://bitbucket.org/wtv"
+        |        },
+        |        "html": {
+        |          "href": "https://bitbucket.org/wtv"
+        |        },
+        |        "avatar": {
+        |          "href": "https://bitbucket.org/wtv"
+        |        }
+        |      },
+        |      "type": "repository",
+        |      "name": "my-potatos",
+        |      "full_name": "codacy/my-potatos",
+        |      "uuid": "{70bb8ec5-0c14-4964-aaaa-ebb4b2235ecf}"
+        |    },
+        |    "branch": {
+        |      "name": "master"
+        |    }
+        |  },
+        |  "state": "OPEN",
+        |  "closed_by": null,
+        |  "source": {
+        |    "commit": {
+        |      "hash": "bbbbbbbbbbbb",
+        |      "links": {
+        |        "self": {
+        |          "href": "https://bitbucket.org/wtv"
+        |        }
+        |      }
+        |    },
+        |    "repository": {
+        |      "links": {
+        |        "self": {
+        |          "href": "https://bitbucket.org/wtv"
+        |        },
+        |        "html": {
+        |          "href": "https://bitbucket.org/wtv"
+        |        },
+        |        "avatar": {
+        |          "href": "https://bitbucket.org/wtv"
+        |        }
+        |      },
+        |      "type": "repository",
+        |      "name": "my-potatos",
+        |      "full_name": "codacy/my-potatos",
+        |      "uuid": "{c08af10a-b49f-4a7a-9edb-6a66b3495a6f}"
+        |    },
+        |    "branch": {
+        |      "name": "add-more-potatos"
+        |    }
+        |  },
+        |  "comment_count": 0,
+        |  "author": null,
+        |  "created_on": "2016-04-05T14:35:41.678131+00:00",
+        |  "reason": "",
+        |  "updated_on": "2016-11-01T14:25:45.932586+00:00",
+        |  "type": "pullrequest",
+        |  "id": 333,
+        |  "task_count": 0
+        |}
+      """.stripMargin
+    val json = Json.parse(input)
+    val value = json.validate[PullRequest]
+
+    val parsed = value.fold(e => false, r => r.destCommit.isDefined)
+
+    parsed shouldBe true
+
+  }
 }

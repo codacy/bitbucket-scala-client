@@ -5,7 +5,7 @@ import java.util.concurrent.{SynchronousQueue, ThreadPoolExecutor, TimeUnit}
 import com.codacy.client.bitbucket.util.HTTPStatusCodes
 import com.ning.http.client.AsyncHttpClientConfig
 import play.api.http.{ContentTypeOf, Writeable}
-import play.api.libs.json.{JsValue, Json, Reads}
+import play.api.libs.json._
 import play.api.libs.oauth._
 import play.api.libs.ws.ning.{NingAsyncHttpClientConfigBuilder, NingWSClient}
 
@@ -67,7 +67,19 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
       val jsValue = parseJson(body)
       jsValue match {
         case Right(json) =>
-          json.validate[T].fold(_ => FailedResponse(s"Failed to parse json: $json"), a => SuccessfulResponse(a))
+          json.validate[T] match {
+            case s: JsSuccess[T] =>
+              SuccessfulResponse(s.value)
+            case e: JsError =>
+              val msg =
+                s"""
+                   |Failed to validate json:
+                   |$json
+                   |JsError errors:
+                   |${e.errors.mkString(System.lineSeparator)}
+                """.stripMargin
+              FailedResponse(msg)
+          }
         case Left(message) =>
           FailedResponse(message.detail)
       }
@@ -129,14 +141,20 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
   }
 
   private def parseJson(input: String): Either[ResponseError, JsValue] = {
-    val json = Json.parse(input)
+    Try {
+      val json = Json.parse(input)
+      val errorOpt = (json \ "error").asOpt[ResponseError]
 
-    val errorOpt = (json \ "error").asOpt[ResponseError]
-
-    errorOpt.map {
-      error =>
-        Left(error)
-    }.getOrElse(Right(json))
+      errorOpt.map {
+        error =>
+          Left(error)
+      }.getOrElse(Right(json))
+    } match {
+      case Success(jsValue) =>
+        jsValue
+      case Failure(e) =>
+        Left(ResponseError("Failed to parse json",e.getStackTrace.mkString(System.lineSeparator),e.getMessage))
+    }
   }
 
   private def withClientEither[T](block: NingWSClient => Either[ResponseError, T]): Either[ResponseError, T] = {
