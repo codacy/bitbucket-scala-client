@@ -13,7 +13,7 @@ class PullRequestServices(client: BitbucketClient) {
    *
    */
   def getPullRequests(owner: String, repository: String, states: Seq[String] = Seq("OPEN")): RequestResponse[Seq[PullRequest]] = {
-    val url = s"https://bitbucket.org/!api/2.0/repositories/$owner/$repository/pullrequests?state=${states.mkString("&state=")}"
+    val url = s"https://bitbucket.org/!api/2.0/repositories/$owner/$repository/pullrequests?pagelen=50&state=${states.mkString("&state=")}"
 
     client.executePaginated(Request(url, classOf[Seq[PullRequest]]))
   }
@@ -23,7 +23,7 @@ class PullRequestServices(client: BitbucketClient) {
    *
    */
   def getPullRequestCommits(owner: String, repository: String, prId: Long): RequestResponse[Seq[SimpleCommit]] = {
-    val url = s"https://bitbucket.org/!api/2.0/repositories/$owner/$repository/pullrequests/$prId/commits"
+    val url = s"https://bitbucket.org/!api/2.0/repositories/$owner/$repository/pullrequests/$prId/commits?pagelen=100"
 
     client.executePaginated(Request(url, classOf[Seq[SimpleCommit]]))
   }
