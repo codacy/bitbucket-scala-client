@@ -1,8 +1,10 @@
 package com.codacy.client.bitbucket.client
 
+import java.net.URI
 import java.util.concurrent.{SynchronousQueue, ThreadPoolExecutor, TimeUnit}
 
 import com.codacy.client.bitbucket.util.HTTPStatusCodes
+import com.codacy.client.bitbucket.util.Implicits.URIQueryParam
 import com.ning.http.client.AsyncHttpClientConfig
 import play.api.http.{ContentTypeOf, Writeable}
 import play.api.libs.json._
@@ -26,7 +28,7 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
    */
   def execute[T](request: Request[T])(implicit reader: Reads[T]): RequestResponse[T] = {
     get(request.url) match {
-      case Right(json) => json.validate[T].fold(_ => FailedResponse(s"Failed to parse json: $json"), a => SuccessfulResponse(a))
+      case Right(json) => json.validate[T].fold(e => FailedResponse(s"Failed to parse json ($e): $json"), a => SuccessfulResponse(a))
       case Left(error) => FailedResponse(error.detail)
     }
   }
@@ -35,16 +37,33 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
    * Does a paginated API request and parses the json output into a sequence of classes
    */
   def executePaginated[T](request: Request[Seq[T]])(implicit reader: Reads[T]): RequestResponse[Seq[T]] = {
+    val FIRST_PAGE = 1
+
+    def extractValues(json: JsValue): RequestResponse[Seq[T]] =
+      (json \ "values").validate[Seq[T]].fold(e => FailedResponse(s"Failed to parse json ($e): $json"), a => SuccessfulResponse(a))
+
     get(request.url) match {
       case Right(json) =>
-        val nextPage = (json \ "next").asOpt[String]
-        val nextRepos = nextPage.map {
-          nextUrl =>
-            executePaginated(Request(nextUrl, request.classType))
-        }.getOrElse(SuccessfulResponse(Seq.empty))
+        val nextPages = (for {
+          size <- (json \ "size").asOpt[Double]
+          pagelen <- (json \ "pagelen").asOpt[Double]
+        } yield {
+          val lastPage = math.ceil(size / pagelen).toInt
+          (FIRST_PAGE + 1 to lastPage).par.map { page =>
+            val nextUrl = new URI(request.url).addQuery(s"page=$page").toString
+            get(nextUrl) match {
+              case Right(json) => extractValues(json)
+              case Left(error) => FailedResponse(error.detail)
+            }
+          }.to[Seq]
+        }).getOrElse(Seq(SuccessfulResponse(Seq.empty)))
 
-        val values = (json \ "values").validate[Seq[T]].fold(_ => FailedResponse(s"Failed to parse json: $json"), a => SuccessfulResponse(a))
-        RequestResponse.apply(values, nextRepos)
+        val values = extractValues(json)
+
+        (values +: nextPages).foldLeft[RequestResponse[Seq[T]]](SuccessfulResponse(Seq.empty[T])) {
+          (a, b) =>
+            RequestResponse.apply(a, b)
+        }
 
       case Left(error) =>
         FailedResponse(error.detail)
@@ -153,7 +172,7 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
       case Success(jsValue) =>
         jsValue
       case Failure(e) =>
-        Left(ResponseError("Failed to parse json",e.getStackTrace.mkString(System.lineSeparator),e.getMessage))
+        Left(ResponseError("Failed to parse json", e.getStackTrace.mkString(System.lineSeparator), e.getMessage))
     }
   }
 
