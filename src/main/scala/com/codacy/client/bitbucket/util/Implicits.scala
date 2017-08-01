@@ -18,7 +18,7 @@ object Implicits {
 
   implicit class URIQueryParam(uri: URI) {
     def addQuery(q: String): URI = {
-      val newQuery = if (uri.getQuery == null) {
+      val newQuery = if (Option.apply(uri.getQuery).isEmpty) {
         q
       } else {
         uri.getQuery + "&" + q
