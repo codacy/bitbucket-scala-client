@@ -1,7 +1,7 @@
 package com.codacy.client.bitbucket.service
 
 import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
-import com.codacy.client.bitbucket.{PullRequestComment, PullRequest, SimpleCommit}
+import com.codacy.client.bitbucket.{PullRequest, PullRequestComment, SimpleCommit, SimplePullRequestComment}
 import play.api.libs.json._
 
 class PullRequestServices(client: BitbucketClient) {
@@ -91,6 +91,12 @@ class PullRequestServices(client: BitbucketClient) {
     val url = s"https://bitbucket.org/api/1.0/repositories/$author/$repo/pullrequests/$pullRequestId/comments/$commentId"
 
     client.delete(url)
+  }
+
+  def listComments(author: String, repo: String, pullRequestId: Int): RequestResponse[Seq[SimplePullRequestComment]] = {
+    val url = s"https://bitbucket.org/!api/1.0/repositories/$author/$repo/pullrequests/$pullRequestId/comments"
+
+    client.execute(Request(url, classOf[Seq[SimplePullRequestComment]]))
   }
 
 }
