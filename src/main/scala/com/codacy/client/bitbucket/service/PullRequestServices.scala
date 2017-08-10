@@ -78,7 +78,8 @@ class PullRequestServices(client: BitbucketClient) {
     postNewComment(author, repo, prId, values)
   }
 
-  def createComment(author: String, repo: String, prId: Int, commitUUID: String, body: String, file: Option[String], line: Option[Int]): RequestResponse[PullRequestComment] = {
+  def createLineComment(author: String, repo: String, prId: Int, commitUUID: String, body: String,
+                        file: Option[String], line: Option[Int]): RequestResponse[PullRequestComment] = {
     val params = file.map(filename => "filename" -> JsString(filename)) ++
       line.map(lineTo => "line_to" -> JsNumber(lineTo))
 
