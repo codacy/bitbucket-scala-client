@@ -1,6 +1,7 @@
 package com.codacy.client.bitbucket.service
 
 import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
+import com.codacy.client.bitbucket.util.CommitHelper
 import com.codacy.client.bitbucket.{PullRequest, PullRequestComment, SimpleCommit, SimplePullRequestComment}
 import play.api.libs.json._
 
@@ -83,7 +84,7 @@ class PullRequestServices(client: BitbucketClient) {
     val params = file.map(filename => "filename" -> JsString(filename)) ++
       line.map(lineTo => "line_to" -> JsNumber(lineTo))
 
-    val values = JsObject(params.toSeq :+ "content" -> JsString(body) :+ "anchor" -> JsString(commitUUID.take(12)))
+    val values = JsObject(params.toSeq :+ "content" -> JsString(body) :+ "anchor" -> JsString(CommitHelper.anchor(commitUUID)))
     postNewComment(author, repo, prId, values = values)
   }
 
