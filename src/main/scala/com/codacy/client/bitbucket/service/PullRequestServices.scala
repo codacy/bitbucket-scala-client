@@ -1,7 +1,8 @@
 package com.codacy.client.bitbucket.service
 
 import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
-import com.codacy.client.bitbucket.{PullRequestComment, PullRequest, SimpleCommit}
+import com.codacy.client.bitbucket.util.CommitHelper
+import com.codacy.client.bitbucket.{PullRequest, PullRequestComment, SimpleCommit, SimplePullRequestComment}
 import play.api.libs.json._
 
 class PullRequestServices(client: BitbucketClient) {
@@ -78,11 +79,12 @@ class PullRequestServices(client: BitbucketClient) {
     postNewComment(author, repo, prId, values)
   }
 
-  def createComment(author: String, repo: String, prId: Int, commitUUID: String, body: String, file: Option[String], line: Option[Int]): RequestResponse[PullRequestComment] = {
+  def createLineComment(author: String, repo: String, prId: Int, commitUUID: String, body: String,
+                        file: Option[String], line: Option[Int]): RequestResponse[PullRequestComment] = {
     val params = file.map(filename => "filename" -> JsString(filename)) ++
       line.map(lineTo => "line_to" -> JsNumber(lineTo))
 
-    val values = JsObject(params.toSeq :+ "content" -> JsString(body) :+ "anchor" -> JsString(commitUUID.take(12)))
+    val values = JsObject(params.toSeq :+ "content" -> JsString(body) :+ "anchor" -> JsString(CommitHelper.anchor(commitUUID)))
     postNewComment(author, repo, prId, values = values)
   }
 
@@ -90,6 +92,12 @@ class PullRequestServices(client: BitbucketClient) {
     val url = s"https://bitbucket.org/api/1.0/repositories/$author/$repo/pullrequests/$pullRequestId/comments/$commentId"
 
     client.delete(url)
+  }
+
+  def listComments(author: String, repo: String, pullRequestId: Int): RequestResponse[Seq[SimplePullRequestComment]] = {
+    val url = s"https://bitbucket.org/!api/1.0/repositories/$author/$repo/pullrequests/$pullRequestId/comments"
+
+    client.execute(Request(url, classOf[Seq[SimplePullRequestComment]]))
   }
 
 }
