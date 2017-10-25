@@ -19,8 +19,19 @@ class HookServices(client: BitbucketClient) {
       "url"         -> hookUrl,
       "events"      -> events
     )
-    
     client.postJson(Request(servicesUrl, classOf[Webhook]), payload)
+  }
+
+  def update(author: String, repo: String, uuid: String,
+    active: Boolean, description: String, hookUrl: String, events:Set[String]): RequestResponse[Webhook] = {
+    val servicesUrl = getServicesUrl(author, repo)
+    val payload = Json.obj(
+      "active"      -> active,
+      "description" -> description,
+      "url"         -> hookUrl,
+      "events"      -> events
+    )
+    client.putJson(Request(s"$servicesUrl/$uuid", classOf[Webhook]), payload)
   }
 
   def delete(author: String, repo: String, uuid: String): RequestResponse[Boolean] = {
