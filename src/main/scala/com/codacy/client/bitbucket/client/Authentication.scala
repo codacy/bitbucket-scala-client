@@ -3,12 +3,21 @@ package com.codacy.client.bitbucket.client
 import play.api.libs.oauth.{ConsumerKey, OAuthCalculator, RequestToken}
 import play.api.libs.ws.{WSAuthScheme, WSRequest}
 
+/**
+  * Handles request authentication.
+  * Provides several different authentication options.
+  *
+  * @author - Robertas Zamblauskas
+  */
 object Authentication {
 
   sealed trait Credentials
 
   case class OAuthCredentials(key: String, secretKey: String, token: String, secretToken: String) extends Credentials
 
+  /**
+    * Your username and password | app password.
+    */
   case class BasicAuthCredentials(username: String, password: String) extends Credentials
 
 
@@ -38,6 +47,9 @@ object Authentication {
     def authenticate(req: WSRequest): WSRequest = req.withAuth(credentials.username, credentials.password, WSAuthScheme.BASIC)
   }
 
+  /**
+    * Provide nicer syntax for authentication.
+    */
   implicit class WsRequestExtensions(val req: WSRequest) extends AnyVal {
     def authenticate(authenticator: Authenticator): WSRequest = authenticator.authenticate(req)
   }
