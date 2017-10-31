@@ -11,7 +11,7 @@ class RepositoryServices(client: BitbucketClient) {
    * Use this if you're looking for a full list of all of the repositories associated with a user
    */
   def getRepositories: RequestResponse[Seq[SimpleRepository]] = {
-    client.execute(Request(s"https://bitbucket.org/!api/1.0/user/repositories", classOf[Seq[SimpleRepository]]))
+    client.execute(Request(s"https://bitbucket.org/api/1.0/user/repositories", classOf[Seq[SimpleRepository]]))
   }
 
   /*
@@ -19,14 +19,14 @@ class RepositoryServices(client: BitbucketClient) {
    * if the caller is authenticated and is authorized to view the repository.
    */
   def getRepositories(username: String): RequestResponse[Seq[Repository]] = {
-    client.executePaginated(Request(s"https://bitbucket.org/!api/2.0/repositories/$username", classOf[Seq[Repository]]))
+    client.executePaginated(Request(s"https://bitbucket.org/api/2.0/repositories/$username", classOf[Seq[Repository]]))
   }
 
   /*
    * Creates a ssh key
    */
   def createKey(username: String, repo: String, key: String): RequestResponse[SshKey] = {
-    val url = s"https://bitbucket.org/!api/1.0/repositories/$username/$repo/deploy-keys"
+    val url = s"https://bitbucket.org/api/1.0/repositories/$username/$repo/deploy-keys"
 
     val values = Json.obj(
       "key" -> key,

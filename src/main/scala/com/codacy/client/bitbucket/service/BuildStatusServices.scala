@@ -11,7 +11,7 @@ class BuildStatusServices(client: BitbucketClient) {
    *
    */
   def getBuildStatus(owner: String, repository: String, commit: String, key: String): RequestResponse[BuildStatus] = {
-    val url = s"https://bitbucket.org/!api/2.0/repositories/$owner/$repository/commit/$commit/statuses/build/$key"
+    val url = s"https://bitbucket.org/api/2.0/repositories/$owner/$repository/commit/$commit/statuses/build/$key"
 
     client.execute(Request(url, classOf[BuildStatus]))
   }
@@ -22,7 +22,7 @@ class BuildStatusServices(client: BitbucketClient) {
    *
    */
   def createBuildStatus(owner: String, repository: String, commit: String, buildStatus: BuildStatus): RequestResponse[BuildStatus] = {
-    val url = s"https://bitbucket.org/!api/2.0/repositories/$owner/$repository/commit/$commit/statuses/build"
+    val url = s"https://bitbucket.org/api/2.0/repositories/$owner/$repository/commit/$commit/statuses/build"
 
     val values = Map("state" -> Seq(buildStatus.state.toString), "key" -> Seq(buildStatus.key),
       "name" -> Seq(buildStatus.name), "url" -> Seq(buildStatus.url),
@@ -36,7 +36,7 @@ class BuildStatusServices(client: BitbucketClient) {
  *
  */
   def updateBuildStatus(owner: String, repository: String, commit: String, buildStatus: BuildStatus): RequestResponse[BuildStatus] = {
-    val url = s"https://bitbucket.org/!api/2.0/repositories/$owner/$repository/commit/$commit/statuses/build/${buildStatus.key}"
+    val url = s"https://bitbucket.org/api/2.0/repositories/$owner/$repository/commit/$commit/statuses/build/${buildStatus.key}"
 
     val payload = Json.obj(
       "state" -> buildStatus.state,

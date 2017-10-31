@@ -14,7 +14,7 @@ class PullRequestServices(client: BitbucketClient) {
    *
    */
   def getPullRequests(owner: String, repository: String, states: Seq[String] = Seq("OPEN")): RequestResponse[Seq[PullRequest]] = {
-    val url = s"https://bitbucket.org/!api/2.0/repositories/$owner/$repository/pullrequests?pagelen=50&state=${states.mkString("&state=")}"
+    val url = s"https://bitbucket.org/api/2.0/repositories/$owner/$repository/pullrequests?pagelen=50&state=${states.mkString("&state=")}"
 
     client.executePaginated(Request(url, classOf[Seq[PullRequest]]))
   }
@@ -24,13 +24,13 @@ class PullRequestServices(client: BitbucketClient) {
    *
    */
   def getPullRequestCommits(owner: String, repository: String, prId: Long): RequestResponse[Seq[SimpleCommit]] = {
-    val url = s"https://bitbucket.org/!api/2.0/repositories/$owner/$repository/pullrequests/$prId/commits?pagelen=100"
+    val url = s"https://bitbucket.org/api/2.0/repositories/$owner/$repository/pullrequests/$prId/commits?pagelen=100"
 
     client.executePaginated(Request(url, classOf[Seq[SimpleCommit]]))
   }
 
   def create(owner: String, repository: String, title: String, sourceBranch: String, destinationBranch: String): RequestResponse[JsObject] = {
-    val url = s"https://bitbucket.org/!api/2.0/repositories/$owner/$repository/pullrequests"
+    val url = s"https://bitbucket.org/api/2.0/repositories/$owner/$repository/pullrequests"
 
     val payload = Json.obj(
       "title" -> title,
@@ -50,22 +50,22 @@ class PullRequestServices(client: BitbucketClient) {
   }
 
   def postApprove(owner: String, repository: String, prId: Long): RequestResponse[JsObject] = {
-    val url = s"https://bitbucket.org/!api/2.0/repositories/$owner/$repository/pullrequests/$prId/approve"
+    val url = s"https://bitbucket.org/api/2.0/repositories/$owner/$repository/pullrequests/$prId/approve"
     client.postJson(Request(url, classOf[JsObject]), JsNull)
   }
 
   def deleteApprove(owner: String, repository: String, prId: Long): RequestResponse[Boolean] = {
-    val url = s"https://bitbucket.org/!api/2.0/repositories/$owner/$repository/pullrequests/$prId/approve"
+    val url = s"https://bitbucket.org/api/2.0/repositories/$owner/$repository/pullrequests/$prId/approve"
     client.delete(url)
   }
 
   def merge(owner: String, repository: String, prId: Long): RequestResponse[JsObject] = {
-    val url = s"https://bitbucket.org/!api/2.0/repositories/$owner/$repository/pullrequests/$prId/merge"
+    val url = s"https://bitbucket.org/api/2.0/repositories/$owner/$repository/pullrequests/$prId/merge"
     client.postJson(Request(url, classOf[JsObject]), JsNull)
   }
 
   def decline(owner: String, repository: String, prId: Long): RequestResponse[JsObject] = {
-    val url = s"https://bitbucket.org/!api/2.0/repositories/$owner/$repository/pullrequests/$prId/decline"
+    val url = s"https://bitbucket.org/api/2.0/repositories/$owner/$repository/pullrequests/$prId/decline"
     client.postJson(Request(url, classOf[JsObject]), JsNull)
   }
 
@@ -95,7 +95,7 @@ class PullRequestServices(client: BitbucketClient) {
   }
 
   def listComments(author: String, repo: String, pullRequestId: Int): RequestResponse[Seq[SimplePullRequestComment]] = {
-    val url = s"https://bitbucket.org/!api/1.0/repositories/$author/$repo/pullrequests/$pullRequestId/comments"
+    val url = s"https://bitbucket.org/api/1.0/repositories/$author/$repo/pullrequests/$pullRequestId/comments"
 
     client.execute(Request(url, classOf[Seq[SimplePullRequestComment]]))
   }

@@ -1,27 +1,26 @@
 package com.codacy.client.bitbucket.client
 
 import java.net.URI
-import java.util.concurrent.{SynchronousQueue, ThreadPoolExecutor, TimeUnit}
 
+import com.codacy.client.bitbucket.client.Authentication._
 import com.codacy.client.bitbucket.util.HTTPStatusCodes
 import com.codacy.client.bitbucket.util.Implicits.URIQueryParam
 import com.ning.http.client.AsyncHttpClientConfig
 import play.api.http.{ContentTypeOf, Writeable}
 import play.api.libs.json._
-import play.api.libs.oauth._
 import play.api.libs.ws.ning.{NingAsyncHttpClientConfigBuilder, NingWSClient}
 
 import scala.concurrent.Await
 import scala.concurrent.duration.{Duration, SECONDS}
 import scala.util.{Failure, Properties, Success, Try}
 
-class BitbucketClient(key: String, secretKey: String, token: String, secretToken: String) {
 
-  private lazy val KEY = ConsumerKey(key, secretKey)
-  private lazy val TOKEN = RequestToken(token, secretToken)
+
+class BitbucketClient(credentials: Credentials) {
 
   private lazy val requestTimeout = Duration(10, SECONDS)
-  private lazy val requestSigner = OAuthCalculator(KEY, TOKEN)
+
+  private lazy val authenticator = Authenticator.fromCredentials(credentials)
 
   /*
    * Does an API request and parses the json output into a class
@@ -75,7 +74,7 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
    */
   private def performRequest[D, T](method: String, request: Request[T], values: D)(implicit reader: Reads[T], writer: Writeable[D], contentType: ContentTypeOf[D]): RequestResponse[T] = withClientRequest { client =>
     val jpromise = client.url(request.url)
-      .sign(requestSigner)
+      .authenticate(authenticator)
       .withFollowRedirects(follow = true)
       .withMethod(method).withBody(values).execute()
     val result = Await.result(jpromise, requestTimeout)
@@ -128,7 +127,7 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
   /* copy paste from post ... */
   def delete[T](url: String): RequestResponse[Boolean] = withClientRequest { client =>
     val jpromise = client.url(url)
-      .sign(requestSigner)
+      .authenticate(authenticator)
       .withFollowRedirects(follow = true)
       .delete()
     val result = Await.result(jpromise, requestTimeout)
@@ -144,7 +143,7 @@ class BitbucketClient(key: String, secretKey: String, token: String, secretToken
 
   private def get(url: String): Either[ResponseError, JsValue] = withClientEither { client =>
     val jpromise = client.url(url)
-      .sign(requestSigner)
+      .authenticate(authenticator)
       .withFollowRedirects(follow = true)
       .get()
     val result = Await.result(jpromise, requestTimeout)
