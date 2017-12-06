@@ -11,7 +11,10 @@ case class Repository(name: String, full_name: String, description: String, scm:
 
 object Repository {
   val dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSZZ"
+  val dateFormatWithoutMillis = "yyyy-MM-dd'T'HH:mm:ssZZ"
+
   implicit val jodaDateTimeReads = Reads.jodaDateReads(dateFormat)
+    .orElse(Reads.jodaDateReads(dateFormatWithoutMillis))
 
   implicit val reader: Reads[Repository] = {
     ((__ \ "name").read[String] and

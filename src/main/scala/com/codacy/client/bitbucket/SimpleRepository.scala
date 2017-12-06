@@ -14,7 +14,10 @@ case class SimpleRepository(name: String, description: String, scm: String, crea
 
 object SimpleRepository {
   val dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS"
+  val dateFormatWithoutMillis = "yyyy-MM-dd'T'HH:mm:ss"
+
   implicit val jodaDateTimeReads = Reads.jodaDateReads(dateFormat)
+    .orElse(Reads.jodaDateReads(dateFormatWithoutMillis))
 
   implicit val reader: Reads[SimpleRepository] =
     ((__ \ "slug").read[String] and
@@ -27,5 +30,5 @@ object SimpleRepository {
       (__ \ "has_issues").read[Boolean] and
       (__ \ "is_private").read[Boolean] and
       (__ \ "language").read[String]
-      )(SimpleRepository.apply _)
+      ) (SimpleRepository.apply _)
 }

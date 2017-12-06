@@ -462,4 +462,48 @@ class RemoteRepositorySpecs extends FlatSpec with Matchers {
       repo => repo.length shouldBe 2
     )
   }
+
+  it should "successfully parse a JSON into an array of SimpleRepository that has no milliseconds on the created date" in {
+
+    val input =
+      """[
+        |{
+        |  "scm": "git",
+        |  "has_wiki": false,
+        |  "last_updated": "2016-01-26T21:39:24.485",
+        |  "no_forks": false,
+        |  "created_on": "2015-09-04T20:33:22",
+        |  "owner": "carrots",
+        |  "logo": "https://bitbucket.org/carrots/potatos/avatar/32/?ts=1453840764",
+        |  "email_mailinglist": "",
+        |  "is_mq": false,
+        |  "size": 14544338,
+        |  "read_only": false,
+        |  "fork_of": null,
+        |  "mq_of": null,
+        |  "state": "available",
+        |  "utc_created_on": "2015-09-04 18:37:22+00:00",
+        |  "website": "",
+        |  "description": "",
+        |  "has_issues": false,
+        |  "is_fork": false,
+        |  "slug": "potatos",
+        |  "is_private": true,
+        |  "name": "Carrots and company",
+        |  "language": "",
+        |  "utc_last_updated": "2016-01-26 20:39:24+00:00",
+        |  "no_public_forks": true,
+        |  "creator": null,
+        |  "resource_uri": "/1.0/repositories/carrots/potatos"
+        |}
+        |]
+      """.stripMargin
+    val json = Json.parse(input)
+    val value = json.validate[Seq[SimpleRepository]]
+
+    value.fold(e =>
+      fail(s"$e"),
+      repo => repo.length shouldBe 1
+    )
+  }
 }
