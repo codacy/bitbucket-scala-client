@@ -23,12 +23,12 @@ class UserServices(client: BitbucketClient) {
   /*
    * Creates a ssh key
    */
-  def createKey(username: String, key: String): RequestResponse[SshKey] = {
+  def createKey(username: String, key: String, keyName: String = "Codacy Key"): RequestResponse[SshKey] = {
     val url = s"https://bitbucket.org/api/1.0/users/$username/ssh-keys"
 
     val values = Json.obj(
       "key" -> key,
-      "label" -> "Codacy Key"
+      "label" -> keyName
     )
 
     client.postJson(Request(url, classOf[SshKey]), values)
