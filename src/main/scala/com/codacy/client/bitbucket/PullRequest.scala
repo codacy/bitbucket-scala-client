@@ -8,7 +8,7 @@ case class PullRequest(id: Long, title: String, description: String,
                        authorUsername: Option[String], authorAvatar: Option[String], state: String, created_on: DateTime, updated_on: DateTime,
                        sourceRepository: String, sourceBranch: String, sourceCommit: String,
                        destRepository: String, destBranch: String, destCommit: Option[String],
-                       apiUrls: Seq[ApiUrl], authorId: Option[String] = None) {
+                       apiUrls: Seq[ApiUrl], authorUUID: Option[String] = None) {
   val url = s"https://bitbucket.org/$destRepository/pull-request/$id"
 }
 
