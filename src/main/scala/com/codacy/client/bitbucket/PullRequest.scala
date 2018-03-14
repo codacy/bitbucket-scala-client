@@ -5,11 +5,10 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
 case class PullRequest(id: Long, title: String, description: String,
-                       authorUsername: Option[String], authorAvatar: Option[String],
-                       authorId: Option[String], state: String, created_on: DateTime, updated_on: DateTime,
+                       authorUsername: Option[String], authorAvatar: Option[String], state: String, created_on: DateTime, updated_on: DateTime,
                        sourceRepository: String, sourceBranch: String, sourceCommit: String,
                        destRepository: String, destBranch: String, destCommit: Option[String],
-                       apiUrls: Seq[ApiUrl]) {
+                       apiUrls: Seq[ApiUrl], authorId: Option[String] = None) {
   val url = s"https://bitbucket.org/$destRepository/pull-request/$id"
 }
 
@@ -49,7 +48,6 @@ object PullRequest {
       (__ \ "description").read[String] and
       (__ \ "author" \ "username").readNullable[String] and
       (__ \ "author" \ "links" \ "avatar" \ "href").readNullable[String].orElse((__ \ "author" \ "links").readNullable[String]) and
-      (__ \ "author" \ "uuid").readNullable[String] and
       (__ \ "state").read[String] and
       (__ \ "created_on").read[DateTime] and
       (__ \ "updated_on").read[DateTime] and
@@ -60,7 +58,8 @@ object PullRequest {
       (__ \ "destination" \ "branch" \ "name").read[String] and
       (__ \ "destination" \ "commit" \ "hash").readNullable[String] and
       // TODO: (__ \ "destination" \ "commit" \ "hash").read[Option[String]] and
-      (__ \ "links").read[Map[String, Map[String, String]]].map(parseLinks)
+      (__ \ "links").read[Map[String, Map[String, String]]].map(parseLinks) and
+      (__ \ "author" \ "uuid").readNullable[String]
     ) (PullRequest.apply _)
 
   private def parseLinks(links: Map[String, Map[String, String]]): Seq[ApiUrl] = {
