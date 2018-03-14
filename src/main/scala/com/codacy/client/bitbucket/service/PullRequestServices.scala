@@ -2,7 +2,7 @@ package com.codacy.client.bitbucket.service
 
 import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
 import com.codacy.client.bitbucket.util.CommitHelper
-import com.codacy.client.bitbucket.{PullRequest, PullRequestComment, SimpleCommit, SimplePullRequestComment}
+import com.codacy.client.bitbucket.{PullRequest, PullRequestComment, SimpleCommit, SimplePullRequestComment, PullRequestReviewers}
 import play.api.libs.json._
 
 class PullRequestServices(client: BitbucketClient) {
@@ -98,6 +98,12 @@ class PullRequestServices(client: BitbucketClient) {
     val url = s"https://bitbucket.org/api/1.0/repositories/$author/$repo/pullrequests/$pullRequestId/comments"
 
     client.execute(Request(url, classOf[Seq[SimplePullRequestComment]]))
+  }
+
+  def getPullRequestsReviewers(owner: String, repository: String, prId: Long): RequestResponse[PullRequestReviewers] = {
+    val url = s"https://bitbucket.org/api/2.0/repositories/$owner/$repository/$prId"
+
+    client.execute(Request(url, classOf[PullRequestReviewers]))
   }
 
 }
