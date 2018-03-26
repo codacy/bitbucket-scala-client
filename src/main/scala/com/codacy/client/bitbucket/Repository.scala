@@ -1,35 +1,37 @@
 package com.codacy.client.bitbucket
 
-import org.joda.time.DateTime
+import java.time.{LocalDateTime, LocalTime}
+
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
 case class Repository(name: String, full_name: String, description: String, scm: String,
-                      created_on: DateTime, updated_on: DateTime, owner: String, size: Long,
+                      created_on: LocalDateTime, updated_on: LocalDateTime, owner: String, size: Long,
                       has_issues: Boolean, is_private: Boolean, language: String,
                       url: Seq[RepositoryUrl])
 
 object Repository {
-  val dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSZZ"
-  val dateFormatWithoutMillis = "yyyy-MM-dd'T'HH:mm:ssZZ"
+  val dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX"
+  val dateFormatWithoutMillis = "yyyy-MM-dd'T'HH:mm:ssXXX"
 
-  implicit val jodaDateTimeReads = Reads.jodaDateReads(dateFormat)
-    .orElse(Reads.jodaDateReads(dateFormatWithoutMillis))
+  implicit val dateTimeReads: Reads[LocalTime] =
+    Reads.localTimeReads(dateFormat)
+      .orElse(Reads.localTimeReads(dateFormatWithoutMillis))
 
   implicit val reader: Reads[Repository] = {
     ((__ \ "name").read[String] and
       (__ \ "full_name").read[String] and
       (__ \ "description").read[String] and
       (__ \ "scm").read[String] and
-      (__ \ "created_on").read[DateTime] and
-      (__ \ "updated_on").read[DateTime] and
+      (__ \ "created_on").read[LocalDateTime] and
+      (__ \ "updated_on").read[LocalDateTime] and
       (__ \ "owner" \ "username").read[String] and
       (__ \ "size").read[Long] and
       (__ \ "has_issues").read[Boolean] and
       (__ \ "is_private").read[Boolean] and
       (__ \ "language").read[String] and
       (__ \ "links").read[Map[String, JsValue]].map(parseLinks)
-      )(Repository.apply _)
+      ) (Repository.apply _)
   }
 
   private def parseLinks(links: Map[String, JsValue]): Seq[RepositoryUrl] = {

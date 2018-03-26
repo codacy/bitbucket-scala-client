@@ -1,7 +1,7 @@
 package com.codacy.client.bitbucket.client
 
 import play.api.libs.oauth.{ConsumerKey, OAuthCalculator, RequestToken}
-import play.api.libs.ws.{WSAuthScheme, WSRequest}
+import play.api.libs.ws.{WSAuthScheme, StandaloneWSRequest => WSRequest}
 
 /**
   * Handles request authentication.

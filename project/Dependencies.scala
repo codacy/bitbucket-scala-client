@@ -2,11 +2,10 @@ import sbt._
 
 object Dependencies {
 
-  // Generic
-  lazy val jodaTime = "joda-time" % "joda-time" % "2.7"
+  val playWsStandaloneVersion = "2.0.0-M1"
+  val playWS = "com.typesafe.play" %% "play-ahc-ws-standalone" % playWsStandaloneVersion
+  val playWSjson = "com.typesafe.play" %% "play-ws-standalone-json" % playWsStandaloneVersion
 
-  // Play framework
-  lazy val playWS = "com.typesafe.play" %% "play-ws" % "2.4.3"
+  val scalaTest = "org.scalatest" %% "scalatest" % "3.0.5" % "test"
 
-  lazy val scalaTest = "org.scalatest" %% "scalatest" % "2.2.6" % "test"
 }

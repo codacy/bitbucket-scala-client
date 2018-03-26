@@ -4,9 +4,9 @@ import play.api.libs.json.Json
 import com.codacy.client.bitbucket.{Email, PullRequest, SimpleRepository}
 import com.codacy.client.bitbucket.PullRequest._
 
-class RemoteRepositorySpecs extends FlatSpec with Matchers {
+class PullRequestSpecs extends FlatSpec with Matchers {
 
-  "RemoteRepository" should "successfully parse JSON with a commit" in {
+  "PullRequestSpecs" should "successfully parse JSON with a commit" in {
     val input =
       """
         |{
@@ -387,123 +387,6 @@ class RemoteRepositorySpecs extends FlatSpec with Matchers {
     value.fold(e =>
       fail(s"$e"),
       r => r.destCommit.isDefined shouldBe true
-    )
-  }
-
-  it should "successfully parse a JSON into an array of SimpleRepository" in {
-
-    val input =
-      """[
-        |{
-        |  "scm": "git",
-        |  "has_wiki": false,
-        |  "last_updated": "2016-01-26T21:39:24.485",
-        |  "no_forks": false,
-        |  "created_on": "2015-09-04T20:33:22.640",
-        |  "owner": "carrots",
-        |  "logo": "https://bitbucket.org/carrots/potatos/avatar/32/?ts=1453840764",
-        |  "email_mailinglist": "",
-        |  "is_mq": false,
-        |  "size": 14544338,
-        |  "read_only": false,
-        |  "fork_of": null,
-        |  "mq_of": null,
-        |  "state": "available",
-        |  "utc_created_on": "2015-09-04 18:37:22+00:00",
-        |  "website": "",
-        |  "description": "",
-        |  "has_issues": false,
-        |  "is_fork": false,
-        |  "slug": "potatos",
-        |  "is_private": true,
-        |  "name": "Carrots and company",
-        |  "language": "",
-        |  "utc_last_updated": "2016-01-26 20:39:24+00:00",
-        |  "no_public_forks": true,
-        |  "creator": null,
-        |  "resource_uri": "/1.0/repositories/carrots/potatos"
-        |},
-        |{
-        |  "scm": "git",
-        |  "has_wiki": false,
-        |  "last_updated": "2017-02-03T20:29:18.224",
-        |  "no_forks": false,
-        |  "created_on": "2017-02-01T17:42:37.640",
-        |  "owner": "carrots",
-        |  "logo": "https://bitbucket.org/carrots/potatos/avatar/32/?ts=1486150158",
-        |  "email_mailinglist": "",
-        |  "is_mq": false,
-        |  "size": 13489122,
-        |  "read_only": false,
-        |  "fork_of": null,
-        |  "mq_of": null,
-        |  "state": "available",
-        |  "utc_created_on": "2017-02-01 16:41:37+00:00",
-        |  "website": "",
-        |  "description": "credentials.certainteed.com (Rackspace)",
-        |  "has_issues": false,
-        |  "is_fork": false,
-        |  "slug": "potatos",
-        |  "is_private": true,
-        |  "name": "Nice potatos",
-        |  "language": "php",
-        |  "utc_last_updated": "2017-02-03 19:29:18+00:00",
-        |  "no_public_forks": true,
-        |  "creator": null,
-        |  "resource_uri": "/1.0/repositories/carrots/potatos"
-        |}
-        |]
-      """.stripMargin
-    val json = Json.parse(input)
-    val value = json.validate[Seq[SimpleRepository]]
-
-    value.fold(e =>
-      fail(s"$e"),
-      repo => repo.length shouldBe 2
-    )
-  }
-
-  it should "successfully parse a JSON into an array of SimpleRepository that has no milliseconds on the created date" in {
-
-    val input =
-      """[
-        |{
-        |  "scm": "git",
-        |  "has_wiki": false,
-        |  "last_updated": "2016-01-26T21:39:24.485",
-        |  "no_forks": false,
-        |  "created_on": "2015-09-04T20:33:22",
-        |  "owner": "carrots",
-        |  "logo": "https://bitbucket.org/carrots/potatos/avatar/32/?ts=1453840764",
-        |  "email_mailinglist": "",
-        |  "is_mq": false,
-        |  "size": 14544338,
-        |  "read_only": false,
-        |  "fork_of": null,
-        |  "mq_of": null,
-        |  "state": "available",
-        |  "utc_created_on": "2015-09-04 18:37:22+00:00",
-        |  "website": "",
-        |  "description": "",
-        |  "has_issues": false,
-        |  "is_fork": false,
-        |  "slug": "potatos",
-        |  "is_private": true,
-        |  "name": "Carrots and company",
-        |  "language": "",
-        |  "utc_last_updated": "2016-01-26 20:39:24+00:00",
-        |  "no_public_forks": true,
-        |  "creator": null,
-        |  "resource_uri": "/1.0/repositories/carrots/potatos"
-        |}
-        |]
-      """.stripMargin
-    val json = Json.parse(input)
-    val value = json.validate[Seq[SimpleRepository]]
-
-    value.fold(e =>
-      fail(s"$e"),
-      repo => repo.length shouldBe 1
     )
   }
 
