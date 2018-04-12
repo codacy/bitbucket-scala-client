@@ -101,7 +101,7 @@ class PullRequestServices(client: BitbucketClient) {
   }
 
   def getPullRequestsReviewers(owner: String, repository: String, prId: Long): RequestResponse[PullRequestReviewers] = {
-    val url = s"https://bitbucket.org/api/2.0/repositories/$owner/$repository/$prId"
+    val url = s"https://bitbucket.org/api/2.0/repositories/$owner/$repository/pullrequests/$prId"
 
     client.execute(Request(url, classOf[PullRequestReviewers]))
   }
