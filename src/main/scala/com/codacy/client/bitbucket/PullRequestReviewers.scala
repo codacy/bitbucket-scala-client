@@ -6,7 +6,7 @@ case class PullRequestReviewers(reviewers: Seq[String])
 
 object PullRequestReviewers {
 
-  implicit val reader: Reads[PullRequestReviewers] =
-    (__ \ "reviewers" \ "uuid").read[PullRequestReviewers]
+  implicit val reads: Reads[PullRequestReviewers] =
+    (__ \ "reviewers" ).read(Reads.list( (__ \ "uuid").read[String])).map(PullRequestReviewers.apply)
 
 }
