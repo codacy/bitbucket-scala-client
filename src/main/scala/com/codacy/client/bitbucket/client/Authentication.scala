@@ -15,6 +15,8 @@ object Authentication {
 
   case class OAuthCredentials(key: String, secretKey: String, token: String, secretToken: String) extends Credentials
 
+  case class OAuth2Credentials(accessToken: String) extends Credentials
+
   /**
     * Your username and password | app password.
     */
@@ -29,6 +31,7 @@ object Authentication {
     def fromCredentials(credentials: Credentials): Authenticator =  {
       credentials match {
         case c: OAuthCredentials     => new OAuthAuthenticator(c)
+        case c: OAuth2Credentials    => new OAuth2Authenticator(c)
         case c: BasicAuthCredentials => new BasicAuthAuthenticator(c)
       }
     }
@@ -41,6 +44,10 @@ object Authentication {
     private lazy val requestSigner = OAuthCalculator(KEY, TOKEN)
 
     def authenticate(req: WSRequest): WSRequest = req.sign(requestSigner)
+  }
+
+  class OAuth2Authenticator(credentials: OAuth2Credentials) extends Authenticator {
+    override def authenticate(req: WSRequest): WSRequest = req.withQueryString("access_token" -> credentials.accessToken)
   }
 
   class BasicAuthAuthenticator(credentials: BasicAuthCredentials) extends Authenticator {

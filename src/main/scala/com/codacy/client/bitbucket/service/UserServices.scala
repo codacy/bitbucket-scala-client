@@ -1,7 +1,7 @@
 package com.codacy.client.bitbucket.service
 
 import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
-import com.codacy.client.bitbucket.{SshKey, User}
+import com.codacy.client.bitbucket.{Email, SshKey, User}
 import play.api.libs.json.Json
 
 class UserServices(client: BitbucketClient) {
@@ -18,6 +18,13 @@ class UserServices(client: BitbucketClient) {
    */
   def getUser(username: String): RequestResponse[User] = {
     client.execute(Request(s"https://bitbucket.org/api/1.0/users/$username", classOf[User]))
+  }
+
+  /*
+   * Gets all the emails of an account
+   */
+  def getEmails(username: String): RequestResponse[Seq[Email]] = {
+    client.execute(Request(s"https://bitbucket.org/api/1.0/users/$username/emails", classOf[Seq[Email]]))
   }
 
   /*
