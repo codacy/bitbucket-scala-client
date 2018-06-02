@@ -2,6 +2,7 @@ package com.codacy.client.bitbucket.util
 
 import java.net.URI
 
+import play.api.libs.json._
 import play.api.libs.json.{Json, JsonValidationError, Reads, Writes}
 
 import scala.language.implicitConversions

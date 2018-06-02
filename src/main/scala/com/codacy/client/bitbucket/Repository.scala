@@ -1,6 +1,6 @@
 package com.codacy.client.bitbucket
 
-import java.time.{LocalDateTime, LocalTime}
+import java.time.LocalDateTime
 
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
@@ -14,9 +14,9 @@ object Repository {
   val dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX"
   val dateFormatWithoutMillis = "yyyy-MM-dd'T'HH:mm:ssXXX"
 
-  implicit val dateTimeReads: Reads[LocalTime] =
-    Reads.localTimeReads(dateFormat)
-      .orElse(Reads.localTimeReads(dateFormatWithoutMillis))
+  implicit val dateTimeReads: Reads[LocalDateTime] =
+    Reads.localDateTimeReads(dateFormat)
+      .orElse(Reads.localDateTimeReads(dateFormatWithoutMillis))
 
   implicit val reader: Reads[Repository] = {
     ((__ \ "name").read[String] and

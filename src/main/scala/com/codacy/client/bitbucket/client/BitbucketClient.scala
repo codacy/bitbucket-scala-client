@@ -13,6 +13,7 @@ import play.api.libs.ws.JsonBodyWritables._
 import play.api.libs.ws.ahc.StandaloneAhcWSClient
 import play.shaded.ahc.org.asynchttpclient.DefaultAsyncHttpClient
 
+import scala.compat.Platform.EOL
 import scala.concurrent.Await
 import scala.concurrent.duration.{Duration, SECONDS}
 import scala.util.{Failure, Properties, Success, Try}
@@ -208,7 +209,7 @@ class BitbucketClient(credentials: Credentials)(implicit materializer: Materiali
 
   private def getFullStackTrace(throwableOpt: Throwable, accumulator: String = ""): String = {
     Option(throwableOpt).map { throwable =>
-      val newAccumulator = s"$accumulator${Properties.lineSeparator}${throwable.getStackTraceString}"
+      val newAccumulator = s"$accumulator${Properties.lineSeparator}${throwable.getStackTrace.mkString("", EOL, EOL)}"
       getFullStackTrace(throwable.getCause, newAccumulator)
     }.getOrElse(accumulator)
   }

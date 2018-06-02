@@ -7,7 +7,7 @@ import play.api.libs.json._
 
 case class PullRequest(id: Long, title: String, description: String,
                        authorUsername: Option[String], authorAvatar: Option[String],
-                       state: String, created_on: DateTime, updated_on: DateTime,
+                       state: String, created_on: LocalDateTime, updated_on: LocalDateTime,
                        sourceRepository: String, sourceBranch: String, sourceCommit: String,
                        destRepository: String, destBranch: String, destCommit: Option[String],
                        apiUrls: Seq[ApiUrl], authorUUID: Option[String] = None) {
