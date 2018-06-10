@@ -2,7 +2,7 @@ import sbt._
 
 object Dependencies {
 
-  val playWsStandaloneVersion = "2.0.0-M1"
+  val playWsStandaloneVersion = "1.1.9"
   val playWS = "com.typesafe.play" %% "play-ahc-ws-standalone" % playWsStandaloneVersion
   val playWSjson = "com.typesafe.play" %% "play-ws-standalone-json" % playWsStandaloneVersion
   val playJson_211 = "com.typesafe.play" %% "play-json" % "2.4.3"
