@@ -13,8 +13,6 @@ unmanagedSourceDirectories in Compile += {
   }
 }
 
-ensimeScalaVersion in ThisBuild := "2.11.12"
-
 scalacOptions := Seq("-deprecation", "-feature", "-unchecked", "-Ywarn-adapted-args", "-Xlint")
 
 resolvers += "Typesafe maven repository" at "http://repo.typesafe.com/typesafe/maven-releases/"

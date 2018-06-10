@@ -1,4 +1,4 @@
-import com.codacy.client.bitbucket.{Commit, CommitComment, SimpleCommit}
+import com.codacy.client.bitbucket.{Commit, SimpleCommit}
 import org.scalatest.{Matchers, _}
 import play.api.libs.json.Json
 
