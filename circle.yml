@@ -5,5 +5,7 @@ machine:
     version: oraclejdk8
 
 test:
+  pre:
+    - sbt mimaReportBinaryIssues
   override:
     - sbt +test

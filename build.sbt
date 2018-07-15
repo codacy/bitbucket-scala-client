@@ -1,8 +1,13 @@
+import Dependencies._
+
+import scala.io.Source
+import scala.util.parsing.json.JSON
+
 name := """bitbucket-scala-client"""
 
 version := "1.9.0-SNAPSHOT"
 
-scalaVersion := "2.11.12"
+scalaVersion := "2.12.6"
 
 crossScalaVersions := Seq("2.11.12", "2.12.6")
 
@@ -22,6 +27,19 @@ libraryDependencies ++= Seq(
   Dependencies.playJson(scalaVersion.value),
   Dependencies.scalaTest
 )
+
+mimaPreviousArtifacts := {
+  val latestVersion = JSON.parseFull(
+    Source.fromURL("https://api.github.com/repos/codacy/bitbucket-scala-client/releases/latest").mkString
+  ).flatMap(_.asInstanceOf[Map[String, String]].get("tag_name")).getOrElse("5.0.0")
+  Set("com.codacy" %% "bitbucket-scala-client" % latestVersion)
+}
+mimaBinaryIssueFilters ++= ignoredABIProblems
+val ignoredABIProblems = {
+  import com.typesafe.tools.mima.core._
+  import com.typesafe.tools.mima.core.ProblemFilters._
+  Seq()
+}
 
 organization := "com.codacy"
 
