@@ -1,11 +1,13 @@
 package com.codacy.client.bitbucket
 
-import org.joda.time.DateTime
+import java.time.LocalDateTime
+
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
 case class PullRequest(id: Long, title: String, description: String,
-                       authorUsername: Option[String], authorAvatar: Option[String], state: String, created_on: DateTime, updated_on: DateTime,
+                       authorUsername: Option[String], authorAvatar: Option[String],
+                       state: String, created_on: LocalDateTime, updated_on: LocalDateTime,
                        sourceRepository: String, sourceBranch: String, sourceCommit: String,
                        destRepository: String, destBranch: String, destCommit: Option[String],
                        apiUrls: Seq[ApiUrl], authorUUID: Option[String] = None) {
@@ -32,8 +34,8 @@ object ApiUrlType extends Enumeration {
 case class ApiUrl(urlType: ApiUrlType.Value, link: String)
 
 object PullRequest {
-  val dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSZZ"
-  implicit val jodaDateTimeReads = Reads.jodaDateReads(dateFormat)
+  val dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX"
+  implicit val dateTimeReads: Reads[LocalDateTime] = Reads.localDateTimeReads(dateFormat)
 
   implicit def optionStringReader: Reads[Option[String]] = Reads { (json: JsValue) =>
     json match {
@@ -49,8 +51,8 @@ object PullRequest {
       (__ \ "author" \ "username").readNullable[String] and
       (__ \ "author" \ "links" \ "avatar" \ "href").readNullable[String].orElse((__ \ "author" \ "links").readNullable[String]) and
       (__ \ "state").read[String] and
-      (__ \ "created_on").read[DateTime] and
-      (__ \ "updated_on").read[DateTime] and
+      (__ \ "created_on").read[LocalDateTime] and
+      (__ \ "updated_on").read[LocalDateTime] and
       (__ \ "source" \ "repository" \ "full_name").read[String] and
       (__ \ "source" \ "branch" \ "name").read[String] and
       (__ \ "source" \ "commit" \ "hash").read[String] and

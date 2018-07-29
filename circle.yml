@@ -1,7 +1,9 @@
 machine:
+  pre:
+    - mkdir -p $HOME/.sbt/.lib/1.1.6 && wget http://central.maven.org/maven2/org/scala-sbt/sbt-launch/1.1.6/sbt-launch-1.1.6.jar -O $HOME/.sbt/.lib/1.1.6/sbt-launch.jar
   java:
     version: oraclejdk8
 
 test:
-  pre:
-    - sbt mimaReportBinaryIssues
+  override:
+    - sbt +test

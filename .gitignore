@@ -19,3 +19,4 @@ dist
 codacy.pylint.conf
 npm-debug.log
 config
+.ensime

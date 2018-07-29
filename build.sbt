@@ -7,18 +7,25 @@ name := """bitbucket-scala-client"""
 
 version := "1.9.0-SNAPSHOT"
 
-scalaVersion := "2.10.5"
+scalaVersion := "2.12.6"
 
-crossScalaVersions := Seq("2.10.5", "2.11.7")
+crossScalaVersions := Seq("2.11.12", "2.12.6")
+
+unmanagedSourceDirectories in Compile += {
+  (scalaVersion.value, (sourceDirectory in Compile).value) match {
+    case (v, dir) if v startsWith "2.11" => dir / "scala-2.11"
+    case (v, dir) if v startsWith "2.12" => dir / "scala-2.12"
+  }
+}
 
 scalacOptions := Seq("-deprecation", "-feature", "-unchecked", "-Ywarn-adapted-args", "-Xlint")
 
 resolvers += "Typesafe maven repository" at "http://repo.typesafe.com/typesafe/maven-releases/"
 
 libraryDependencies ++= Seq(
-  jodaTime,
-  playWS,
-  scalaTest
+  Dependencies.playWS,
+  Dependencies.playJson(scalaVersion.value),
+  Dependencies.scalaTest
 )
 
 mimaPreviousArtifacts := {
