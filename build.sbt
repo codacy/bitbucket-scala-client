@@ -55,6 +55,13 @@ pomIncludeRepository := { _ => false }
 
 publishTo := sonatypePublishTo.value
 
+//Credentials for sonatype
+credentials += Credentials(
+  "Sonatype Nexus Repository Manager",
+  "oss.sonatype.org",
+  sys.env.getOrElse("SONATYPE_USER", "username"),
+  sys.env.getOrElse("SONATYPE_PASSWORD", "password"))
+
 startYear := Some(2014)
 
 description := "Bitbucket Scala Client"
