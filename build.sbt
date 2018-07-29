@@ -53,13 +53,7 @@ publishArtifact in Test := false
 
 pomIncludeRepository := { _ => false }
 
-publishTo := {
-  val nexus = "https://oss.sonatype.org/"
-  if (version.value.trim.endsWith("SNAPSHOT"))
-    Some("snapshots" at nexus + "content/repositories/snapshots")
-  else
-    Some("releases" at nexus + "service/local/staging/deploy/maven2")
-}
+publishTo := sonatypePublishTo.value
 
 startYear := Some(2014)
 
