@@ -1,8 +1,7 @@
-import org.scalatest._
-import org.scalatest.Matchers
-import play.api.libs.json.Json
-import com.codacy.client.bitbucket.{Email, PullRequest}
+import com.codacy.client.bitbucket.PullRequest
 import com.codacy.client.bitbucket.PullRequest._
+import org.scalatest.{Matchers, _}
+import play.api.libs.json.Json
 
 class PullRequestSpecs extends FlatSpec with Matchers {
 
@@ -390,27 +389,4 @@ class PullRequestSpecs extends FlatSpec with Matchers {
     )
   }
 
-  it should "successfully parse a JSON into an array of Email" in {
-    val input =
-      """[
-        |{
-        |  "active": true,
-        |  "email": "2team.bb@gmail.com",
-        |  "primary": true
-        |},
-        |{
-        |  "active": false,
-        |  "email": "ourteam@gmail.com",
-        |  "primary": false
-        |}
-        |]
-      """.stripMargin
-    val json = Json.parse(input)
-    val value = json.validate[Seq[Email]]
-
-    value.fold(e =>
-      fail(s"$e"),
-      emails => emails.length shouldBe 2
-    )
-  }
 }
