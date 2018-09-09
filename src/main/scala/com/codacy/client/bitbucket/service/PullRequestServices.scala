@@ -1,8 +1,7 @@
 package com.codacy.client.bitbucket.service
 
 import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
-import com.codacy.client.bitbucket.util.CommitHelper
-import com.codacy.client.bitbucket.{PullRequest, PullRequestComment, SimpleCommit, SimplePullRequestComment, PullRequestReviewers}
+import com.codacy.client.bitbucket.{PullRequest, PullRequestComment, SimpleCommit, PullRequestReviewers}
 import play.api.libs.json._
 
 class PullRequestServices(client: BitbucketClient) {
@@ -69,35 +68,32 @@ class PullRequestServices(client: BitbucketClient) {
     client.postJson(Request(url, classOf[JsObject]), JsNull)
   }
 
-  private[this] def postNewComment(author: String, repo: String, prId: Int, values: JsObject): RequestResponse[PullRequestComment] = {
-    val url = s"https://bitbucket.org/api/1.0/repositories/$author/$repo/pullrequests/$prId/comments"
+  def createComment(author: String, repo: String, prId: Int, body: String,
+                        file: Option[String], line: Option[Int]): RequestResponse[PullRequestComment] = {
+    val url = s"https://bitbucket.org/api/2.0/repositories/$author/$repo/pullrequests/$prId/comments"
+
+    val params = for {
+      filename <- file
+      lineTo <- line
+    } yield {
+      "inline" -> Json.obj("path" -> JsString(filename), "to" -> JsNumber(lineTo))
+    }
+
+    val values = JsObject(params.toSeq :+ "content" -> Json.obj("raw" -> JsString(body)))//, "anchor" -> JsString(CommitHelper.anchor(commitUUID))))
     client.postJson(Request(url, classOf[PullRequestComment]), values)
   }
 
-  def createPullRequestComment(author: String, repo: String, prId: Int, content: String): RequestResponse[PullRequestComment] = {
-    val values = Json.obj("content" -> JsString(content))
-    postNewComment(author, repo, prId, values)
-  }
-
-  def createLineComment(author: String, repo: String, prId: Int, commitUUID: String, body: String,
-                        file: Option[String], line: Option[Int]): RequestResponse[PullRequestComment] = {
-    val params = file.map(filename => "filename" -> JsString(filename)) ++
-      line.map(lineTo => "line_to" -> JsNumber(lineTo))
-
-    val values = JsObject(params.toSeq :+ "content" -> JsString(body) :+ "anchor" -> JsString(CommitHelper.anchor(commitUUID)))
-    postNewComment(author, repo, prId, values = values)
-  }
-
-  def deleteComment(author: String, repo: String, commitUUID: String, pullRequestId: Int, commentId: Long): Unit = {
-    val url = s"https://bitbucket.org/api/1.0/repositories/$author/$repo/pullrequests/$pullRequestId/comments/$commentId"
+  def deleteComment(author: String, repo: String, pullRequestId: Int, commentId: Long): RequestResponse[Boolean] = {
+    val url = s"https://bitbucket.org/api/2.0/repositories/$author/$repo/pullrequests/$pullRequestId/comments/$commentId"
 
     client.delete(url)
   }
 
-  def listComments(author: String, repo: String, pullRequestId: Int): RequestResponse[Seq[SimplePullRequestComment]] = {
-    val url = s"https://bitbucket.org/api/1.0/repositories/$author/$repo/pullrequests/$pullRequestId/comments"
+  def listComments(author: String, repo: String, pullRequestId: Int): RequestResponse[Seq[PullRequestComment]] = {
+    val url = s"https://bitbucket.org/api/2.0/repositories/$author/$repo/pullrequests/$pullRequestId/comments"
 
-    client.execute(Request(url, classOf[Seq[SimplePullRequestComment]]))
+    client.executePaginated(Request(url, classOf[Seq[PullRequestComment]]))
+      .map(_.filterNot(_.deleted))
   }
 
   def getPullRequestsReviewers(owner: String, repository: String, prId: Long): RequestResponse[PullRequestReviewers] = {
