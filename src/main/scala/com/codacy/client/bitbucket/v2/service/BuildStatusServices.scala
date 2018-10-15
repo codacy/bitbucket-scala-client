@@ -1,6 +1,6 @@
-package com.codacy.client.bitbucket.v1.service
+package com.codacy.client.bitbucket.v2.service
 
-import com.codacy.client.bitbucket.v1.BuildStatus
+import com.codacy.client.bitbucket.v2.BuildStatus
 import com.codacy.client.client.{BitbucketClient, Request, RequestResponse}
 import play.api.libs.json.Json
 
