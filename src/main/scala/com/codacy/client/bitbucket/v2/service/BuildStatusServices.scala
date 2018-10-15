@@ -2,7 +2,8 @@ package com.codacy.client.bitbucket.v2.service
 
 import com.codacy.client.bitbucket.v2.BuildStatus
 import com.codacy.client.client.{BitbucketClient, Request, RequestResponse}
-import play.api.libs.json.Json
+import play.api.libs.json._
+import play.api.libs.ws.DefaultBodyWritables._
 
 class BuildStatusServices(client: BitbucketClient) {
 

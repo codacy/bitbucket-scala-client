@@ -1,7 +1,6 @@
 package com.codacy.client.bitbucket.v2.service
 
-import com.codacy.client.bitbucket.v2
-import com.codacy.client.bitbucket.v2.PullRequest
+import com.codacy.client.bitbucket.v2.{PullRequest, PullRequestComment, SimpleCommit, PullRequestReviewers}
 import com.codacy.client.client.{BitbucketClient, Request, RequestResponse}
 import play.api.libs.json._
 
@@ -23,10 +22,10 @@ class PullRequestServices(client: BitbucketClient) {
    * Gets the list of commits of a pull request
    *
    */
-  def getPullRequestCommits(owner: String, repository: String, prId: Long): RequestResponse[Seq[v2.SimpleCommit]] = {
+  def getPullRequestCommits(owner: String, repository: String, prId: Long): RequestResponse[Seq[SimpleCommit]] = {
     val url = s"https://bitbucket.org/api/2.0/repositories/$owner/$repository/pullrequests/$prId/commits?pagelen=100"
 
-    client.executePaginated(Request(url, classOf[Seq[v2.SimpleCommit]]))
+    client.executePaginated(Request(url, classOf[Seq[SimpleCommit]]))
   }
 
   def create(owner: String, repository: String, title: String, sourceBranch: String, destinationBranch: String): RequestResponse[JsObject] = {
@@ -69,10 +68,38 @@ class PullRequestServices(client: BitbucketClient) {
     client.postJson(Request(url, classOf[JsObject]), JsNull)
   }
 
-  def getPullRequestsReviewers(owner: String, repository: String, prId: Long): RequestResponse[v2.PullRequestReviewers] = {
+  def createComment(author: String, repo: String, prId: Int, body: String,
+                    file: Option[String], line: Option[Int]): RequestResponse[PullRequestComment] = {
+    val url = s"https://bitbucket.org/api/2.0/repositories/$author/$repo/pullrequests/$prId/comments"
+
+    val params = for {
+      filename <- file
+      lineTo <- line
+    } yield {
+      "inline" -> Json.obj("path" -> JsString(filename), "to" -> JsNumber(lineTo))
+    }
+
+    val values = JsObject(params.toSeq :+ "content" -> Json.obj("raw" -> JsString(body)))//, "anchor" -> JsString(CommitHelper.anchor(commitUUID))))
+    client.postJson(Request(url, classOf[PullRequestComment]), values)
+  }
+
+  def deleteComment(author: String, repo: String, pullRequestId: Int, commentId: Long): RequestResponse[Boolean] = {
+    val url = s"https://bitbucket.org/api/2.0/repositories/$author/$repo/pullrequests/$pullRequestId/comments/$commentId"
+
+    client.delete(url)
+  }
+
+  def listComments(author: String, repo: String, pullRequestId: Int): RequestResponse[Seq[PullRequestComment]] = {
+    val url = s"https://bitbucket.org/api/2.0/repositories/$author/$repo/pullrequests/$pullRequestId/comments"
+
+    client.executePaginated(Request(url, classOf[Seq[PullRequestComment]]))
+      .map(_.filterNot(_.deleted))
+  }
+
+  def getPullRequestsReviewers(owner: String, repository: String, prId: Long): RequestResponse[PullRequestReviewers] = {
     val url = s"https://bitbucket.org/api/2.0/repositories/$owner/$repository/pullrequests/$prId"
 
-    client.execute(Request(url, classOf[v2.PullRequestReviewers]))
+    client.execute(Request(url, classOf[PullRequestReviewers]))
   }
 
 }
