@@ -1,7 +1,7 @@
 package com.codacy.client.bitbucket.v1.service
 
+import com.codacy.client.bitbucket.v1.{SimpleRepository, SshKey}
 import com.codacy.client.client.{BitbucketClient, Request, RequestResponse}
-import com.codacy.client.bitbucket.v1.{Repository, SimpleRepository, SshKey}
 import play.api.libs.json.Json
 
 class RepositoryServices(client: BitbucketClient) {
