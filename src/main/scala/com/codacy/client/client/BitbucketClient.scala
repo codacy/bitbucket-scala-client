@@ -54,7 +54,7 @@ class BitbucketClient(credentials: Credentials)(implicit materializer: Materiali
           (FIRST_PAGE + 1 to lastPage).par.map { page =>
             val nextUrl = new URI(request.url).addQuery(s"page=$page").toString
             get(nextUrl) match {
-              case Right(json) => extractValues(json)
+              case Right(nextJson) => extractValues(nextJson)
               case Left(error) => FailedResponse(error.detail)
             }
           }.to[Seq]
@@ -105,13 +105,14 @@ class BitbucketClient(credentials: Credentials)(implicit materializer: Materiali
           FailedResponse(message.detail)
       }
     } else {
+      println(Json.parse(result.body) \ "message")
       FailedResponse(result.statusText)
     }
 
     value
   }
 
-  def postForm[T](request: Request[T], values: Map[String, Seq[String]])(implicit reader: Reads[T]): RequestResponse[T] = {
+  def postForm[D, T](request: Request[T], values: D)(implicit reader: Reads[T], writer: BodyWritable[D]): RequestResponse[T] = {
     performRequest("POST", request, values)
   }
 
@@ -155,6 +156,7 @@ class BitbucketClient(credentials: Credentials)(implicit materializer: Materiali
       val body = result.body
       parseJson(body)
     } else {
+      println(Json.parse(result.body) \ "error" \ "message")
       Left(ResponseError(java.util.UUID.randomUUID().toString, result.statusText, result.statusText))
     }
 

@@ -1,6 +1,19 @@
 package com.codacy.client.client
 
-sealed trait RequestResponse[+A]
+sealed trait RequestResponse[+A] {
+
+  def map[B](f: A => B): RequestResponse[B] = {
+    flatMap(a => RequestResponse.success(f(a)))
+  }
+
+  def flatMap[B](f: A => RequestResponse[B]): RequestResponse[B] = {
+    this match {
+      case SuccessfulResponse(a) => f(a)
+      case e: FailedResponse => e
+    }
+  }
+
+}
 
 case class SuccessfulResponse[A](value: A) extends RequestResponse[A]
 
