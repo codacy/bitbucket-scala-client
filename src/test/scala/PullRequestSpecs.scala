@@ -1,8 +1,8 @@
 import org.scalatest._
 import org.scalatest.Matchers
 import play.api.libs.json.Json
-import com.codacy.client.bitbucket.{Email, PullRequest}
-import com.codacy.client.bitbucket.PullRequest._
+import com.codacy.client.bitbucket.v1.{Email, PullRequest}
+import com.codacy.client.bitbucket.v1.PullRequest._
 
 class PullRequestSpecs extends FlatSpec with Matchers {
 

@@ -1,4 +1,4 @@
-import com.codacy.client.bitbucket.{Repository, SimpleRepository}
+import com.codacy.client.bitbucket.v1.{Repository, SimpleRepository}
 import org.scalatest.{Matchers, _}
 import play.api.libs.json.Json
 
