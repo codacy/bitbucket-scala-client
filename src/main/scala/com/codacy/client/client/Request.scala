@@ -1,3 +1,3 @@
-package com.codacy.client.bitbucket.v1.client
+package com.codacy.client.client
 
 case class Request[T](url: String, classType: Class[T])

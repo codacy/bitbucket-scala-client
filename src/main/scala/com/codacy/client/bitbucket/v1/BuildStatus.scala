@@ -1,6 +1,6 @@
 package com.codacy.client.bitbucket.v1
 
-import com.codacy.client.bitbucket.v1.util.JsonEnumeration
+import com.codacy.client.util.JsonEnumeration
 import play.api.libs.json.Json
 
 object CommitStatus extends JsonEnumeration {

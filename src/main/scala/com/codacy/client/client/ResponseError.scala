@@ -1,4 +1,4 @@
-package com.codacy.client.bitbucket.v1.client
+package com.codacy.client.client
 
 import play.api.libs.functional.syntax._
 import play.api.libs.json._

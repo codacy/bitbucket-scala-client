@@ -1,4 +1,4 @@
-package com.codacy.client.bitbucket.v1.util
+package com.codacy.client.util
 
 object CommitHelper {
   def anchor(commitUUID: String): String = {

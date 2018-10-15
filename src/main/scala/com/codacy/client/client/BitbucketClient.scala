@@ -1,11 +1,11 @@
-package com.codacy.client.bitbucket.v1.client
+package com.codacy.client.client
 
 import java.net.URI
 
 import akka.stream.Materializer
-import com.codacy.client.bitbucket.v1.client.Authentication._
-import com.codacy.client.bitbucket.v1.util.HTTPStatusCodes
-import com.codacy.client.bitbucket.v1.util.Implicits.URIQueryParam
+import com.codacy.client.client.Authentication._
+import com.codacy.client.util.HTTPStatusCodes
+import com.codacy.client.util.Implicits.URIQueryParam
 import play.api.libs.json._
 import play.api.libs.ws.BodyWritable
 import play.api.libs.ws.DefaultBodyWritables._

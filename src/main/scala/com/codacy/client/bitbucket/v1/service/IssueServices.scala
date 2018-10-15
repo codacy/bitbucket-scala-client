@@ -1,7 +1,7 @@
 package com.codacy.client.bitbucket.v1.service
 
 import com.codacy.client.bitbucket.v1.Issue
-import com.codacy.client.bitbucket.v1.client.{BitbucketClient, Request, RequestResponse}
+import com.codacy.client.client.{BitbucketClient, Request, RequestResponse}
 
 class IssueServices(client: BitbucketClient) {
 

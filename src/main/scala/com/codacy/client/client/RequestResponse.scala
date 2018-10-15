@@ -1,4 +1,4 @@
-package com.codacy.client.bitbucket.v1.client
+package com.codacy.client.client
 
 sealed trait RequestResponse[+A]
 
