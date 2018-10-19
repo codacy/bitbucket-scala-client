@@ -1,7 +1,7 @@
 package com.codacy.client.bitbucket.v2.service
 
 import com.codacy.client.bitbucket.v2.{PullRequest, PullRequestComment, SimpleCommit, PullRequestReviewers}
-import com.codacy.client.client.{BitbucketClient, Request, RequestResponse}
+import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
 import play.api.libs.json._
 
 class PullRequestServices(client: BitbucketClient) {

@@ -1,10 +1,10 @@
-package com.codacy.client.client
+package com.codacy.client.bitbucket.client
 
 import java.net.URI
 
-import com.codacy.client.client.Authentication._
-import com.codacy.client.util.HTTPStatusCodes
-import com.codacy.client.util.Implicits.URIQueryParam
+import com.codacy.client.bitbucket.client.Authentication._
+import com.codacy.client.bitbucket.util.HTTPStatusCodes
+import com.codacy.client.bitbucket.util.Implicits.URIQueryParam
 import com.ning.http.client.AsyncHttpClientConfig
 import play.api.http.Writeable
 import play.api.libs.json._
@@ -102,7 +102,6 @@ class BitbucketClient(credentials: Credentials) {
           FailedResponse(message.detail)
       }
     } else {
-      println(Json.parse(result.body) \ "message")
       FailedResponse(result.statusText)
     }
 
@@ -153,7 +152,6 @@ class BitbucketClient(credentials: Credentials) {
       val body = result.body
       parseJson(body)
     } else {
-      println(Json.parse(result.body) \ "error" \ "message")
       Left(ResponseError(java.util.UUID.randomUUID().toString, result.statusText, result.statusText))
     }
 

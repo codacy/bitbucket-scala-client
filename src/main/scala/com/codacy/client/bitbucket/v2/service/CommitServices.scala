@@ -1,7 +1,7 @@
 package com.codacy.client.bitbucket.v2.service
 
 import com.codacy.client.bitbucket.v2.CommitComment
-import com.codacy.client.client.{BitbucketClient, Request, RequestResponse}
+import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
 import play.api.libs.json.{JsNumber, JsObject, JsString, Json}
 
 class CommitServices(client: BitbucketClient) {

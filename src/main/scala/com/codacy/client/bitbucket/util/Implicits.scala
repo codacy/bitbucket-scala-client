@@ -1,4 +1,4 @@
-package com.codacy.client.util
+package com.codacy.client.bitbucket.util
 
 import java.net.URI
 

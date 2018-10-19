@@ -1,4 +1,4 @@
-package com.codacy.client.util
+package com.codacy.client.bitbucket.util
 
 object HTTPStatusCodes extends Enumeration {
   type HTTPStatusCodes = Value

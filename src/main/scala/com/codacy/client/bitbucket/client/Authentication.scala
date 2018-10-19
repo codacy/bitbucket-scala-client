@@ -1,4 +1,4 @@
-package com.codacy.client.client
+package com.codacy.client.bitbucket.client
 
 import play.api.libs.oauth.{ConsumerKey, OAuthCalculator, RequestToken}
 import play.api.libs.ws.{WSAuthScheme, WSRequest}
