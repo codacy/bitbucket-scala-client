@@ -1,7 +1,7 @@
 package com.codacy.client.client
 
 import play.api.libs.oauth.{ConsumerKey, OAuthCalculator, RequestToken}
-import play.api.libs.ws.{WSAuthScheme, StandaloneWSRequest => WSRequest}
+import play.api.libs.ws.{WSAuthScheme, WSRequest}
 
 /**
   * Handles request authentication.
@@ -47,7 +47,7 @@ object Authentication {
   }
 
   class OAuth2Authenticator(credentials: OAuth2Credentials) extends Authenticator {
-    override def authenticate(req: WSRequest): WSRequest = req.withQueryStringParameters("access_token" -> credentials.accessToken)
+    override def authenticate(req: WSRequest): WSRequest = req.withQueryString("access_token" -> credentials.accessToken)
   }
 
   class BasicAuthAuthenticator(credentials: BasicAuthCredentials) extends Authenticator {

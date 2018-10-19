@@ -3,7 +3,6 @@ package com.codacy.client.bitbucket.v2.service
 import com.codacy.client.bitbucket.v2.Issue
 import com.codacy.client.client.{BitbucketClient, Request, RequestResponse}
 import play.api.libs.json._
-import play.api.libs.ws.JsonBodyWritables._
 
 class IssueServices(client: BitbucketClient) {
 
