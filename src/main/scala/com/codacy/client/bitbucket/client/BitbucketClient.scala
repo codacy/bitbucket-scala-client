@@ -2,16 +2,13 @@ package com.codacy.client.bitbucket.client
 
 import java.net.URI
 
-import akka.stream.Materializer
 import com.codacy.client.bitbucket.client.Authentication._
 import com.codacy.client.bitbucket.util.HTTPStatusCodes
 import com.codacy.client.bitbucket.util.Implicits.URIQueryParam
+import com.ning.http.client.AsyncHttpClientConfig
+import play.api.http.Writeable
 import play.api.libs.json._
-import play.api.libs.ws.BodyWritable
-import play.api.libs.ws.DefaultBodyWritables._
-import play.api.libs.ws.JsonBodyWritables._
-import play.api.libs.ws.ahc.StandaloneAhcWSClient
-import play.shaded.ahc.org.asynchttpclient.DefaultAsyncHttpClient
+import play.api.libs.ws.ning.{NingAsyncHttpClientConfigBuilder, NingWSClient}
 
 import scala.compat.Platform.EOL
 import scala.concurrent.Await
@@ -19,7 +16,7 @@ import scala.concurrent.duration.{Duration, SECONDS}
 import scala.util.{Failure, Properties, Success, Try}
 
 
-class BitbucketClient(credentials: Credentials)(implicit materializer: Materializer) {
+class BitbucketClient(credentials: Credentials) {
 
   private lazy val requestTimeout = Duration(10, SECONDS)
 
@@ -54,7 +51,7 @@ class BitbucketClient(credentials: Credentials)(implicit materializer: Materiali
           (FIRST_PAGE + 1 to lastPage).par.map { page =>
             val nextUrl = new URI(request.url).addQuery(s"page=$page").toString
             get(nextUrl) match {
-              case Right(json) => extractValues(json)
+              case Right(nextJson) => extractValues(nextJson)
               case Left(error) => FailedResponse(error.detail)
             }
           }.to[Seq]
@@ -75,7 +72,7 @@ class BitbucketClient(credentials: Credentials)(implicit materializer: Materiali
   /*
    * Does an API request
    */
-  private def performRequest[D, T](method: String, request: Request[T], values: D)(implicit reader: Reads[T], writer: BodyWritable[D]): RequestResponse[T] = withClientRequest { client =>
+  private def performRequest[D, T](method: String, request: Request[T], values: D)(implicit reader: Reads[T], writer: Writeable[D]): RequestResponse[T] = withClientRequest { client =>
     val jpromise = client.url(request.url)
       .authenticate(authenticator)
       .withFollowRedirects(follow = true)
@@ -111,7 +108,7 @@ class BitbucketClient(credentials: Credentials)(implicit materializer: Materiali
     value
   }
 
-  def postForm[T](request: Request[T], values: Map[String, Seq[String]])(implicit reader: Reads[T]): RequestResponse[T] = {
+  def postForm[D, T](request: Request[T], values: D)(implicit reader: Reads[T], writer: Writeable[D]): RequestResponse[T] = {
     performRequest("POST", request, values)
   }
 
@@ -178,7 +175,7 @@ class BitbucketClient(credentials: Credentials)(implicit materializer: Materiali
     }
   }
 
-  private def withClientEither[T](block: StandaloneAhcWSClient => Either[ResponseError, T]): Either[ResponseError, T] = {
+  private def withClientEither[T](block: NingWSClient => Either[ResponseError, T]): Either[ResponseError, T] = {
     withClient(block) match {
       case Success(res) => res
       case Failure(error) =>
@@ -186,7 +183,7 @@ class BitbucketClient(credentials: Credentials)(implicit materializer: Materiali
     }
   }
 
-  private def withClientRequest[T](block: StandaloneAhcWSClient => RequestResponse[T]): RequestResponse[T] = {
+  private def withClientRequest[T](block: NingWSClient => RequestResponse[T]): RequestResponse[T] = {
     withClient(block) match {
       case Success(res) => res
       case Failure(error) =>
@@ -200,8 +197,10 @@ class BitbucketClient(credentials: Credentials)(implicit materializer: Materiali
     }
   }
 
-  private def withClient[T](block: StandaloneAhcWSClient => T): Try[T] = {
-    val client = new StandaloneAhcWSClient(new DefaultAsyncHttpClient)
+  private def withClient[T](block: NingWSClient => T): Try[T] = {
+    val config = new NingAsyncHttpClientConfigBuilder().build()
+    val clientConfig = new AsyncHttpClientConfig.Builder(config).build()
+    val client = new NingWSClient(clientConfig)
     val result = Try(block(client))
     client.close()
     result
