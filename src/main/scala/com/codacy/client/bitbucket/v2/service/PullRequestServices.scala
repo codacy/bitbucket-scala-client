@@ -28,6 +28,11 @@ class PullRequestServices(client: BitbucketClient) {
     client.executePaginated(Request(url, classOf[Seq[SimpleCommit]]))
   }
 
+  private[this] def postNewComment(owner: String, repo: String, prId: Int, values: JsObject): RequestResponse[PullRequestComment] = {
+    val url = s"https://bitbucket.org/api/2.0/repositories/$owner/$repo/pullrequests/$prId/comments"
+    client.postJson(Request(url, classOf[PullRequestComment]), values)
+  }
+
   def create(owner: String, repository: String, title: String, sourceBranch: String, destinationBranch: String): RequestResponse[JsObject] = {
     val url = s"https://bitbucket.org/api/2.0/repositories/$owner/$repository/pullrequests"
 
@@ -68,10 +73,8 @@ class PullRequestServices(client: BitbucketClient) {
     client.postJson(Request(url, classOf[JsObject]), JsNull)
   }
 
-  def createComment(author: String, repo: String, prId: Int, body: String,
+  def createLineComment(author: String, repo: String, prId: Int, body: String,
                     file: Option[String], line: Option[Int]): RequestResponse[PullRequestComment] = {
-    val url = s"https://bitbucket.org/api/2.0/repositories/$author/$repo/pullrequests/$prId/comments"
-
     val params = for {
       filename <- file
       lineTo <- line
@@ -79,8 +82,13 @@ class PullRequestServices(client: BitbucketClient) {
       "inline" -> Json.obj("path" -> JsString(filename), "to" -> JsNumber(lineTo))
     }
 
-    val values = JsObject(params.toSeq :+ "content" -> Json.obj("raw" -> JsString(body)))//, "anchor" -> JsString(CommitHelper.anchor(commitUUID))))
-    client.postJson(Request(url, classOf[PullRequestComment]), values)
+    val values = JsObject(params.toSeq :+ "content" -> Json.obj("raw" -> JsString(body)))
+    postNewComment(author, repo, prId, values)
+  }
+
+  def createPullRequestComment(author: String, repo: String, prId: Int, content: String): RequestResponse[PullRequestComment] = {
+    val values = Json.obj("content" -> JsString(content))
+    postNewComment(author, repo, prId, values)
   }
 
   def deleteComment(author: String, repo: String, pullRequestId: Int, commentId: Long): RequestResponse[Boolean] = {
