@@ -8,11 +8,7 @@ import play.api.libs.json._
 case class Repository(name: String, full_name: String, description: String, scm: String,
                       created_on: LocalDateTime, updated_on: LocalDateTime, owner: String, size: Long,
                       has_issues: Boolean, is_private: Boolean, language: String,
-                      urls: Seq[RepositoryUrl]) {
-
-  val sshUrl: String = s"ssh://$scm@bitbucket.org/$owner/$name"
-  val httpsUrl: String = s"https://$owner@bitbucket.org/$owner/$name"
-}
+                      urls: Seq[RepositoryUrl])
 
 object Repository {
   val dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX"
