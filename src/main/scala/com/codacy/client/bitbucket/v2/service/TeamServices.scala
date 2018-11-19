@@ -5,7 +5,7 @@ import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResp
 
 class TeamServices(client: BitbucketClient) {
 
-  def list(role: String): RequestResponse[Seq[Team]] = {
+  def list(role: String = "member"): RequestResponse[Seq[Team]] = {
     client.executePaginated(Request(s"https://bitbucket.org/api/2.0/teams?role=$role", classOf[Seq[Team]]))
   }
 
