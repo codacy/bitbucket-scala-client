@@ -8,7 +8,7 @@ import play.api.libs.json._
 case class Repository(name: String, full_name: String, description: String, scm: String,
                       created_on: LocalDateTime, updated_on: LocalDateTime, owner: String, size: Long,
                       has_issues: Boolean, is_private: Boolean, language: String,
-                      url: Seq[RepositoryUrl]) {
+                      urls: Seq[RepositoryUrl]) {
 
   val sshUrl: String = s"ssh://$scm@bitbucket.org/$owner/$name"
   val httpsUrl: String = s"https://$owner@bitbucket.org/$owner/$name"
