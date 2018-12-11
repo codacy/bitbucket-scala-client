@@ -2,8 +2,7 @@ package com.codacy.client.bitbucket.v2.service
 
 import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
 import com.codacy.client.bitbucket.v2.AccessToken
-import com.codacy.client.bitbucket.v2.Authorization.RefreshCredentials
-import play.api.libs.json._
+import com.codacy.client.bitbucket.v2.Authorization.{RefreshCredentials, RefreshToken}
 
 class AuthorizationServices(client: BitbucketClient) {
 
@@ -13,10 +12,12 @@ class AuthorizationServices(client: BitbucketClient) {
    */
   def refreshAccessToken(
       credentials: RefreshCredentials): RequestResponse[AccessToken] = {
-    val url = s"https://bitbucket.org/site/oauth2/access_token"
+    val url = "https://bitbucket.org/site/oauth2/access_token"
 
-    val values = Json.toJson[RefreshCredentials](credentials)
+    val values = credentials match {
+      case c: RefreshToken => Map("grant_type" -> Seq(c.grant_type), "refresh_token" -> Seq(c.refresh_token))
+    }
 
-    client.postJson(Request(url, classOf[AccessToken]), values)
+    client.postForm(Request(url, classOf[AccessToken]), values)
   }
 }
