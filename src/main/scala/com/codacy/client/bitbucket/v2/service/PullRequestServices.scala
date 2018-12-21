@@ -87,7 +87,7 @@ class PullRequestServices(client: BitbucketClient) {
   }
 
   def createPullRequestComment(author: String, repo: String, prId: Int, content: String): RequestResponse[PullRequestComment] = {
-    val values = Json.obj("content" -> JsString(content))
+    val values = Json.obj("content" -> Json.obj("raw" -> JsString(content)))
     postNewComment(author, repo, prId, values)
   }
 
