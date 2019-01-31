@@ -1,0 +1,174 @@
+# CircleCI 2.0 configuration file
+version: 2
+
+# Re-usable blocks to reduce boilerplate in job definitions.
+references:
+
+  sbt_jvm_defaults: &sbt_jvm_defaults
+    JAVA_OPTS: -Xmx3200m
+
+  default_sbt_job: &default_sbt_job
+    machine: true
+    working_directory: ~/workdir
+    environment:
+      <<: *sbt_jvm_defaults
+
+  default_aws_job: &default_aws_job
+    docker:
+    - image: codacy/ci-aws:3.0.2
+    working_directory: ~/workdir/.aws
+
+  setup_aws_credentials: &setup_aws_credentials
+    run:
+      name: Setup AWS Credentials
+      command: |
+        mkdir -p ~/.aws && touch ~/.aws/credentials
+        cat >> ~/.aws/credentials << EOF
+        [default]
+        aws_access_key_id=$ACCESS_KEY_ID
+        aws_secret_access_key=$SECRET_ACCESS_KEY
+        [integration]
+        source_profile = default
+        role_arn = arn:aws:iam::$AWS_ACCOUNT_ID_INTEGRATION:role/$CONTINUOUS_DELIVERY_ROLE
+        region=eu-west-1
+
+  restore_sbt_cache: &restore_sbt_cache
+    restore_cache:
+      keys:
+      - sbt-cache-{{ .Branch }}-{{ checksum "build.sbt" }}-{{ .Environment.CIRCLE_SHA1 }}
+      - sbt-cache-{{ .Branch }}-{{ checksum "build.sbt" }}
+      - sbt-cache-{{ .Branch }}
+      - sbt-cache
+
+  clean_sbt_cache: &clean_sbt_cache
+    run:
+      name: CleanCache
+      command: |
+        find $HOME/.sbt -name "*.lock" | xargs rm | true
+        find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm | true
+
+  save_sbt_cache: &save_sbt_cache
+    save_cache:
+      key: sbt-cache-{{ .Branch }}-{{ checksum "build.sbt" }}-{{ .Environment.CIRCLE_SHA1 }}
+      paths:
+      - "~/.ivy2/cache"
+      - "~/.sbt"
+      - "~/.m2"
+
+jobs:
+
+  checkout_and_version:
+    docker:
+    - image: codacy/git-version:latest
+    working_directory: ~/workdir
+    steps:
+    - checkout
+    - run:
+        name: Set version
+        command: /bin/git-version > .version
+    - run:
+        name: Set Sbt version
+        command: echo "version in ThisBuild := \"$(cat .version)\"" > version.sbt
+    - run:
+        name: Current version
+        command: cat .version
+    - persist_to_workspace:
+        root: ~/
+        paths:
+        - workdir/*
+
+  checkfmt:
+    <<: *default_sbt_job
+    steps:
+    - attach_workspace:
+        at: ~/
+    - *restore_sbt_cache
+    - run:
+        name: Check formatting
+        command: sbt ";scalafmt::test;test:scalafmt::test;sbt:scalafmt::test"
+    - *clean_sbt_cache
+    - *save_sbt_cache
+
+  compile:
+    <<: *default_sbt_job
+    steps:
+    - attach_workspace:
+        at: ~/
+    - *restore_sbt_cache
+    - run:
+        name: Compile
+        command: sbt +compile
+    - *clean_sbt_cache
+    - *save_sbt_cache
+
+  test:
+    <<: *default_sbt_job
+    steps:
+    - attach_workspace:
+        at: ~/
+    - *restore_sbt_cache
+    - run:
+        name: Compile
+        command: |
+          sbt +test
+
+  publish:
+    <<: *default_sbt_job
+    steps:
+    - attach_workspace:
+        at: ~/
+    - *restore_sbt_cache
+    - run:
+        name: Publish
+        command: |
+          sbt ";retrieveGPGKeys"
+          sbt ";+publishSigned;sonatypeReleaseAll"
+    - *clean_sbt_cache
+    - *save_sbt_cache
+
+  tag_version:
+    <<: *default_sbt_job
+    steps:
+    - attach_workspace:
+        at: ~/
+    - add_ssh_keys:
+        fingerprints:
+        - "df:83:d7:c7:d5:79:06:c2:3b:d1:fd:e2:a3:d1:12:c5"
+    - run:
+        name: Tag
+        command: git tag $(cat .version) && git push --tags
+
+workflows:
+  version: 2
+  compile_deploy:
+    jobs:
+    - checkout_and_version:
+        context: CodacyAWS
+    - checkfmt:
+        context: CodacyAWS
+        requires:
+        - checkout_and_version
+    - compile:
+        context: CodacyAWS
+        requires:
+        - checkout_and_version
+    - test:
+        context: CodacyAWS
+        requires:
+        - compile
+    - publish:
+        filters:
+          branches:
+            only:
+            - master
+        context: CodacyAWS
+        requires:
+        - test
+    - tag_version:
+        filters:
+          branches:
+            only:
+            - master
+        context: CodacyAWS
+        requires:
+        - publish
