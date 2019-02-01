@@ -6,8 +6,10 @@ import play.api.libs.json.{Reads, __}
 case class AccessToken(access_token: String, refresh_token: String)
 
 object AccessToken {
+  // format: off
   implicit val reader: Reads[AccessToken] = (
     (__ \ "access_token").read[String] and
       (__ \ "refresh_token").read[String]
   )(AccessToken.apply _)
+  // format: on
 }

@@ -44,6 +44,7 @@ object PullRequest {
     }
   }
 
+  // format: off
   implicit val reader: Reads[PullRequest] = (
     (__ \ "id").read[Long] and
       (__ \ "title").read[String] and
@@ -63,6 +64,7 @@ object PullRequest {
       (__ \ "links").read[Map[String, Map[String, String]]].map(parseLinks) and
       (__ \ "author" \ "uuid").readNullable[String]
     ) (PullRequest.apply _)
+  // format: on
 
   private def parseLinks(links: Map[String, Map[String, String]]): Seq[ApiUrl] = {
     (for {

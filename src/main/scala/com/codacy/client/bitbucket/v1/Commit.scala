@@ -18,6 +18,7 @@ object Commit {
     }
   }
 
+  // format: off
   implicit val reader: Reads[Commit] = (
     (__ \ "hash").read[String] and
       (__ \ "author" \ "user" \ "username").read[String] and
@@ -25,4 +26,5 @@ object Commit {
       (__ \ "date").read[LocalDateTime] and
       (__ \ "message").read[String]
     )(Commit.apply _)
+  // format: on
 }

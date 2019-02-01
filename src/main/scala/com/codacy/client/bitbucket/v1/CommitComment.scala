@@ -11,6 +11,7 @@ object CommitComment {
   val dateFormat = "yyyy-MM-dd HH:mm:ssXXX"
   implicit val dateTimeReads: Reads[LocalDateTime] = Reads.localDateTimeReads(dateFormat)
 
+  // format: off
   implicit val reader: Reads[CommitComment] = (
     (__ \ "comment_id").read[Long] and
       (__ \ "username").read[String] and
@@ -19,4 +20,5 @@ object CommitComment {
       (__ \ "content").read[String] and
       (__ \ "utc_created_on").read[LocalDateTime]
     )(CommitComment.apply _)
+  // format: on
 }

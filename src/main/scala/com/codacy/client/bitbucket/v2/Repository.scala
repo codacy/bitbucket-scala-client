@@ -18,6 +18,7 @@ object Repository {
     Reads.localDateTimeReads(dateFormat)
       .orElse(Reads.localDateTimeReads(dateFormatWithoutMillis))
 
+  // format: off
   implicit val reader: Reads[Repository] = {
     ((__ \ "name").read[String] and
       (__ \ "full_name").read[String] and
@@ -33,6 +34,7 @@ object Repository {
       (__ \ "links").read[Map[String, JsValue]].map(parseLinks)
       ) (Repository.apply _)
   }
+  // format: on
 
   private def parseLinks(links: Map[String, JsValue]): Seq[RepositoryUrl] = {
     links.flatMap {

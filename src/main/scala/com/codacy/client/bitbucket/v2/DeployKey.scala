@@ -6,9 +6,11 @@ import play.api.libs.json._
 case class DeployKey(id: Long, key: String, label: String)
 
 object DeployKey {
+  // format: off
   implicit val reader: Reads[DeployKey] = (
     (__ \ "id").read[Long] and
       (__ \ "key").read[String] and
       (__ \ "label").read[String]
     )(DeployKey.apply _)
+  // format: on
 }

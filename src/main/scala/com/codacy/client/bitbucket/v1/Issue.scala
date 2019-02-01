@@ -12,6 +12,7 @@ object Issue {
   val dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS"
   implicit val dateTimeReads: Reads[LocalDateTime] = Reads.localDateTimeReads(dateFormat)
 
+  // format: off
   implicit val reader: Reads[Issue] = (
     (__ \ "local_id").read[Long] and
       (__ \ "status").read[String] and
@@ -22,4 +23,5 @@ object Issue {
       (__ \ "created_on").read[LocalDateTime] and
       (__ \ "metadata" \ "kind").read[String]
     )(Issue.apply _)
+  // format: on
 }

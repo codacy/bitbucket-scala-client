@@ -6,9 +6,11 @@ import play.api.libs.json._
 case class SshKey(pk: Long, key: String, label: String)
 
 object SshKey {
+  // format: off
   implicit val reader: Reads[SshKey] = (
     (__ \ "pk").read[Long] and
       (__ \ "key").read[String] and
       (__ \ "label").read[String]
     )(SshKey.apply _)
+  // format: on
 }

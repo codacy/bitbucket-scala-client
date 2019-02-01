@@ -21,6 +21,7 @@ object SimpleRepository {
     Reads.localDateTimeReads(dateFormat)
       .orElse(Reads.localDateTimeReads(dateFormatWithoutMillis))
 
+  // format: off
   implicit val reader: Reads[SimpleRepository] =
     ((__ \ "slug").read[String] and
       (__ \ "description").read[String] and
@@ -33,4 +34,5 @@ object SimpleRepository {
       (__ \ "is_private").read[Boolean] and
       (__ \ "language").read[String]
       ) (SimpleRepository.apply _)
+  // format: on
 }

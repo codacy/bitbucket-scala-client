@@ -11,6 +11,7 @@ object PullRequestComment {
   val dateFormat = "yyyy-MM-dd HH:mm:ssXXX"
   implicit val dateTimeReads: Reads[LocalDateTime] = Reads.localDateTimeReads(dateFormat)
 
+  // format: off
   implicit val reader: Reads[PullRequestComment] = (
     (__ \ "comment_id").read[Long] and
       (__ \ "username").read[String] and
@@ -18,4 +19,5 @@ object PullRequestComment {
       (__ \ "content").read[String] and
       (__ \ "utc_created_on").read[LocalDateTime]
     )(PullRequestComment.apply _)
+  // format: on
 }

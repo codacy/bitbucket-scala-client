@@ -6,9 +6,11 @@ import play.api.libs.json._
 case class Email(email: String, is_primary: Boolean, is_confirmed: Boolean)
 
 object Email {
+  // format: off
   implicit def emailReader: Reads[Email] =
     ((__ \ "email").read[String] and
       (__ \ "is_primary").read[Boolean] and
       (__ \ "is_confirmed").read[Boolean]
       ) (Email.apply _)
+  // format: on
 }
