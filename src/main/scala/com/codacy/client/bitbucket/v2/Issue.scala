@@ -5,8 +5,16 @@ import java.time.LocalDateTime
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
-case class Issue(id: Long, state: String, priority: String, title: String, content: String, reporter: String,
-                 created_on: LocalDateTime, kind: String)
+case class Issue(
+    id: Long,
+    state: String,
+    priority: String,
+    title: String,
+    content: String,
+    reporter: String,
+    created_on: LocalDateTime,
+    kind: String
+)
 
 object Issue {
   // format: off

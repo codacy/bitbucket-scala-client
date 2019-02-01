@@ -10,8 +10,7 @@ class AuthorizationServices(client: BitbucketClient) {
    * Gets new AccessToken with the RefreshCredentials
    *
    */
-  def refreshAccessToken(
-      credentials: RefreshCredentials): RequestResponse[AccessToken] = {
+  def refreshAccessToken(credentials: RefreshCredentials): RequestResponse[AccessToken] = {
     val url = "https://bitbucket.org/site/oauth2/access_token"
 
     val values = credentials match {

@@ -45,10 +45,7 @@ class UserSpecs extends FlatSpec with Matchers {
     val json = Json.parse(input)
     val value = json.validate[Seq[Email]]
 
-    value.fold(e =>
-      fail(s"$e"),
-      emails => emails.length shouldBe 3
-    )
+    value.fold(e => fail(s"$e"), emails => emails.length shouldBe 3)
   }
   it should "successfully parse a JSON into an array of Team" in {
     val input = """
@@ -138,9 +135,6 @@ class UserSpecs extends FlatSpec with Matchers {
     val json = Json.parse(input)
     val value = json.validate[Seq[Team]]
 
-    value.fold(e =>
-      fail(s"$e"),
-      teams => teams.length shouldBe 2
-    )
+    value.fold(e => fail(s"$e"), teams => teams.length shouldBe 2)
   }
 }

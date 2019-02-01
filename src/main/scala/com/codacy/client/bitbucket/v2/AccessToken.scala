@@ -1,7 +1,7 @@
 package com.codacy.client.bitbucket.v2
 
 import play.api.libs.functional.syntax._
-import play.api.libs.json.{Reads, __}
+import play.api.libs.json.{__, Reads}
 
 case class AccessToken(access_token: String, refresh_token: String)
 

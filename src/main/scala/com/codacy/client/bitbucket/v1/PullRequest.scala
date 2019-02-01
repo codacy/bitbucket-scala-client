@@ -5,12 +5,24 @@ import java.time.LocalDateTime
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
-case class PullRequest(id: Long, title: String, description: String,
-                       authorUsername: Option[String], authorAvatar: Option[String],
-                       state: String, created_on: LocalDateTime, updated_on: LocalDateTime,
-                       sourceRepository: String, sourceBranch: String, sourceCommit: String,
-                       destRepository: String, destBranch: String, destCommit: Option[String],
-                       apiUrls: Seq[ApiUrl], authorUUID: Option[String] = None) {
+case class PullRequest(
+    id: Long,
+    title: String,
+    description: String,
+    authorUsername: Option[String],
+    authorAvatar: Option[String],
+    state: String,
+    created_on: LocalDateTime,
+    updated_on: LocalDateTime,
+    sourceRepository: String,
+    sourceBranch: String,
+    sourceCommit: String,
+    destRepository: String,
+    destBranch: String,
+    destCommit: Option[String],
+    apiUrls: Seq[ApiUrl],
+    authorUUID: Option[String] = None
+) {
   val url = s"https://bitbucket.org/$destRepository/pull-request/$id"
 }
 

@@ -131,10 +131,7 @@ class PullRequestSpecs extends FlatSpec with Matchers {
     val json = Json.parse(input)
     val value = json.validate[PullRequest]
 
-    value.fold(e =>
-      fail(s"$e"),
-      r => r.destCommit.isDefined shouldBe true
-    )
+    value.fold(e => fail(s"$e"), r => r.destCommit.isDefined shouldBe true)
   }
 
   it should "successfully parse JSON with null commit" in {
@@ -261,10 +258,7 @@ class PullRequestSpecs extends FlatSpec with Matchers {
     val json = Json.parse(input)
     val value = json.validate[PullRequest]
 
-    value.fold(e =>
-      fail(s"$e"),
-      r => r.destCommit.isEmpty shouldBe true
-    )
+    value.fold(e => fail(s"$e"), r => r.destCommit.isEmpty shouldBe true)
   }
 
   it should "successfully parse a JSON with null author while getting info for PRs" in {
@@ -383,10 +377,7 @@ class PullRequestSpecs extends FlatSpec with Matchers {
     val json = Json.parse(input)
     val value = json.validate[PullRequest]
 
-    value.fold(e =>
-      fail(s"$e"),
-      r => r.destCommit.isDefined shouldBe true
-    )
+    value.fold(e => fail(s"$e"), r => r.destCommit.isDefined shouldBe true)
   }
 
   it should "successfully parse a JSON into an array of Email" in {
@@ -407,9 +398,6 @@ class PullRequestSpecs extends FlatSpec with Matchers {
     val json = Json.parse(input)
     val value = json.validate[Seq[Email]]
 
-    value.fold(e =>
-      fail(s"$e"),
-      emails => emails.length shouldBe 2
-    )
+    value.fold(e => fail(s"$e"), emails => emails.length shouldBe 2)
   }
 }

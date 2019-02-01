@@ -16,35 +16,49 @@ class BuildStatusServices(client: BitbucketClient) {
     client.execute(Request(url, classOf[BuildStatus]))
   }
 
-
   /*
    * Create a build status for a commit
    *
    */
-  def createBuildStatus(owner: String, repository: String, commit: String, buildStatus: BuildStatus): RequestResponse[BuildStatus] = {
+  def createBuildStatus(
+      owner: String,
+      repository: String,
+      commit: String,
+      buildStatus: BuildStatus
+  ): RequestResponse[BuildStatus] = {
     val url = s"https://bitbucket.org/api/2.0/repositories/$owner/$repository/commit/$commit/statuses/build"
 
-    val values = Map("state" -> Seq(buildStatus.state.toString), "key" -> Seq(buildStatus.key),
-      "name" -> Seq(buildStatus.name), "url" -> Seq(buildStatus.url),
-      "description" -> Seq(buildStatus.description))
+    val values = Map(
+      "state" -> Seq(buildStatus.state.toString),
+      "key" -> Seq(buildStatus.key),
+      "name" -> Seq(buildStatus.name),
+      "url" -> Seq(buildStatus.url),
+      "description" -> Seq(buildStatus.description)
+    )
 
     client.postForm(Request(url, classOf[BuildStatus]), values)
   }
 
   /*
- * Update a build status for a commit
- *
- */
-  def updateBuildStatus(owner: String, repository: String, commit: String, buildStatus: BuildStatus): RequestResponse[BuildStatus] = {
-    val url = s"https://bitbucket.org/api/2.0/repositories/$owner/$repository/commit/$commit/statuses/build/${buildStatus.key}"
+   * Update a build status for a commit
+   *
+   */
+  def updateBuildStatus(
+      owner: String,
+      repository: String,
+      commit: String,
+      buildStatus: BuildStatus
+  ): RequestResponse[BuildStatus] = {
+    val url =
+      s"https://bitbucket.org/api/2.0/repositories/$owner/$repository/commit/$commit/statuses/build/${buildStatus.key}"
 
     val payload = Json.obj(
       "state" -> buildStatus.state,
-      "name" -> buildStatus.name, "url" -> buildStatus.url,
+      "name" -> buildStatus.name,
+      "url" -> buildStatus.url,
       "description" -> buildStatus.description
     )
 
     client.putJson(Request(url, classOf[BuildStatus]), payload)
   }
 }
-

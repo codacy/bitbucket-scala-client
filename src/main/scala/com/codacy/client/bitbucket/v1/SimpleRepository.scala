@@ -5,8 +5,18 @@ import java.time.LocalDateTime
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
-case class SimpleRepository(name: String, description: String, scm: String, created_on: LocalDateTime, updated_on: LocalDateTime,
-                            owner: String, size: Long, has_issues: Boolean, is_private: Boolean, language: String) {
+case class SimpleRepository(
+    name: String,
+    description: String,
+    scm: String,
+    created_on: LocalDateTime,
+    updated_on: LocalDateTime,
+    owner: String,
+    size: Long,
+    has_issues: Boolean,
+    is_private: Boolean,
+    language: String
+) {
 
   val full_name: String = s"$owner/$name"
   val sshUrl: String = s"ssh://$scm@bitbucket.org/$owner/$name"
@@ -18,7 +28,8 @@ object SimpleRepository {
   val dateFormatWithoutMillis = "yyyy-MM-dd'T'HH:mm:ss"
 
   implicit val dateTimeReads: Reads[LocalDateTime] =
-    Reads.localDateTimeReads(dateFormat)
+    Reads
+      .localDateTimeReads(dateFormat)
       .orElse(Reads.localDateTimeReads(dateFormatWithoutMillis))
 
   // format: off

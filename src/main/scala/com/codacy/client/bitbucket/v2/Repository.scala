@@ -5,17 +5,28 @@ import java.time.LocalDateTime
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
-case class Repository(name: String, full_name: String, description: String, scm: String,
-                      created_on: LocalDateTime, updated_on: LocalDateTime, owner: String, size: Long,
-                      has_issues: Boolean, is_private: Boolean, language: String,
-                      urls: Seq[RepositoryUrl])
+case class Repository(
+    name: String,
+    full_name: String,
+    description: String,
+    scm: String,
+    created_on: LocalDateTime,
+    updated_on: LocalDateTime,
+    owner: String,
+    size: Long,
+    has_issues: Boolean,
+    is_private: Boolean,
+    language: String,
+    urls: Seq[RepositoryUrl]
+)
 
 object Repository {
   val dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX"
   val dateFormatWithoutMillis = "yyyy-MM-dd'T'HH:mm:ssXXX"
 
   implicit val dateTimeReads: Reads[LocalDateTime] =
-    Reads.localDateTimeReads(dateFormat)
+    Reads
+      .localDateTimeReads(dateFormat)
       .orElse(Reads.localDateTimeReads(dateFormatWithoutMillis))
 
   // format: off
@@ -39,7 +50,6 @@ object Repository {
   private def parseLinks(links: Map[String, JsValue]): Seq[RepositoryUrl] = {
     links.flatMap {
       case (linkName, linkMap) =>
-
         val simpleLinks = for {
           ref <- linkMap.asOpt[Map[String, String]]
           urlType <- RepositoryUrlType.find(linkName)

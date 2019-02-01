@@ -1,6 +1,6 @@
 package com.codacy.client.bitbucket.v2.service
 
-import com.codacy.client.bitbucket.v2.{PullRequest, PullRequestComment, SimpleCommit, PullRequestReviewers}
+import com.codacy.client.bitbucket.v2.{PullRequest, PullRequestComment, PullRequestReviewers, SimpleCommit}
 import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
 import play.api.libs.json._
 
@@ -12,8 +12,13 @@ class PullRequestServices(client: BitbucketClient) {
    * States: OPEN | MERGED | DECLINED
    *
    */
-  def getPullRequests(owner: String, repository: String, states: Seq[String] = Seq("OPEN")): RequestResponse[Seq[PullRequest]] = {
-    val url = s"https://bitbucket.org/api/2.0/repositories/$owner/$repository/pullrequests?pagelen=50&state=${states.mkString("&state=")}"
+  def getPullRequests(
+      owner: String,
+      repository: String,
+      states: Seq[String] = Seq("OPEN")
+  ): RequestResponse[Seq[PullRequest]] = {
+    val url =
+      s"https://bitbucket.org/api/2.0/repositories/$owner/$repository/pullrequests?pagelen=50&state=${states.mkString("&state=")}"
 
     client.executePaginated(Request(url, classOf[Seq[PullRequest]]))
   }
@@ -28,26 +33,29 @@ class PullRequestServices(client: BitbucketClient) {
     client.executePaginated(Request(url, classOf[Seq[SimpleCommit]]))
   }
 
-  private[this] def postNewComment(owner: String, repo: String, prId: Int, values: JsObject): RequestResponse[PullRequestComment] = {
+  private[this] def postNewComment(
+      owner: String,
+      repo: String,
+      prId: Int,
+      values: JsObject
+  ): RequestResponse[PullRequestComment] = {
     val url = s"https://bitbucket.org/api/2.0/repositories/$owner/$repo/pullrequests/$prId/comments"
     client.postJson(Request(url, classOf[PullRequestComment]), values)
   }
 
-  def create(owner: String, repository: String, title: String, sourceBranch: String, destinationBranch: String): RequestResponse[JsObject] = {
+  def create(
+      owner: String,
+      repository: String,
+      title: String,
+      sourceBranch: String,
+      destinationBranch: String
+  ): RequestResponse[JsObject] = {
     val url = s"https://bitbucket.org/api/2.0/repositories/$owner/$repository/pullrequests"
 
     val payload = Json.obj(
       "title" -> title,
-      "source" -> Json.obj(
-        "branch" -> Json.obj(
-          "name" -> sourceBranch
-        )
-      ),
-      "destination" -> Json.obj(
-        "branch" -> Json.obj(
-          "name" -> destinationBranch
-        )
-      )
+      "source" -> Json.obj("branch" -> Json.obj("name" -> sourceBranch)),
+      "destination" -> Json.obj("branch" -> Json.obj("name" -> destinationBranch))
     )
 
     client.postJson(Request(url, classOf[JsObject]), payload)
@@ -73,8 +81,14 @@ class PullRequestServices(client: BitbucketClient) {
     client.postJson(Request(url, classOf[JsObject]), JsNull)
   }
 
-  def createLineComment(author: String, repo: String, prId: Int, body: String,
-                    file: Option[String], line: Option[Int]): RequestResponse[PullRequestComment] = {
+  def createLineComment(
+      author: String,
+      repo: String,
+      prId: Int,
+      body: String,
+      file: Option[String],
+      line: Option[Int]
+  ): RequestResponse[PullRequestComment] = {
     val params = for {
       filename <- file
       lineTo <- line
@@ -86,13 +100,19 @@ class PullRequestServices(client: BitbucketClient) {
     postNewComment(author, repo, prId, values)
   }
 
-  def createPullRequestComment(author: String, repo: String, prId: Int, content: String): RequestResponse[PullRequestComment] = {
+  def createPullRequestComment(
+      author: String,
+      repo: String,
+      prId: Int,
+      content: String
+  ): RequestResponse[PullRequestComment] = {
     val values = Json.obj("content" -> Json.obj("raw" -> JsString(content)))
     postNewComment(author, repo, prId, values)
   }
 
   def deleteComment(author: String, repo: String, pullRequestId: Int, commentId: Long): RequestResponse[Boolean] = {
-    val url = s"https://bitbucket.org/api/2.0/repositories/$author/$repo/pullrequests/$pullRequestId/comments/$commentId"
+    val url =
+      s"https://bitbucket.org/api/2.0/repositories/$author/$repo/pullrequests/$pullRequestId/comments/$commentId"
 
     client.delete(url)
   }
@@ -100,7 +120,8 @@ class PullRequestServices(client: BitbucketClient) {
   def listComments(author: String, repo: String, pullRequestId: Int): RequestResponse[Seq[PullRequestComment]] = {
     val url = s"https://bitbucket.org/api/2.0/repositories/$author/$repo/pullrequests/$pullRequestId/comments"
 
-    client.executePaginated(Request(url, classOf[Seq[PullRequestComment]]))
+    client
+      .executePaginated(Request(url, classOf[Seq[PullRequestComment]]))
       .map(_.filterNot(_.deleted))
   }
 

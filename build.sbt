@@ -7,26 +7,17 @@ name := """bitbucket-scala-client"""
 
 scalaVersion := "2.11.12"
 
-scalacOptions := Seq("-deprecation",
-                     "-feature",
-                     "-unchecked",
-                     "-Ywarn-adapted-args",
-                     "-Xlint")
+scalacOptions := Seq("-deprecation", "-feature", "-unchecked", "-Ywarn-adapted-args", "-Xlint")
 
 resolvers += "Typesafe maven repository" at "http://repo.typesafe.com/typesafe/maven-releases/"
 
-libraryDependencies ++= Seq(
-  playWs,
-  playJson,
-  scalatest % Test
-)
+libraryDependencies ++= Seq(playWs, playJson, scalatest % Test)
 
 mimaPreviousArtifacts := {
   val latestVersion = JSON
     .parseFull(
       Source
-        .fromURL(
-          "https://api.github.com/repos/codacy/bitbucket-scala-client/releases/latest")
+        .fromURL("https://api.github.com/repos/codacy/bitbucket-scala-client/releases/latest")
         .mkString
     )
     .flatMap(_.asInstanceOf[Map[String, String]].get("tag_name"))
@@ -34,6 +25,7 @@ mimaPreviousArtifacts := {
   Set("com.codacy" %% "bitbucket-scala-client" % latestVersion)
 }
 mimaBinaryIssueFilters ++= ignoredABIProblems
+
 val ignoredABIProblems = {
   import com.typesafe.tools.mima.core._
   import com.typesafe.tools.mima.core.ProblemFilters._
@@ -51,8 +43,10 @@ description := "Bitbucket Scala Client"
 homepage := Some(url("https://github.com/codacy/bitbucket-scala-client.git"))
 
 scmInfo := Some(
-  ScmInfo(url("https://github.com/codacy/bitbucket-scala-client.git"),
-          "scm:git:git@github.com:codacy/bitbucket-scala-client.git")
+  ScmInfo(
+    url("https://github.com/codacy/bitbucket-scala-client.git"),
+    "scm:git:git@github.com:codacy/bitbucket-scala-client.git"
+  )
 )
 
 pgpPassphrase := Option(System.getenv("SONATYPE_GPG_PASSPHRASE"))
