@@ -116,9 +116,9 @@ workflows:
     - populate_cache:
         requires:
         - checkout_and_version
-    - checkfmt:
-        requires:
-        - populate_cache
+    # - checkfmt:
+    #     requires:
+    #     - populate_cache
     - compile_and_test:
         requires:
         - populate_cache
@@ -131,7 +131,7 @@ workflows:
         context: CodacyAWS
         requires:
         - compile_and_test
-        - checkfmt
+        # - checkfmt
     - tag_version:
         filters:
           branches:
