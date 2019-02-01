@@ -2,4 +2,7 @@ resolvers += Resolver.jcenterRepo
 
 addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "0.2.0")
 
-addSbtPlugin("com.codacy" % "codacy-sbt-plugin" % "13.0.2")
+// Temporary until maven central sync, to be removed
+resolvers += Resolver.sonatypeRepo("releases")
+
+addSbtPlugin("com.codacy" % "codacy-sbt-plugin" % "13.0.3")
