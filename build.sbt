@@ -55,6 +55,8 @@ pomExtra :=
       </developer>
     </developers>
 
+pgpPassphrase := Option(System.getenv("SONATYPE_GPG_PASSPHRASE")).map(_.toCharArray)
+
 resolvers ~= { _.filterNot(_.name.toLowerCase.contains("codacy")) }
 
 publicMvnPublish
