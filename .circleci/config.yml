@@ -112,7 +112,7 @@ workflows:
   version: 2
   compile_deploy:
     jobs:
-      - checkout_and_version
+    - checkout_and_version
     - populate_cache:
         requires:
         - checkout_and_version
