@@ -139,7 +139,6 @@ workflows:
           branches:
             only:
             - master
-            - newCI
         context: CodacyAWS
         requires:
         - compile_and_test
@@ -149,7 +148,6 @@ workflows:
           branches:
             only:
             - master
-            - newCI
         context: CodacyAWS
         requires:
         - publish
