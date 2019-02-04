@@ -22,16 +22,16 @@ object Authentication {
     */
   case class BasicAuthCredentials(username: String, password: String) extends Credentials
 
-
   sealed trait Authenticator {
     def authenticate(req: WSRequest): WSRequest
   }
 
   object Authenticator {
-    def fromCredentials(credentials: Credentials): Authenticator =  {
+
+    def fromCredentials(credentials: Credentials): Authenticator = {
       credentials match {
-        case c: OAuthCredentials     => new OAuthAuthenticator(c)
-        case c: OAuth2Credentials    => new OAuth2Authenticator(c)
+        case c: OAuthCredentials => new OAuthAuthenticator(c)
+        case c: OAuth2Credentials => new OAuth2Authenticator(c)
         case c: BasicAuthCredentials => new BasicAuthAuthenticator(c)
       }
     }
@@ -47,11 +47,14 @@ object Authentication {
   }
 
   class OAuth2Authenticator(credentials: OAuth2Credentials) extends Authenticator {
-    override def authenticate(req: WSRequest): WSRequest = req.withQueryString("access_token" -> credentials.accessToken)
+    override def authenticate(req: WSRequest): WSRequest =
+      req.withQueryString("access_token" -> credentials.accessToken)
   }
 
   class BasicAuthAuthenticator(credentials: BasicAuthCredentials) extends Authenticator {
-    def authenticate(req: WSRequest): WSRequest = req.withAuth(credentials.username, credentials.password, WSAuthScheme.BASIC)
+
+    def authenticate(req: WSRequest): WSRequest =
+      req.withAuth(credentials.username, credentials.password, WSAuthScheme.BASIC)
   }
 
   /**

@@ -113,10 +113,7 @@ class RepositorySpecs extends FlatSpec with Matchers {
     val json = Json.parse(input)
     val value = json.validate[Repository]
 
-    value.fold(e =>
-      fail(s"$e"),
-      r => r.name shouldBe "Example"
-    )
+    value.fold(e => fail(s"$e"), r => r.name shouldBe "Example")
   }
 
   it should "successfully parse a JSON into an array of SimpleRepository" in {
@@ -186,10 +183,7 @@ class RepositorySpecs extends FlatSpec with Matchers {
     val json = Json.parse(input)
     val value = json.validate[Seq[SimpleRepository]]
 
-    value.fold(e =>
-      fail(s"$e"),
-      repo => repo.length shouldBe 2
-    )
+    value.fold(e => fail(s"$e"), repo => repo.length shouldBe 2)
   }
 
   it should "successfully parse a JSON into an array of SimpleRepository that has no milliseconds on the created date" in {
@@ -230,10 +224,7 @@ class RepositorySpecs extends FlatSpec with Matchers {
     val json = Json.parse(input)
     val value = json.validate[Seq[SimpleRepository]]
 
-    value.fold(e =>
-      fail(s"$e"),
-      repo => repo.length shouldBe 1
-    )
+    value.fold(e => fail(s"$e"), repo => repo.length shouldBe 1)
   }
 
 }

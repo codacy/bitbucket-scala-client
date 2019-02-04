@@ -11,26 +11,29 @@ class HookServices(client: BitbucketClient) {
     client.executePaginated(Request(servicesUrl, classOf[Seq[v2.Webhook]]))
   }
 
-  def create(author: String, repo: String, description: String, hookUrl: String, events:Set[String]): RequestResponse[v2.Webhook] = {
+  def create(
+      author: String,
+      repo: String,
+      description: String,
+      hookUrl: String,
+      events: Set[String]
+  ): RequestResponse[v2.Webhook] = {
     val servicesUrl = getServicesUrl(author, repo)
-    val payload = Json.obj(
-      "active"      -> true,
-      "description" -> description,
-      "url"         -> hookUrl,
-      "events"      -> events
-    )
+    val payload = Json.obj("active" -> true, "description" -> description, "url" -> hookUrl, "events" -> events)
     client.postJson(Request(servicesUrl, classOf[v2.Webhook]), payload)
   }
 
-  def update(author: String, repo: String, uuid: String,
-    active: Boolean, description: String, hookUrl: String, events:Set[String]): RequestResponse[v2.Webhook] = {
+  def update(
+      author: String,
+      repo: String,
+      uuid: String,
+      active: Boolean,
+      description: String,
+      hookUrl: String,
+      events: Set[String]
+  ): RequestResponse[v2.Webhook] = {
     val servicesUrl = getServicesUrl(author, repo)
-    val payload = Json.obj(
-      "active"      -> active,
-      "description" -> description,
-      "url"         -> hookUrl,
-      "events"      -> events
-    )
+    val payload = Json.obj("active" -> active, "description" -> description, "url" -> hookUrl, "events" -> events)
     client.putJson(Request(s"$servicesUrl/$uuid", classOf[v2.Webhook]), payload)
   }
 

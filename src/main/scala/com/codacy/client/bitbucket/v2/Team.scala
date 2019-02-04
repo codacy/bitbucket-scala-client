@@ -6,8 +6,10 @@ import play.api.libs.json._
 case class Team(username: String, display_name: String)
 
 object Team {
+  // format: off
   implicit val reader: Reads[Team] = (
     (__ \ "team" \ "username").read[String] and
       (__ \ "team" \ "display_name").read[String]
     )(Team.apply _)
+  // format: on
 }

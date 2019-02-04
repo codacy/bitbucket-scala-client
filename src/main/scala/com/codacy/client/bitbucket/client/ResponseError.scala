@@ -6,9 +6,11 @@ import play.api.libs.json._
 case class ResponseError(id: String, detail: String, message: String)
 
 object ResponseError {
+  // format: off
   implicit val reader: Reads[ResponseError] = (
     (__ \ "id").read[String] and
       (__ \ "details").read[String] and
       (__ \ "message").read[String]
     )(ResponseError.apply _)
+  // format: on
 }

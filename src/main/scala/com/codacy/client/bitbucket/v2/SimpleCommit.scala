@@ -4,11 +4,17 @@ import java.time.LocalDateTime
 
 import play.api.libs.json._
 
-case class SimpleCommit(hash: String, authorName: Option[String], parents: Seq[String], date: LocalDateTime, message: String)
+case class SimpleCommit(
+    hash: String,
+    authorName: Option[String],
+    parents: Seq[String],
+    date: LocalDateTime,
+    message: String
+)
 
 object SimpleCommit {
   val dateFormat = "yyyy-MM-dd'T'HH:mm:ssXXX"
-  implicit val dateTimeReads: Reads[LocalDateTime] = Reads.localDateTimeReads(dateFormat, s=> {println(s);s})
+  implicit val dateTimeReads: Reads[LocalDateTime] = Reads.localDateTimeReads(dateFormat, s => { println(s); s })
 
   implicit def commitReader: Reads[SimpleCommit] = Reads { (json: JsValue) =>
     (for {

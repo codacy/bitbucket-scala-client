@@ -97,10 +97,7 @@ class CommitSpecs extends FlatSpec with Matchers {
     val json = Json.parse(input)
     val value = json.validate[Commit]
 
-    value.fold(e =>
-      fail(s"$e"),
-      r => r.hash shouldBe "014d431153a45e14afec424ecfe91005cf4d44b2"
-    )
+    value.fold(e => fail(s"$e"), r => r.hash shouldBe "014d431153a45e14afec424ecfe91005cf4d44b2")
   }
 
   it should "successfully parse SimpleCommit" in {
@@ -189,10 +186,7 @@ class CommitSpecs extends FlatSpec with Matchers {
     val json = Json.parse(input)
     val value = json.validate[SimpleCommit]
 
-    value.fold(e =>
-      fail(s"$e"),
-      r => r.hash shouldBe "62d8d2d067452c458c91b2e932eb70d830ad2e29"
-    )
+    value.fold(e => fail(s"$e"), r => r.hash shouldBe "62d8d2d067452c458c91b2e932eb70d830ad2e29")
   }
 
 }

@@ -18,20 +18,6 @@ references:
     - image: codacy/ci-aws:3.0.2
     working_directory: ~/workdir/.aws
 
-  setup_aws_credentials: &setup_aws_credentials
-    run:
-      name: Setup AWS Credentials
-      command: |
-        mkdir -p ~/.aws && touch ~/.aws/credentials
-        cat >> ~/.aws/credentials << EOF
-        [default]
-        aws_access_key_id=$ACCESS_KEY_ID
-        aws_secret_access_key=$SECRET_ACCESS_KEY
-        [integration]
-        source_profile = default
-        role_arn = arn:aws:iam::$AWS_ACCOUNT_ID_INTEGRATION:role/$CONTINUOUS_DELIVERY_ROLE
-        region=eu-west-1
-
   restore_sbt_cache: &restore_sbt_cache
     restore_cache:
       keys:
@@ -56,21 +42,112 @@ references:
       - "~/.m2"
 
 jobs:
-  test:
+  checkout_and_version:
+    docker:
+      - image: codacy/git-version:latest
+    working_directory: ~/workdir
+    steps:
+      - checkout
+      - run:
+          name: Set version
+          command: /bin/git-version > .version
+      - run:
+          name: Set Sbt version
+          command: echo "version in ThisBuild := \"$(cat .version)\"" > version.sbt
+      - run:
+          name: Current version
+          command: cat .version
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - workdir/*
+
+  checkfmt:
+    <<: *default_sbt_job
+    steps:
+      - attach_workspace:
+          at: ~/
+      - *restore_sbt_cache
+      - run:
+          name: Check formatting
+          command: sbt ";scalafmt::test;test:scalafmt::test;sbt:scalafmt::test"
+      - *clean_sbt_cache
+      - *save_sbt_cache
+
+  populate_cache:
+    <<: *default_sbt_job
+    steps:
+      - attach_workspace:
+          at: ~/
+      - *restore_sbt_cache
+      - run:
+          name: Safely populate caches
+          command: sbt ";set scalafmtUseIvy in ThisBuild := false;update"
+      - *clean_sbt_cache
+      - *save_sbt_cache
+
+  compile_and_test:
     <<: *default_sbt_job
     steps:
     - attach_workspace:
         at: ~/
     - *restore_sbt_cache
     - run:
-        name: Test
-        command: |
-          sbt +test
+        name: Compile / Test and send coverage results
+        command: sbt ";compile;test:compile;coverage;test;coverageReport;coverageAggregate;codacyCoverage"
+    - *clean_sbt_cache
+    - *save_sbt_cache
+
+  tag_version:
+    <<: *default_sbt_job
+    steps:
+    - attach_workspace:
+        at: ~/
+    - add_ssh_keys:
+        fingerprints:
+          - "df:83:d7:c7:d5:79:06:c2:3b:d1:fd:e2:a3:d1:12:c5"
+    - run:
+        name: Tag
+        command: git tag $(cat .version) && git push --tags
+
+  publish:
+    <<: *default_sbt_job
+    steps:
+      - attach_workspace:
+          at: ~/
+      - *restore_sbt_cache
+      - run:
+          name: Publish to sonatype
+          command: sbt ";clean;retrieveGPGKeys;+publishSigned;sonatypeReleaseAll"
 
 workflows:
   version: 2
   compile_deploy:
     jobs:
-    - test:
+    - checkout_and_version
+    - populate_cache:
+        requires:
+        - checkout_and_version
+    - checkfmt:
+        requires:
+        - populate_cache
+    - compile_and_test:
+        requires:
+        - populate_cache
+    - publish:
+        filters:
+          branches:
+            only:
+            - master
         context: CodacyAWS
         requires:
+        - compile_and_test
+        - checkfmt
+    - tag_version:
+        filters:
+          branches:
+            only:
+            - master
+        context: CodacyAWS
+        requires:
+        - publish

@@ -15,7 +15,6 @@ import scala.concurrent.Await
 import scala.concurrent.duration.{Duration, SECONDS}
 import scala.util.{Failure, Properties, Success, Try}
 
-
 class BitbucketClient(credentials: Credentials) {
 
   private lazy val requestTimeout = Duration(10, SECONDS)
@@ -27,7 +26,8 @@ class BitbucketClient(credentials: Credentials) {
    */
   def execute[T](request: Request[T])(implicit reader: Reads[T]): RequestResponse[T] = {
     get(request.url) match {
-      case Right(json) => json.validate[T].fold(e => FailedResponse(s"Failed to parse json ($e): $json"), a => SuccessfulResponse(a))
+      case Right(json) =>
+        json.validate[T].fold(e => FailedResponse(s"Failed to parse json ($e): $json"), a => SuccessfulResponse(a))
       case Left(error) => FailedResponse(error.detail)
     }
   }
@@ -39,7 +39,9 @@ class BitbucketClient(credentials: Credentials) {
     val FIRST_PAGE = 1
 
     def extractValues(json: JsValue): RequestResponse[Seq[T]] =
-      (json \ "values").validate[Seq[T]].fold(e => FailedResponse(s"Failed to parse json ($e): $json"), a => SuccessfulResponse(a))
+      (json \ "values")
+        .validate[Seq[T]]
+        .fold(e => FailedResponse(s"Failed to parse json ($e): $json"), a => SuccessfulResponse(a))
 
     get(request.url) match {
       case Right(json) =>
@@ -48,20 +50,21 @@ class BitbucketClient(credentials: Credentials) {
           pagelen <- (json \ "pagelen").asOpt[Double]
         } yield {
           val lastPage = math.ceil(size / pagelen).toInt
-          (FIRST_PAGE + 1 to lastPage).par.map { page =>
-            val nextUrl = new URI(request.url).addQuery(s"page=$page").toString
-            get(nextUrl) match {
-              case Right(nextJson) => extractValues(nextJson)
-              case Left(error) => FailedResponse(error.detail)
+          (FIRST_PAGE + 1 to lastPage).par
+            .map { page =>
+              val nextUrl = new URI(request.url).addQuery(s"page=$page").toString
+              get(nextUrl) match {
+                case Right(nextJson) => extractValues(nextJson)
+                case Left(error) => FailedResponse(error.detail)
+              }
             }
-          }.to[Seq]
+            .to[Seq]
         }).getOrElse(Seq(SuccessfulResponse(Seq.empty)))
 
         val values = extractValues(json)
 
-        (values +: nextPages).foldLeft[RequestResponse[Seq[T]]](SuccessfulResponse(Seq.empty[T])) {
-          (a, b) =>
-            RequestResponse.apply(a, b)
+        (values +: nextPages).foldLeft[RequestResponse[Seq[T]]](SuccessfulResponse(Seq.empty[T])) { (a, b) =>
+          RequestResponse.apply(a, b)
         }
 
       case Left(error) =>
@@ -72,11 +75,17 @@ class BitbucketClient(credentials: Credentials) {
   /*
    * Does an API request
    */
-  private def performRequest[D, T](method: String, request: Request[T], values: D)(implicit reader: Reads[T], writer: Writeable[D]): RequestResponse[T] = withClientRequest { client =>
-    val jpromise = client.url(request.url)
+  private def performRequest[D, T](method: String, request: Request[T], values: D)(
+      implicit reader: Reads[T],
+      writer: Writeable[D]
+  ): RequestResponse[T] = withClientRequest { client =>
+    val jpromise = client
+      .url(request.url)
       .authenticate(authenticator)
       .withFollowRedirects(follow = true)
-      .withMethod(method).withBody(values).execute()
+      .withMethod(method)
+      .withBody(values)
+      .execute()
     val result = Await.result(jpromise, requestTimeout)
 
     val value = if (Seq(HTTPStatusCodes.OK, HTTPStatusCodes.CREATED).contains(result.status)) {
@@ -108,7 +117,10 @@ class BitbucketClient(credentials: Credentials) {
     value
   }
 
-  def postForm[D, T](request: Request[T], values: D)(implicit reader: Reads[T], writer: Writeable[D]): RequestResponse[T] = {
+  def postForm[D, T](
+      request: Request[T],
+      values: D
+  )(implicit reader: Reads[T], writer: Writeable[D]): RequestResponse[T] = {
     performRequest("POST", request, values)
   }
 
@@ -116,7 +128,9 @@ class BitbucketClient(credentials: Credentials) {
     performRequest("POST", request, values)
   }
 
-  def putForm[T](request: Request[T], values: Map[String, Seq[String]])(implicit reader: Reads[T]): RequestResponse[T] = {
+  def putForm[T](request: Request[T], values: Map[String, Seq[String]])(
+      implicit reader: Reads[T]
+  ): RequestResponse[T] = {
     performRequest("PUT", request, values)
   }
 
@@ -126,23 +140,26 @@ class BitbucketClient(credentials: Credentials) {
 
   /* copy paste from post ... */
   def delete[T](url: String): RequestResponse[Boolean] = withClientRequest { client =>
-    val jpromise = client.url(url)
+    val jpromise = client
+      .url(url)
       .authenticate(authenticator)
       .withFollowRedirects(follow = true)
       .delete()
     val result = Await.result(jpromise, requestTimeout)
 
-    val value = if (Seq(HTTPStatusCodes.OK, HTTPStatusCodes.CREATED, HTTPStatusCodes.NO_CONTENT).contains(result.status)) {
-      SuccessfulResponse(true)
-    } else {
-      FailedResponse(result.statusText)
-    }
+    val value =
+      if (Seq(HTTPStatusCodes.OK, HTTPStatusCodes.CREATED, HTTPStatusCodes.NO_CONTENT).contains(result.status)) {
+        SuccessfulResponse(true)
+      } else {
+        FailedResponse(result.statusText)
+      }
 
     value
   }
 
   private def get(url: String): Either[ResponseError, JsValue] = withClientEither { client =>
-    val jpromise = client.url(url)
+    val jpromise = client
+      .url(url)
       .authenticate(authenticator)
       .withFollowRedirects(follow = true)
       .get()
@@ -163,10 +180,11 @@ class BitbucketClient(credentials: Credentials) {
       val json = Json.parse(input)
       val errorOpt = (json \ "error").asOpt[ResponseError]
 
-      errorOpt.map {
-        error =>
+      errorOpt
+        .map { error =>
           Left(error)
-      }.getOrElse(Right(json))
+        }
+        .getOrElse(Right(json))
     } match {
       case Success(jsValue) =>
         jsValue
@@ -207,10 +225,12 @@ class BitbucketClient(credentials: Credentials) {
   }
 
   private def getFullStackTrace(throwableOpt: Throwable, accumulator: String = ""): String = {
-    Option(throwableOpt).map { throwable =>
-      val newAccumulator = s"$accumulator${Properties.lineSeparator}${throwable.getStackTrace.mkString("", EOL, EOL)}"
-      getFullStackTrace(throwable.getCause, newAccumulator)
-    }.getOrElse(accumulator)
+    Option(throwableOpt)
+      .map { throwable =>
+        val newAccumulator = s"$accumulator${Properties.lineSeparator}${throwable.getStackTrace.mkString("", EOL, EOL)}"
+        getFullStackTrace(throwable.getCause, newAccumulator)
+      }
+      .getOrElse(accumulator)
   }
 
 }

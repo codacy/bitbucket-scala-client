@@ -14,13 +14,15 @@ class RepositoryServices(client: BitbucketClient) {
     client.executePaginated(Request(s"https://bitbucket.org/api/2.0/repositories/$username", classOf[Seq[Repository]]))
   }
 
-  def createKey(username: String, repo: String, key: String, label: String = "Codacy Key"): RequestResponse[DeployKey] = {
+  def createKey(
+      username: String,
+      repo: String,
+      key: String,
+      label: String = "Codacy Key"
+  ): RequestResponse[DeployKey] = {
     val url = s"https://bitbucket.org/api/2.0/repositories/$username/$repo/deploy-keys"
 
-    val values = Json.obj(
-      "key" -> key,
-      "label" -> label
-    )
+    val values = Json.obj("key" -> key, "label" -> label)
 
     client.postJson(Request(url, classOf[DeployKey]), values)
   }

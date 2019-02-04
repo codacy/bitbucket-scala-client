@@ -52,10 +52,7 @@ class IssueSpecs extends FlatSpec with Matchers {
     val json = Json.parse(input)
     val value = json.validate[Issue]
 
-    value.fold(e =>
-      fail(s"$e"),
-      r => r.id shouldBe 9
-    )
+    value.fold(e => fail(s"$e"), r => r.id shouldBe 9)
   }
 
 }

@@ -7,8 +7,10 @@ case class SimplePullRequestComment(id: Long, anchor: Option[String])
 
 object SimplePullRequestComment {
 
+  // format: off
   implicit val reader: Reads[SimplePullRequestComment] = (
     (__ \ "comment_id").read[Long] and
       (__ \ "anchor").readNullable[String]
     )(SimplePullRequestComment.apply _)
+  // format: on
 }

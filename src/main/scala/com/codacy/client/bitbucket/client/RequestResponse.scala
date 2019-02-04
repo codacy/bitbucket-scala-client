@@ -31,9 +31,9 @@ object RequestResponse {
         r2 match {
           case SuccessfulResponse(v2) =>
             SuccessfulResponse(v1 ++ v2)
-          case f@FailedResponse(_) => f
+          case f @ FailedResponse(_) => f
         }
-      case f@FailedResponse(_) => f
+      case f @ FailedResponse(_) => f
     }
   }
 

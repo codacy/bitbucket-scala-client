@@ -5,12 +5,24 @@ import java.time.LocalDateTime
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
-case class PullRequest(id: Long, title: String, description: String,
-                       authorUsername: Option[String], authorAvatar: Option[String],
-                       state: String, created_on: LocalDateTime, updated_on: LocalDateTime,
-                       sourceRepository: String, sourceBranch: String, sourceCommit: String,
-                       destRepository: String, destBranch: String, destCommit: Option[String],
-                       apiUrls: Seq[ApiUrl], authorUUID: Option[String] = None) {
+case class PullRequest(
+    id: Long,
+    title: String,
+    description: String,
+    authorUsername: Option[String],
+    authorAvatar: Option[String],
+    state: String,
+    created_on: LocalDateTime,
+    updated_on: LocalDateTime,
+    sourceRepository: String,
+    sourceBranch: String,
+    sourceCommit: String,
+    destRepository: String,
+    destBranch: String,
+    destCommit: Option[String],
+    apiUrls: Seq[ApiUrl],
+    authorUUID: Option[String] = None
+) {
   val url = s"https://bitbucket.org/$destRepository/pull-request/$id"
 }
 
@@ -44,6 +56,7 @@ object PullRequest {
     }
   }
 
+  // format: off
   implicit val reader: Reads[PullRequest] = (
     (__ \ "id").read[Long] and
       (__ \ "title").read[String] and
@@ -63,6 +76,7 @@ object PullRequest {
       (__ \ "links").read[Map[String, Map[String, String]]].map(parseLinks) and
       (__ \ "author" \ "uuid").readNullable[String]
     ) (PullRequest.apply _)
+  // format: on
 
   private def parseLinks(links: Map[String, Map[String, String]]): Seq[ApiUrl] = {
     (for {

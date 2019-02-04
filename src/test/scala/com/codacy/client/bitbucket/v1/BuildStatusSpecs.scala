@@ -60,10 +60,7 @@ class BuildStatusSpecs extends FlatSpec with Matchers {
     val json = Json.parse(input)
     val value = json.validate[BuildStatus]
 
-    value.fold(e =>
-      fail(s"$e"),
-      r => r.key shouldBe "bt28"
-    )
+    value.fold(e => fail(s"$e"), r => r.key shouldBe "bt28")
   }
 
 }
