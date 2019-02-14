@@ -47,7 +47,7 @@ class UserSpecs extends FlatSpec with Matchers with Inside {
 
     value.fold(e => fail(s"$e"), emails => emails.length shouldBe 3)
   }
-  it should "successfully parse a JSON into an array of Team" in {
+  it should "successfully parse a JSON into an array of TeamWithPermission" in {
     val input = """
                   |[
                   |{
@@ -133,7 +133,7 @@ class UserSpecs extends FlatSpec with Matchers with Inside {
                   |]
                 """.stripMargin
     val json = Json.parse(input)
-    val value = json.validate[Seq[Team]]
+    val value = json.validate[Seq[TeamWithPermission]]
 
     value.fold(e => fail(s"$e"), teams => teams.length shouldBe 2)
   }
