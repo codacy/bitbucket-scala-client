@@ -2,7 +2,7 @@ package com.codacy.client.bitbucket.v2
 import org.scalatest.{Matchers, _}
 import play.api.libs.json.Json
 
-class UserSpecs extends FlatSpec with Matchers {
+class UserSpecs extends FlatSpec with Matchers with Inside {
 
   "UserSpecs" should "successfully parse a JSON into an array of Email" in {
     val input = """
@@ -136,5 +136,67 @@ class UserSpecs extends FlatSpec with Matchers {
     val value = json.validate[Seq[Team]]
 
     value.fold(e => fail(s"$e"), teams => teams.length shouldBe 2)
+  }
+  it should "successfully parse a JSON into a User" in {
+    val input =
+      """
+          |{
+          | "username":"jllopes",
+          | "website":"",
+          | "display_name":"João Lopes",
+          | "account_id":"123abc456def789ghi101jkl",
+          | "links":
+          | {
+          |   "hooks":
+          |   {
+          |     "href":"https:\/\/bitbucket.org\/!api\/2.0\/users\/jllopes\/hooks"
+          |   },
+          |   "self":
+          |   {
+          |     "href":"https:\/\/bitbucket.org\/!api\/2.0\/users\/jllopes"
+          |   },
+          |   "repositories":
+          |   {
+          |     "href":"https:\/\/bitbucket.org\/!api\/2.0\/repositories\/jllopes"
+          |   },
+          |   "html":
+          |   {
+          |     "href":"https:\/\/bitbucket.org\/jllopes\/"
+          |   },
+          |   "followers":
+          |   {
+          |     "href":"https:\/\/bitbucket.org\/!api\/2.0\/users\/jllopes\/followers"
+          |   },
+          |   "avatar":
+          |   {
+          |     "href":"https:\/\/bitbucket.org\/account\/jllopes\/avatar\/"
+          |   },
+          |   "following":
+          |   {
+          |     "href":"https:\/\/bitbucket.org\/!api\/2.0\/users\/jllopes\/following"
+          |   },
+          |   "snippets":
+          |   {
+          |     "href":"https:\/\/bitbucket.org\/!api\/2.0\/snippets\/jllopes"
+          |   }
+          | },
+          | "type":"user",
+          | "created_on":"2018-07-02T10:41:55.342788+00:00",
+          | "is_staff":false,
+          | "location":null,
+          | "account_status":"active",
+          | "nickname":"jllopes",
+          | "uuid":"{c19f822b-0e29-433a-87a5-ec8ace58aa67}"
+          |}""".stripMargin
+    val json = Json.parse(input)
+    val value = json.validate[User]
+
+    value.fold(e => fail(s"$e"), user => inside(user) {
+      case User(account_id, uuid, display_name, avatarUrl) =>
+        account_id shouldBe "123abc456def789ghi101jkl"
+        uuid shouldBe "{c19f822b-0e29-433a-87a5-ec8ace58aa67}"
+        display_name shouldBe "João Lopes"
+        avatarUrl.get shouldBe "https://bitbucket.org/account/jllopes/avatar/"
+    })
   }
 }

@@ -33,4 +33,107 @@ class RepositorySpecs extends FlatSpec with Matchers {
 
     value.fold(e => fail(s"$e"), r => r.id shouldBe 123)
   }
+
+  it should "successfully parse Repository" in {
+    val input =
+      """{
+                  |    "scm": "hg",
+                  |    "website": "",
+                  |    "has_wiki": true,
+                  |    "name": "tweakmsg",
+                  |    "links": {
+                  |        "watchers": {
+                  |            "href": "https://api.bitbucket.org/2.0/repositories/phlogistonjohn/tweakmsg/watchers"
+                  |        },
+                  |        "branches": {
+                  |            "href": "https://api.bitbucket.org/2.0/repositories/phlogistonjohn/tweakmsg/refs/branches"
+                  |        },
+                  |        "tags": {
+                  |            "href": "https://api.bitbucket.org/2.0/repositories/phlogistonjohn/tweakmsg/refs/tags"
+                  |        },
+                  |        "commits": {
+                  |            "href": "https://api.bitbucket.org/2.0/repositories/phlogistonjohn/tweakmsg/commits"
+                  |        },
+                  |        "clone": [
+                  |            {
+                  |                "href": "https://bitbucket.org/phlogistonjohn/tweakmsg",
+                  |                "name": "https"
+                  |            },
+                  |            {
+                  |                "href": "ssh://hg@bitbucket.org/phlogistonjohn/tweakmsg",
+                  |                "name": "ssh"
+                  |            }
+                  |        ],
+                  |        "self": {
+                  |            "href": "https://api.bitbucket.org/2.0/repositories/phlogistonjohn/tweakmsg"
+                  |        },
+                  |        "source": {
+                  |            "href": "https://api.bitbucket.org/2.0/repositories/phlogistonjohn/tweakmsg/src"
+                  |        },
+                  |        "html": {
+                  |            "href": "https://bitbucket.org/phlogistonjohn/tweakmsg"
+                  |        },
+                  |        "avatar": {
+                  |            "href": "https://bytebucket.org/ravatar/%7B59299fb9-3695-4e0c-b8ca-836888b83315%7D?ts=default"
+                  |        },
+                  |        "hooks": {
+                  |            "href": "https://api.bitbucket.org/2.0/repositories/phlogistonjohn/tweakmsg/hooks"
+                  |        },
+                  |        "forks": {
+                  |            "href": "https://api.bitbucket.org/2.0/repositories/phlogistonjohn/tweakmsg/forks"
+                  |        },
+                  |        "downloads": {
+                  |            "href": "https://api.bitbucket.org/2.0/repositories/phlogistonjohn/tweakmsg/downloads"
+                  |        },
+                  |        "issues": {
+                  |            "href": "https://api.bitbucket.org/2.0/repositories/phlogistonjohn/tweakmsg/issues"
+                  |        },
+                  |        "pullrequests": {
+                  |            "href": "https://api.bitbucket.org/2.0/repositories/phlogistonjohn/tweakmsg/pullrequests"
+                  |        }
+                  |    },
+                  |    "fork_policy": "allow_forks",
+                  |    "uuid": "{59299fb9-3695-4e0c-b8ca-836888b83315}",
+                  |    "language": "",
+                  |    "created_on": "2008-06-25T00:53:00.273366+00:00",
+                  |    "mainbranch": {
+                  |        "type": "named_branch",
+                  |        "name": "default"
+                  |    },
+                  |    "full_name": "phlogistonjohn/tweakmsg",
+                  |    "has_issues": true,
+                  |    "owner": {
+                  |        "username": "phlogistonjohn",
+                  |        "display_name": "John Mulligan",
+                  |        "account_id": "557058:8ffe6a8c-8424-4156-9786-0102572cf345",
+                  |        "links": {
+                  |            "self": {
+                  |                "href": "https://api.bitbucket.org/2.0/users/phlogistonjohn"
+                  |            },
+                  |            "html": {
+                  |                "href": "https://bitbucket.org/phlogistonjohn/"
+                  |            },
+                  |            "avatar": {
+                  |                "href": "https://bitbucket.org/account/phlogistonjohn/avatar/"
+                  |            }
+                  |        },
+                  |        "nickname": "phlogistonjohn",
+                  |        "type": "user",
+                  |        "uuid": "{c8614bfa-831a-49eb-866b-4bdd87c8c2c2}"
+                  |    },
+                  |    "updated_on": "2012-06-24T17:32:27.458855+00:00",
+                  |    "size": 7085,
+                  |    "type": "repository",
+                  |    "slug": "tweakmsg",
+                  |    "is_private": false,
+                  |    "description": "Mercurial (hg) extension to allow commenting on commit messages.  Mainly written for practice reading & working with mercurial internals.\r\n"
+                  |}""".stripMargin
+    val json = Json.parse(input)
+    val value = json.validate[Repository]
+
+    value.fold(e => fail(s"$e"), r => {
+      r.name shouldBe "tweakmsg"
+      r.owner.display_name shouldBe "John Mulligan"
+    })
+  }
 }

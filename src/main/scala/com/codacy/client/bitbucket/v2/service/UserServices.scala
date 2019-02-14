@@ -16,8 +16,8 @@ class UserServices(client: BitbucketClient) {
   /*
    * Gets the basic information associated with an account.
    */
-  def getUser(username: String): RequestResponse[User] = {
-    client.execute(Request(s"https://api.bitbucket.org/2.0/users/$username", classOf[User]))
+  def getUser(userId: String): RequestResponse[User] = {
+    client.execute(Request(s"https://api.bitbucket.org/2.0/users/$userId", classOf[User]))
   }
 
   /*
@@ -37,8 +37,8 @@ class UserServices(client: BitbucketClient) {
   /*
    * Creates a ssh key
    */
-  def createKey(username: String, key: String, keyName: String): RequestResponse[SshKey] = {
-    val url = s"https://bitbucket.org/api/2.0/users/$username/ssh-keys"
+  def createKey(userId: String, key: String, keyName: String): RequestResponse[SshKey] = {
+    val url = s"https://bitbucket.org/api/2.0/users/$userId/ssh-keys"
 
     val values = Json.obj("key" -> key, "label" -> keyName)
 

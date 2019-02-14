@@ -9,8 +9,7 @@ case class PullRequest(
     id: Long,
     title: String,
     description: String,
-    authorUsername: Option[String],
-    authorAvatar: Option[String],
+    author: User,
     state: String,
     created_on: LocalDateTime,
     updated_on: LocalDateTime,
@@ -20,8 +19,7 @@ case class PullRequest(
     destRepository: String,
     destBranch: String,
     destCommit: Option[String],
-    apiUrls: Seq[ApiUrl],
-    authorUUID: Option[String] = None
+    apiUrls: Seq[ApiUrl]
 ) {
   val url = s"https://bitbucket.org/$destRepository/pull-request/$id"
 }
@@ -61,8 +59,7 @@ object PullRequest {
     (__ \ "id").read[Long] and
       (__ \ "title").read[String] and
       (__ \ "description").read[String] and
-      (__ \ "author" \ "username").readNullable[String] and
-      (__ \ "author" \ "links" \ "avatar" \ "href").readNullable[String].orElse((__ \ "author" \ "links").readNullable[String]) and
+      (__ \ "author").read[User] and
       (__ \ "state").read[String] and
       (__ \ "created_on").read[LocalDateTime] and
       (__ \ "updated_on").read[LocalDateTime] and
@@ -73,8 +70,7 @@ object PullRequest {
       (__ \ "destination" \ "branch" \ "name").read[String] and
       (__ \ "destination" \ "commit" \ "hash").readNullable[String] and
       // TODO: (__ \ "destination" \ "commit" \ "hash").read[Option[String]] and
-      (__ \ "links").read[Map[String, Map[String, String]]].map(parseLinks) and
-      (__ \ "author" \ "uuid").readNullable[String]
+      (__ \ "links").read[Map[String, Map[String, String]]].map(parseLinks)
     ) (PullRequest.apply _)
   // format: on
 

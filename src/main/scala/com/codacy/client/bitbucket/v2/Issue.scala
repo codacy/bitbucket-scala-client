@@ -11,7 +11,7 @@ case class Issue(
     priority: String,
     title: String,
     content: String,
-    reporter: String,
+    reporter: User,
     created_on: LocalDateTime,
     kind: String
 )
@@ -24,7 +24,7 @@ object Issue {
       (__ \ "priority").read[String] and
       (__ \ "title").read[String] and
       (__ \ "content" \ "raw").read[String] and
-      (__ \ "reporter" \ "username").read[String] and
+      (__ \ "reporter").read[User] and
       (__ \ "created_on").read[LocalDateTime] and
       (__ \ "kind").read[String]
     )(Issue.apply _)
