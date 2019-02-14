@@ -200,7 +200,7 @@ class UserSpecs extends FlatSpec with Matchers with Inside {
             uuid shouldBe "{c19f822b-0e29-433a-87a5-ec8ace58aa67}"
             display_name shouldBe "João Lopes"
             nickname shouldBe "jllopes"
-            avatarUrl.get shouldBe "https://bitbucket.org/account/jllopes/avatar/"
+            avatarUrl shouldBe Some("https://bitbucket.org/account/jllopes/avatar/")
       }
     )
   }
