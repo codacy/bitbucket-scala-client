@@ -55,7 +55,6 @@ object Repository {
     implicit val reader: Reads[Owner] = Json.format[Owner]
   }
 
-
   private def parseLinks(links: Map[String, JsValue]): Seq[RepositoryUrl] = {
     links.flatMap {
       case (linkName, linkMap) =>
