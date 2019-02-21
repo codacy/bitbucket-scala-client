@@ -41,7 +41,13 @@ object ApiUrlType extends Enumeration {
   }
 }
 
-case class ApiUrl(urlType: ApiUrlType.Value, link: String)
+case class ApiUrl(urlType: ApiUrlType.Value, link: Link)
+
+case class Link(href: String)
+
+object Link {
+  implicit val reader: Reads[Link] = Json.format[Link]
+}
 
 object PullRequest {
   val dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX"
@@ -70,15 +76,14 @@ object PullRequest {
       (__ \ "destination" \ "branch" \ "name").read[String] and
       (__ \ "destination" \ "commit" \ "hash").readNullable[String] and
       // TODO: (__ \ "destination" \ "commit" \ "hash").read[Option[String]] and
-      (__ \ "links").read[Map[String, Map[String, String]]].map(parseLinks)
+          (__ \ "links").read[Map[String, Link]].map(parseLinks)
     ) (PullRequest.apply _)
   // format: on
 
-  private def parseLinks(links: Map[String, Map[String, String]]): Seq[ApiUrl] = {
-    (for {
-      (linkName, linkMap) <- links
-      urlType <- ApiUrlType.find(linkName)
-      linkUrl <- linkMap.get("href")
-    } yield ApiUrl(urlType, linkUrl)).toSeq
+  private def parseLinks(links: Map[String, Link]): Seq[ApiUrl] = {
+    links.flatMap {
+      case (linkTypeStr, link) =>
+        ApiUrlType.find(linkTypeStr).map(ApiUrl(_, link))
+    }(collection.breakOut)
   }
 }
