@@ -87,3 +87,11 @@ object RepositoryUrlType extends Enumeration {
 }
 
 case class RepositoryUrl(urlType: RepositoryUrlType.Value, link: String)
+
+sealed trait OwnerInfo {
+  def value: String
+}
+
+case class AccountId(value: String) extends OwnerInfo
+
+case class TeamUsername(value: String) extends OwnerInfo
