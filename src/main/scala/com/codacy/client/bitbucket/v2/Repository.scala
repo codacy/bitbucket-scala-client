@@ -2,8 +2,10 @@ package com.codacy.client.bitbucket.v2
 
 import java.time.LocalDateTime
 
+import com.codacy.client.bitbucket.v2.Repository.Owner
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
+import play.twirl.api.JavaScriptFormat
 
 case class Repository(
     name: String,
@@ -12,7 +14,7 @@ case class Repository(
     scm: String,
     created_on: LocalDateTime,
     updated_on: LocalDateTime,
-    owner: String,
+    owner: Owner,
     size: Long,
     has_issues: Boolean,
     is_private: Boolean,
@@ -37,7 +39,7 @@ object Repository {
       (__ \ "scm").read[String] and
       (__ \ "created_on").read[LocalDateTime] and
       (__ \ "updated_on").read[LocalDateTime] and
-      (__ \ "owner" \ "username").read[String] and
+      (__ \ "owner").read[Owner] and
       (__ \ "size").read[Long] and
       (__ \ "has_issues").read[Boolean] and
       (__ \ "is_private").read[Boolean] and
@@ -46,6 +48,12 @@ object Repository {
       ) (Repository.apply _)
   }
   // format: on
+
+  final case class Owner(nickname: Option[String], username: Option[String], display_name: String, `type`: String)
+
+  object Owner {
+    implicit val reader: Reads[Owner] = Json.format[Owner]
+  }
 
   private def parseLinks(links: Map[String, JsValue]): Seq[RepositoryUrl] = {
     links.flatMap {
@@ -79,3 +87,11 @@ object RepositoryUrlType extends Enumeration {
 }
 
 case class RepositoryUrl(urlType: RepositoryUrlType.Value, link: String)
+
+sealed trait OwnerInfo {
+  def value: String
+}
+
+case class AccountId(value: String) extends OwnerInfo
+
+case class TeamUsername(value: String) extends OwnerInfo
