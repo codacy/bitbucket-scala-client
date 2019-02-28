@@ -3,6 +3,10 @@ package com.codacy.client.bitbucket.v2.service
 import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
 import com.codacy.client.bitbucket.v2.AccessToken
 import com.codacy.client.bitbucket.v2.Authorization.{RefreshCredentials, RefreshToken}
+import com.codacy.client.bitbucket.client.Authentication.Credentials
+import com.codacy.client.bitbucket.client.BitbucketAsyncClient
+import play.api.libs.ws.ning.NingWSClient
+import scala.concurrent.Future
 
 class AuthorizationServices(client: BitbucketClient) {
 
@@ -18,5 +22,24 @@ class AuthorizationServices(client: BitbucketClient) {
     }
 
     client.postForm(Request(url, classOf[AccessToken]), values)
+  }
+}
+
+class AsyncAuthorizationServices(client: BitbucketAsyncClient) {
+
+  /*
+   * Gets new AccessToken with the RefreshCredentials
+   *
+   */
+  def refreshAccessToken(
+      refreshCredentials: RefreshCredentials
+  )(credentials: Credentials)(implicit nc: NingWSClient): Future[RequestResponse[AccessToken]] = {
+    val url = "https://bitbucket.org/site/oauth2/access_token"
+
+    val values = refreshCredentials match {
+      case c: RefreshToken => Map("grant_type" -> Seq(c.grant_type), "refresh_token" -> Seq(c.refresh_token))
+    }
+
+    client.postForm(Request(url, classOf[AccessToken]), values, credentials)
   }
 }

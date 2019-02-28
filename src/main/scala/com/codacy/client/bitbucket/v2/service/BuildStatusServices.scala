@@ -3,6 +3,10 @@ package com.codacy.client.bitbucket.v2.service
 import com.codacy.client.bitbucket.v2.BuildStatus
 import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
 import play.api.libs.json._
+import com.codacy.client.bitbucket.client.Authentication.Credentials
+import com.codacy.client.bitbucket.client.BitbucketAsyncClient
+import play.api.libs.ws.ning.NingWSClient
+import scala.concurrent.Future
 
 class BuildStatusServices(client: BitbucketClient) {
 
@@ -60,5 +64,60 @@ class BuildStatusServices(client: BitbucketClient) {
     )
 
     client.putJson(Request(url, classOf[BuildStatus]), payload)
+  }
+}
+
+class AsyncBuildStatusServices(client: BitbucketAsyncClient) {
+
+  /*
+   * Gets a commit build status
+   *
+   */
+  def getBuildStatus(owner: String, repository: String, commit: String, key: String)(
+      credentials: Credentials
+  )(implicit nc: NingWSClient): Future[RequestResponse[BuildStatus]] = {
+    val url = s"https://bitbucket.org/api/2.0/repositories/$owner/$repository/commit/$commit/statuses/build/$key"
+
+    client.execute(Request(url, classOf[BuildStatus]), credentials)
+  }
+
+  /*
+   * Create a build status for a commit
+   *
+   */
+  def createBuildStatus(owner: String, repository: String, commit: String, buildStatus: BuildStatus)(
+      credentials: Credentials
+  )(implicit nc: NingWSClient): Future[RequestResponse[BuildStatus]] = {
+    val url = s"https://bitbucket.org/api/2.0/repositories/$owner/$repository/commit/$commit/statuses/build"
+
+    val values = Map(
+      "state" -> Seq(buildStatus.state.toString),
+      "key" -> Seq(buildStatus.key),
+      "name" -> Seq(buildStatus.name),
+      "url" -> Seq(buildStatus.url),
+      "description" -> Seq(buildStatus.description)
+    )
+
+    client.postForm(Request(url, classOf[BuildStatus]), values, credentials)
+  }
+
+  /*
+   * Update a build status for a commit
+   *
+   */
+  def updateBuildStatus(owner: String, repository: String, commit: String, buildStatus: BuildStatus)(
+      credentials: Credentials
+  )(implicit nc: NingWSClient): Future[RequestResponse[BuildStatus]] = {
+    val url =
+      s"https://bitbucket.org/api/2.0/repositories/$owner/$repository/commit/$commit/statuses/build/${buildStatus.key}"
+
+    val payload = Json.obj(
+      "state" -> buildStatus.state,
+      "name" -> buildStatus.name,
+      "url" -> buildStatus.url,
+      "description" -> buildStatus.description
+    )
+
+    client.putJson(Request(url, classOf[BuildStatus]), payload, credentials)
   }
 }

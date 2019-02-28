@@ -4,6 +4,10 @@ import com.codacy.client.bitbucket.v1.{PullRequestComment, SimplePullRequestComm
 import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
 import com.codacy.client.bitbucket.util.CommitHelper
 import play.api.libs.json._
+import com.codacy.client.bitbucket.client.Authentication.Credentials
+import com.codacy.client.bitbucket.client.BitbucketAsyncClient
+import play.api.libs.ws.ning.NingWSClient
+import scala.concurrent.Future
 
 class PullRequestServices(client: BitbucketClient) {
 
@@ -56,6 +60,59 @@ class PullRequestServices(client: BitbucketClient) {
     val url = s"https://bitbucket.org/api/1.0/repositories/$author/$repo/pullrequests/$pullRequestId/comments"
 
     client.execute(Request(url, classOf[Seq[SimplePullRequestComment]]))
+  }
+
+}
+
+class AsyncPullRequestServices(client: BitbucketAsyncClient) {
+
+  private[this] def postNewComment(author: String, repo: String, prId: Int, values: JsObject)(
+      credentials: Credentials
+  )(implicit nc: NingWSClient): Future[RequestResponse[PullRequestComment]] = {
+    val url = s"https://bitbucket.org/api/1.0/repositories/$author/$repo/pullrequests/$prId/comments"
+    client.postJson(Request(url, classOf[PullRequestComment]), values, credentials)
+  }
+
+  def createPullRequestComment(author: String, repo: String, prId: Int, content: String)(
+      credentials: Credentials
+  )(implicit nc: NingWSClient): Future[RequestResponse[PullRequestComment]] = {
+    val values = Json.obj("content" -> JsString(content))
+    postNewComment(author, repo, prId, values)(credentials)
+  }
+
+  def createLineComment(
+      author: String,
+      repo: String,
+      prId: Int,
+      commitUUID: String,
+      body: String,
+      file: Option[String],
+      line: Option[Int]
+  )(credentials: Credentials)(implicit nc: NingWSClient): Future[RequestResponse[PullRequestComment]] = {
+    val params = file.map(filename => "filename" -> JsString(filename)) ++
+      line.map(lineTo => "line_to" -> JsNumber(lineTo))
+
+    val values = JsObject(
+      params.toSeq :+ "content" -> JsString(body) :+ "anchor" -> JsString(CommitHelper.anchor(commitUUID))
+    )
+    postNewComment(author, repo, prId, values = values)(credentials)
+  }
+
+  def deleteComment(author: String, repo: String, commitUUID: String, pullRequestId: Int, commentId: Long)(
+      credentials: Credentials
+  )(implicit nc: NingWSClient): Future[RequestResponse[Boolean]] = {
+    val url =
+      s"https://bitbucket.org/api/1.0/repositories/$author/$repo/pullrequests/$pullRequestId/comments/$commentId"
+
+    client.delete(url, credentials)
+  }
+
+  def listComments(author: String, repo: String, pullRequestId: Int)(
+      credentials: Credentials
+  )(implicit nc: NingWSClient): Future[RequestResponse[Seq[SimplePullRequestComment]]] = {
+    val url = s"https://bitbucket.org/api/1.0/repositories/$author/$repo/pullrequests/$pullRequestId/comments"
+
+    client.execute(Request(url, classOf[Seq[SimplePullRequestComment]]), credentials)
   }
 
 }
