@@ -10,9 +10,10 @@ class RepositoryServices(client: BitbucketClient) {
    * Gets the list of the user's repositories. Private repositories only appear on this list
    * if the caller is authenticated and is authorized to view the repository.
    */
-  def getRepositories(ownerInfo: OwnerInfo): RequestResponse[Seq[Repository]] = {
+  def getRepositories(ownerInfo: OwnerInfo, pageLength: Option[Int] = Option(100)): RequestResponse[Seq[Repository]] = {
+    val pagelen = pageLength.fold("")(pagelen => s"?pagelen=$pagelen")
     client.executePaginated(
-      Request(s"https://bitbucket.org/api/2.0/repositories/${ownerInfo.value}", classOf[Seq[Repository]])
+      Request(s"https://bitbucket.org/api/2.0/repositories/${ownerInfo.value}$pagelen", classOf[Seq[Repository]])
     )
   }
 
