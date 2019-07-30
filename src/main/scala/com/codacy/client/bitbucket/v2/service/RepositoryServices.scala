@@ -21,7 +21,10 @@ class RepositoryServices(client: BitbucketClient) {
       userRole.fold(s"?pagelen=$pagelen")(role => s"?pagelen=$pagelen&role=${role.value}")
     }
     client.executePaginated(
-      Request(s"https://bitbucket.org/api/2.0/repositories/${ownerInfo.value}$queryParameters", classOf[Seq[Repository]])
+      Request(
+        s"https://bitbucket.org/api/2.0/repositories/${ownerInfo.value}$queryParameters",
+        classOf[Seq[Repository]]
+      )
     )
   }
 
