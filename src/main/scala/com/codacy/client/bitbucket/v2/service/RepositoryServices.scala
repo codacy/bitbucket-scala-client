@@ -18,9 +18,8 @@ class RepositoryServices(client: BitbucketClient) {
   ): RequestResponse[Seq[Repository]] = {
     val baseUrl = s"https://bitbucket.org/api/2.0/repositories/${ownerInfo.value}"
     val role = userRole.fold("")(role => s"role=${role.value}")
-    val lenght = pageLength.fold("")(pagelen => s"pagelen=$pagelen")
-    val queryParameters = List(role, lenght)
-    val url = joinQueryParameters(baseUrl, role, lenght)
+    val length = pageLength.fold("")(pagelen => s"pagelen=$pagelen")
+    val url = joinQueryParameters(baseUrl, role, length)
     client.executePaginated(Request(url, classOf[Seq[Repository]]))
   }
 
