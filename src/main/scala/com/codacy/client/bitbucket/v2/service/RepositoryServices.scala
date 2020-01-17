@@ -12,11 +12,12 @@ class RepositoryServices(client: BitbucketClient) {
    * if the caller is authenticated and is authorized to view the repository.
    */
   def getRepositories(
-      ownerInfo: OwnerInfo,
+      ownerInfo: Option[OwnerInfo],
       pageLength: Option[Int] = Option(100),
       userRole: Option[Role] = None
   ): RequestResponse[Seq[Repository]] = {
-    val baseUrl = s"https://bitbucket.org/api/2.0/repositories/${ownerInfo.value}"
+    val owner = ownerInfo.fold("")(info => info.value)
+    val baseUrl = s"https://bitbucket.org/api/2.0/repositories/$owner"
     val role = userRole.fold("")(role => s"role=${role.value}")
     val length = pageLength.fold("")(pagelen => s"pagelen=$pagelen")
     val url = joinQueryParameters(baseUrl, role, length)
