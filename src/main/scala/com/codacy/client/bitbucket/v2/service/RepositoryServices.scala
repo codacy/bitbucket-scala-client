@@ -1,5 +1,7 @@
 package com.codacy.client.bitbucket.v2.service
 
+import java.net.URLEncoder
+
 import com.codacy.client.bitbucket.v2.{DeployKey, OwnerInfo, Repository, Role}
 import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
 import play.api.libs.json.Json
@@ -16,7 +18,8 @@ class RepositoryServices(client: BitbucketClient) {
       pageLength: Option[Int] = Option(100),
       userRole: Option[Role] = None
   ): RequestResponse[Seq[Repository]] = {
-    val baseUrl = s"https://bitbucket.org/api/2.0/repositories/${ownerInfo.value}"
+    val encodedOwner = URLEncoder.encode(ownerInfo.value, "UTF-8")
+    val baseUrl = s"https://bitbucket.org/api/2.0/repositories/${encodedOwner}"
     val role = userRole.fold("")(role => s"role=${role.value}")
     val length = pageLength.fold("")(pagelen => s"pagelen=$pagelen")
     val url = joinQueryParameters(baseUrl, role, length)
