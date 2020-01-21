@@ -1,6 +1,7 @@
 package com.codacy.client.bitbucket.v2
 import org.scalatest.{Matchers, _}
 import play.api.libs.json.Json
+import org.scalatest.OptionValues._
 
 class UserSpecs extends FlatSpec with Matchers with Inside {
 
@@ -197,7 +198,7 @@ class UserSpecs extends FlatSpec with Matchers with Inside {
         inside(user) {
           case User(account_id, uuid, display_name, nickname, avatarUrl) =>
             account_id shouldBe "123abc456def789ghi101jkl"
-            uuid shouldBe "{c19f822b-0e29-433a-87a5-ec8ace58aa67}"
+            uuid.value shouldBe "{c19f822b-0e29-433a-87a5-ec8ace58aa67}"
             display_name shouldBe "João Lopes"
             nickname shouldBe Some("jllopes")
             avatarUrl shouldBe Some("https://bitbucket.org/account/jllopes/avatar/")
