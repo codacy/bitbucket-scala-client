@@ -9,7 +9,7 @@ case class PullRequest(
     id: Long,
     title: String,
     description: String,
-    author: User,
+    author: Option[User],
     state: String,
     created_on: LocalDateTime,
     updated_on: LocalDateTime,
@@ -65,7 +65,7 @@ object PullRequest {
     (__ \ "id").read[Long] and
       (__ \ "title").read[String] and
       (__ \ "description").read[String] and
-      (__ \ "author").read[User] and
+      (__ \ "author").readNullable[User] and
       (__ \ "state").read[String] and
       (__ \ "created_on").read[LocalDateTime] and
       (__ \ "updated_on").read[LocalDateTime] and
