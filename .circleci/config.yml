@@ -93,8 +93,12 @@ jobs:
         at: ~/
     - *restore_sbt_cache
     - run:
-        name: Compile / Test and send coverage results
-        command: sbt ";compile;test:compile;coverage;test;coverageReport;coverageAggregate;codacyCoverage"
+        name: Compile, test and send coverage results
+        command: |
+          sbt ";coverage;test;coverageReport;coverageAggregate"
+          sbt -DplayVersion=2.5.19 test
+          sbt -DplayVersion=2.6.13 +test
+          sbt -DplayVersion=2.7.3 +test
     - *clean_sbt_cache
     - *save_sbt_cache
 
@@ -117,8 +121,14 @@ jobs:
           at: ~/
       - *restore_sbt_cache
       - run:
-          name: Publish to sonatype
-          command: sbt ";clean;retrieveGPGKeys;+publishSigned;sonatypeReleaseAll"
+          name: Publish
+          command: |
+            sbt ";clean;retrieveGPGKeys"
+            sbt -Dbuild.number=$(cat .version) publishSigned
+            sbt -Dbuild.number=$(cat .version) -DplayVersion=2.5.19 publishSigned
+            sbt -Dbuild.number=$(cat .version) -DplayVersion=2.6.13 +publishSigned
+            sbt -Dbuild.number=$(cat .version) -DplayVersion=2.7.3 +publishSigned
+            sbt sonatypeReleaseAll
 
 workflows:
   version: 2

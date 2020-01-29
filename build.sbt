@@ -3,15 +3,32 @@ import codacy.libs._
 import scala.io.Source
 import scala.util.parsing.json.JSON
 
-name := """bitbucket-scala-client"""
+val scala211 = "2.11.12"
+val scala212 = "2.12.10"
 
-scalaVersion := "2.11.12"
+val playDefault = "2.4.3"
+val playVersion = sys.props.getOrElse("playVersion", playDefault)
+val playMajorMinor = playVersion.split('.').take(2).mkString(".")
+
+version ~= { ver =>
+  if (playVersion != playDefault) s"${ver}_play_$playMajorMinor" else ver
+}
+
+name := "bitbucket-scala-client"
+
+scalaVersion := scala211
+
+crossScalaVersions := Seq(scala211, scala212)
 
 scalacOptions := Seq("-deprecation", "-feature", "-unchecked", "-Ywarn-adapted-args", "-Xlint")
 
 resolvers += "Typesafe maven repository" at "http://repo.typesafe.com/typesafe/maven-releases/"
 
-libraryDependencies ++= Seq(playWs, playJson, scalatest % Test)
+libraryDependencies ++= Seq(
+  "com.typesafe.play" %% "play-ws" % playVersion,
+  "com.typesafe.play" %% "play-json" % playVersion,
+  scalatest % Test
+)
 
 mimaPreviousArtifacts := {
   val latestVersion = JSON
