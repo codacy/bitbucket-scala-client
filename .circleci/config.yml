@@ -37,6 +37,7 @@ references:
     save_cache:
       key: sbt-cache-{{ .Branch }}-{{ checksum "build.sbt" }}-{{ .Environment.CIRCLE_SHA1 }}
       paths:
+      - "~/.cache/coursier/v1"
       - "~/.ivy2/cache"
       - "~/.sbt"
       - "~/.m2"
@@ -96,7 +97,7 @@ jobs:
         name: Compile, test and send coverage results
         command: |
           sbt ";coverage;test;coverageReport;coverageAggregate"
-          sbt -DplayVersion=2.5.19 test
+          sbt -DplayVersion=2.5.29 test
           sbt -DplayVersion=2.6.13 +test
           sbt -DplayVersion=2.7.3 +test
     - *clean_sbt_cache

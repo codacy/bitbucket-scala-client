@@ -22,8 +22,6 @@ crossScalaVersions := Seq(scala211, scala212)
 
 scalacOptions := Seq("-deprecation", "-feature", "-unchecked", "-Ywarn-adapted-args", "-Xlint")
 
-resolvers += "Typesafe maven repository" at "http://repo.typesafe.com/typesafe/maven-releases/"
-
 libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play-ws" % playVersion,
   "com.typesafe.play" %% "play-json" % playVersion,
@@ -68,7 +66,5 @@ scmInfo := Some(
 
 pgpPassphrase := Option(System.getenv("SONATYPE_GPG_PASSPHRASE"))
   .map(_.toCharArray)
-
-resolvers ~= { _.filterNot(_.name.toLowerCase.contains("codacy")) }
 
 publicMvnPublish
