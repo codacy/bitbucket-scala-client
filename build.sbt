@@ -16,12 +16,12 @@ version ~= { ver =>
 
 name := "bitbucket-scala-client"
 
-val play26Plus = CrossVersion.partialVersion(playVersion) match {
-  case Some((2, n)) if n >= 6 => true
+def play2xPlus(x: Int) = CrossVersion.partialVersion(playVersion) match {
+  case Some((2, n)) if n >= x => true
   case _ => false
 }
 
-scalaVersion := (if(play26Plus) scala212 else scala211)
+scalaVersion := (if(play2xPlus(x = 6)) scala212 else scala211)
 
 crossScalaVersions := Seq(scala211, scala212)
 
@@ -31,12 +31,14 @@ libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play-ws" % playVersion,
   "com.typesafe.play" %% "play-json" % playVersion,
   scalatest % Test
-)
+) ++ (if(play2xPlus(6)) Seq("com.typesafe.play" %% "play-ahc-ws" % playVersion) else Seq())
 
-unmanagedSourceDirectories in Compile += {
+def playSpecificDirectory(minor: Int) = unmanagedSourceDirectories in Compile += {
   val sourceDir = (sourceDirectory in Compile).value
-  if(play26Plus) sourceDir / "play-2.6+" else sourceDir / "play-2.6-"
+  if(play2xPlus(minor)) sourceDir / s"play-2.$minor+" else sourceDir / s"play-2.$minor-"
 }
+
+playSpecificDirectory(minor = 5)
 
 mimaPreviousArtifacts := {
   val latestVersion = JSON

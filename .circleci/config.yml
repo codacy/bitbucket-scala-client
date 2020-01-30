@@ -97,7 +97,7 @@ jobs:
         name: Compile, test and send coverage results
         command: |
           sbt ";coverage;test;coverageReport;coverageAggregate"
-          sbt -DplayVersion=2.5.29 test
+          sbt -DplayVersion=2.5.19 test
           sbt -DplayVersion=2.6.13 +test
           sbt -DplayVersion=2.7.3 +test
     - *clean_sbt_cache

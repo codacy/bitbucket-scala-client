@@ -5,10 +5,9 @@ import java.net.URI
 import com.codacy.client.bitbucket.client.Authentication._
 import com.codacy.client.bitbucket.util.HTTPStatusCodes
 import com.codacy.client.bitbucket.util.Implicits.URIQueryParam
-import com.ning.http.client.AsyncHttpClientConfig
 import play.api.http.Writeable
 import play.api.libs.json._
-import play.api.libs.ws.ning.{NingAsyncHttpClientConfigBuilder, NingWSClient}
+import play.libs.ws.ahc.AhcWSClient
 
 import scala.compat.Platform.EOL
 import scala.concurrent.Await
@@ -193,7 +192,7 @@ class BitbucketClient(credentials: Credentials) {
     }
   }
 
-  private def withClientEither[T](block: NingWSClient => Either[ResponseError, T]): Either[ResponseError, T] = {
+  private def withClientEither[T](block: AhcWSClient => Either[ResponseError, T]): Either[ResponseError, T] = {
     withClient(block) match {
       case Success(res) => res
       case Failure(error) =>
@@ -201,7 +200,7 @@ class BitbucketClient(credentials: Credentials) {
     }
   }
 
-  private def withClientRequest[T](block: NingWSClient => RequestResponse[T]): RequestResponse[T] = {
+  private def withClientRequest[T](block: AhcWSClient => RequestResponse[T]): RequestResponse[T] = {
     withClient(block) match {
       case Success(res) => res
       case Failure(error) =>
@@ -215,10 +214,8 @@ class BitbucketClient(credentials: Credentials) {
     }
   }
 
-  private def withClient[T](block: NingWSClient => T): Try[T] = {
-    val config = new NingAsyncHttpClientConfigBuilder().build()
-    val clientConfig = new AsyncHttpClientConfig.Builder(config).build()
-    val client = new NingWSClient(clientConfig)
+  private def withClient[T](block: AhcWSClient => T): Try[T] = {
+    val client = new AhcWSClient()
     val result = Try(block(client))
     client.close()
     result
