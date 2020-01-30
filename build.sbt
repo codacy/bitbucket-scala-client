@@ -28,6 +28,14 @@ libraryDependencies ++= Seq(
   scalatest % Test
 )
 
+unmanagedSourceDirectories in Compile += {
+  val sourceDir = (sourceDirectory in Compile).value
+  CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, n)) if n >= 13 => sourceDir / "play-2.6+"
+    case _                       => sourceDir / "play-2.5-"
+  }
+}
+
 mimaPreviousArtifacts := {
   val latestVersion = JSON
     .parseFull(
