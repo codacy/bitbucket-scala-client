@@ -1,4 +1,4 @@
-[![Codacy Badge](https://api.codacy.com/project/badge/grade/bc618d371b1a45f8a7129d868512a4fc)](https://www.codacy.com/app/Codacy/bitbucket-scala-client)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/bc618d371b1a45f8a7129d868512a4fc)](https://www.codacy.com/gh/codacy/bitbucket-scala-client?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=codacy/bitbucket-scala-client&amp;utm_campaign=Badge_Grade)
 [![Circle CI](https://circleci.com/gh/codacy/bitbucket-scala-client.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/codacy/bitbucket-scala-client)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.codacy/bitbucket-scala-client_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.codacy/bitbucket-scala-client_2.11)
 
