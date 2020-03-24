@@ -47,6 +47,6 @@ workflows:
           name: publish
           context: CodacyAWS
           cmd: |
-            sbt "retrieveGPGKeys;+publishSigned;sonatypeBundleRelease"
+            sbt retrieveGPGKeys +publishSigned sonatypeBundleRelease
           requires:
             - tag_version
