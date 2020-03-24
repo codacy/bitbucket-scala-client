@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  codacy: codacy/base@2.6.4
+  codacy: codacy/base@2.9.3
 
 workflows:
   version: 2
@@ -10,29 +10,23 @@ workflows:
       - codacy/checkout_and_version:
           write_sbt_version: true
       - codacy/sbt:
-          name: populate_cache
+          name: populate_cache_compile
           persist_to_workspace: true
-          cmd: sbt "set scalafmtUseIvy in ThisBuild := false;+update"
+          cmd: sbt +test:compile
           requires:
             - codacy/checkout_and_version
       - codacy/sbt:
           name: check_format
           cmd: sbt scalafmt::test test:scalafmt::test sbt:scalafmt::test
           requires:
-            - populate_cache
-      - codacy/sbt:
-          name: compile
-          persist_to_workspace: true
-          cmd: sbt +compile +test:compile
-          requires:
-            - populate_cache
+            - populate_cache_compile
       - codacy/sbt:
           name: test
           cmd: |
             sbt coverage test coverageReport
             bash <(curl -Ls https://coverage.codacy.com/get.sh) report --skip
           requires:
-            - compile
+            - populate_cache_compile
             - check_format
       - codacy/tag_version:
           name: tag_version
@@ -46,7 +40,6 @@ workflows:
       - codacy/sbt:
           name: publish
           context: CodacyAWS
-          cmd: |
-            sbt retrieveGPGKeys +publishSigned sonatypeBundleRelease
+          cmd: sbt retrieveGPGKeys +publishSigned sonatypeBundleRelease
           requires:
             - tag_version
