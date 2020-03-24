@@ -13,6 +13,33 @@ Import on SBT:
 
     "com.codacy" %% "bitbucket-scala-client" % "<VERSION>"
 
+To build the `BitbucketClient` you need to pass a builder function from Unit => WSClient
+
+#### Play 2.4
+
+```Scala
+import com.ning.http.client.AsyncHttpClientConfig
+import play.api.libs.ws.ning.{NingAsyncHttpClientConfigBuilder, NingWSClient}
+
+() => {
+  val config = new NingAsyncHttpClientConfigBuilder().build()
+  val clientConfig = new AsyncHttpClientConfig.Builder(config).build()
+  val client = new NingWSClient(clientConfig)
+}
+```
+
+#### Play 2.7
+
+```Scala
+import akka.stream.Materializer
+import play.api.libs.ws.ahc.AhcWSClient
+
+() => {
+  //You need to have an implicit Materializer in scope
+  AhcWSClient()
+}
+```
+
 ### Creators
 
 1. Rodrigo Fernandes

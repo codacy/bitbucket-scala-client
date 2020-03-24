@@ -2,13 +2,15 @@ import codacy.libs._
 
 name := """bitbucket-scala-client"""
 
-scalaVersion := "2.11.12"
+scalaVersion := crossScalaVersions.value(1)
+
+crossScalaVersions := Seq("2.11.12", "2.12.10")
 
 scalacOptions := Seq("-deprecation", "-feature", "-unchecked", "-Ywarn-adapted-args", "-Xlint")
 
 resolvers += "Typesafe maven repository" at "http://repo.typesafe.com/typesafe/maven-releases/"
 
-libraryDependencies ++= Seq(playWs, playJson, scalatest % Test)
+libraryDependencies ++= Dependencies.playWsJson(scalaVersion.value) ++ Seq(scalatest % Test)
 
 organizationName := "Codacy"
 
@@ -31,3 +33,18 @@ pgpPassphrase := Option(System.getenv("SONATYPE_GPG_PASSPHRASE"))
   .map(_.toCharArray)
 
 publicMvnPublish
+
+unmanagedSourceDirectories.in(Compile) += (Dependencies.playWsJson(scalaVersion.value).head.revision match {
+  case Dependencies.playJson24 =>
+    sourceDirectory.value / "main" / "play_json_2.4"
+  case Dependencies.playJson27 =>
+    sourceDirectory.value / "main" / "play_json_2.7"
+  case _ =>
+    throw new Exception("Unsupported Play JSON version")
+})
+
+name := (Dependencies.playWsJson(scalaVersion.value).head.revision match {
+  case Dependencies.playJson24 => s"${name.value}_playjson24"
+  case Dependencies.playJson27 => s"${name.value}_playjson27"
+  case _ => throw new Exception("Unsupported Play JSON version")
+})

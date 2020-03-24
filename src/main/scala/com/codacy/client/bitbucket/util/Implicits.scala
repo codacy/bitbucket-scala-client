@@ -2,7 +2,7 @@ package com.codacy.client.bitbucket.util
 
 import java.net.URI
 
-import play.api.data.validation.ValidationError
+import com.codacy.client.bitbucket.JsResultHelper
 import play.api.libs.json.{Json, Reads, Writes}
 
 import scala.language.implicitConversions
@@ -16,7 +16,7 @@ object Implicits {
       .map { value =>
         e.values.find(_.toString == value)
       }
-      .collect(ValidationError("Invalid enumeration value")) { case Some(v) => v }
+      .collect(JsResultHelper.error("Invalid enumeration value")) { case Some(v) => v }
   }
 
   implicit class URIQueryParam(uri: URI) {
