@@ -1,153 +1,52 @@
-# CircleCI 2.0 configuration file
-version: 2
+version: 2.1
 
-# Re-usable blocks to reduce boilerplate in job definitions.
-references:
-
-  sbt_jvm_defaults: &sbt_jvm_defaults
-    JAVA_OPTS: -Xmx3200m
-
-  default_sbt_job: &default_sbt_job
-    machine: true
-    working_directory: ~/workdir
-    environment:
-      <<: *sbt_jvm_defaults
-
-  default_aws_job: &default_aws_job
-    docker:
-    - image: codacy/ci-aws:3.0.2
-    working_directory: ~/workdir/.aws
-
-  restore_sbt_cache: &restore_sbt_cache
-    restore_cache:
-      keys:
-      - sbt-cache-{{ .Branch }}-{{ checksum "build.sbt" }}-{{ .Environment.CIRCLE_SHA1 }}
-      - sbt-cache-{{ .Branch }}-{{ checksum "build.sbt" }}
-      - sbt-cache-{{ .Branch }}
-      - sbt-cache
-
-  clean_sbt_cache: &clean_sbt_cache
-    run:
-      name: CleanCache
-      command: |
-        find $HOME/.sbt -name "*.lock" | xargs rm | true
-        find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm | true
-
-  save_sbt_cache: &save_sbt_cache
-    save_cache:
-      key: sbt-cache-{{ .Branch }}-{{ checksum "build.sbt" }}-{{ .Environment.CIRCLE_SHA1 }}
-      paths:
-      - "~/.ivy2/cache"
-      - "~/.sbt"
-      - "~/.m2"
-
-jobs:
-  checkout_and_version:
-    docker:
-      - image: codacy/git-version:latest
-    working_directory: ~/workdir
-    steps:
-      - checkout
-      - run:
-          name: Set version
-          command: /bin/git-version > .version
-      - run:
-          name: Set Sbt version
-          command: echo "version in ThisBuild := \"$(cat .version)\"" > version.sbt
-      - run:
-          name: Current version
-          command: cat .version
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - workdir/*
-
-  checkfmt:
-    <<: *default_sbt_job
-    steps:
-      - attach_workspace:
-          at: ~/
-      - *restore_sbt_cache
-      - run:
-          name: Check formatting
-          command: sbt ";scalafmt::test;test:scalafmt::test;sbt:scalafmt::test"
-      - *clean_sbt_cache
-      - *save_sbt_cache
-
-  populate_cache:
-    <<: *default_sbt_job
-    steps:
-      - attach_workspace:
-          at: ~/
-      - *restore_sbt_cache
-      - run:
-          name: Safely populate caches
-          command: sbt ";set scalafmtUseIvy in ThisBuild := false;update"
-      - *clean_sbt_cache
-      - *save_sbt_cache
-
-  compile_and_test:
-    <<: *default_sbt_job
-    steps:
-    - attach_workspace:
-        at: ~/
-    - *restore_sbt_cache
-    - run:
-        name: Compile / Test and send coverage results
-        command: sbt ";compile;test:compile;coverage;test;coverageReport;coverageAggregate;codacyCoverage"
-    - *clean_sbt_cache
-    - *save_sbt_cache
-
-  tag_version:
-    <<: *default_sbt_job
-    steps:
-    - attach_workspace:
-        at: ~/
-    - add_ssh_keys:
-        fingerprints:
-          - "df:83:d7:c7:d5:79:06:c2:3b:d1:fd:e2:a3:d1:12:c5"
-    - run:
-        name: Tag
-        command: git tag $(cat .version) && git push --tags
-
-  publish:
-    <<: *default_sbt_job
-    steps:
-      - attach_workspace:
-          at: ~/
-      - *restore_sbt_cache
-      - run:
-          name: Publish to sonatype
-          command: sbt ";clean;retrieveGPGKeys;+publishSigned;sonatypeReleaseAll"
+orbs:
+  codacy: codacy/base@2.6.4
 
 workflows:
   version: 2
-  compile_deploy:
+  build:
     jobs:
-    - checkout_and_version
-    - populate_cache:
-        requires:
-        - checkout_and_version
-    - checkfmt:
-        requires:
-        - populate_cache
-    - compile_and_test:
-        requires:
-        - populate_cache
-    - publish:
-        filters:
-          branches:
-            only:
-            - master
-        context: CodacyAWS
-        requires:
-        - compile_and_test
-        - checkfmt
-    - tag_version:
-        filters:
-          branches:
-            only:
-            - master
-        context: CodacyAWS
-        requires:
-        - publish
+      - codacy/checkout_and_version:
+          write_sbt_version: true
+      - codacy/sbt:
+          name: populate_cache
+          persist_to_workspace: true
+          cmd: sbt "set scalafmtUseIvy in ThisBuild := false;+update"
+          requires:
+            - codacy/checkout_and_version
+      - codacy/sbt:
+          name: check_format
+          cmd: sbt "scalafmt::test;test:scalafmt::test;sbt:scalafmt::test"
+          requires:
+            - populate_cache
+      - codacy/sbt:
+          name: compile
+          persist_to_workspace: true
+          cmd: sbt "+compile;+test:compile"
+          requires:
+            - populate_cache
+      - codacy/sbt:
+          name: test
+          cmd: |
+            sbt "coverage;test;coverageReport"
+            bash <(curl -Ls https://coverage.codacy.com/get.sh)
+          requires:
+            - compile
+            - check_format
+      - codacy/tag_version:
+          name: tag_version
+          context: CodacyAWS
+          requires:
+            - test
+          filters:
+            branches:
+              only:
+                - master
+      - codacy/sbt:
+          name: publish
+          context: CodacyAWS
+          cmd: |
+            sbt "retrieveGPGKeys;+publishSigned;sonatypeBundleRelease"
+          requires:
+            - tag_version
