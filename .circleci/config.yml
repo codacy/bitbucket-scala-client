@@ -29,7 +29,7 @@ workflows:
       - codacy/sbt:
           name: test
           cmd: |
-            sbt "coverage;test;coverageReport"
+            sbt coverage test coverageReport
             bash <(curl -Ls https://coverage.codacy.com/get.sh)
           requires:
             - compile
