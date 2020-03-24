@@ -1,8 +1,5 @@
 import codacy.libs._
 
-import scala.io.Source
-import scala.util.parsing.json.JSON
-
 name := """bitbucket-scala-client"""
 
 scalaVersion := "2.11.12"
@@ -12,25 +9,6 @@ scalacOptions := Seq("-deprecation", "-feature", "-unchecked", "-Ywarn-adapted-a
 resolvers += "Typesafe maven repository" at "http://repo.typesafe.com/typesafe/maven-releases/"
 
 libraryDependencies ++= Seq(playWs, playJson, scalatest % Test)
-
-mimaPreviousArtifacts := {
-  val latestVersion = JSON
-    .parseFull(
-      Source
-        .fromURL("https://api.github.com/repos/codacy/bitbucket-scala-client/releases/latest")
-        .mkString
-    )
-    .flatMap(_.asInstanceOf[Map[String, String]].get("tag_name"))
-    .getOrElse("5.0.0")
-  Set("com.codacy" %% "bitbucket-scala-client" % latestVersion)
-}
-mimaBinaryIssueFilters ++= ignoredABIProblems
-
-val ignoredABIProblems = {
-  import com.typesafe.tools.mima.core._
-  import com.typesafe.tools.mima.core.ProblemFilters._
-  Seq()
-}
 
 organizationName := "Codacy"
 
@@ -51,7 +29,5 @@ scmInfo := Some(
 
 pgpPassphrase := Option(System.getenv("SONATYPE_GPG_PASSPHRASE"))
   .map(_.toCharArray)
-
-resolvers ~= { _.filterNot(_.name.toLowerCase.contains("codacy")) }
 
 publicMvnPublish
