@@ -1,10 +1,7 @@
 package com.codacy.client.bitbucket.client
 
-import java.net.URI
-
 import com.codacy.client.bitbucket.client.Authentication._
 import com.codacy.client.bitbucket.util.HTTPStatusCodes
-import com.codacy.client.bitbucket.util.Implicits.URIQueryParam
 import com.ning.http.client.AsyncHttpClientConfig
 import play.api.http.Writeable
 import play.api.libs.json._
@@ -36,36 +33,16 @@ class BitbucketClient(credentials: Credentials) {
    * Does a paginated API request and parses the json output into a sequence of classes
    */
   def executePaginated[T](request: Request[Seq[T]])(implicit reader: Reads[T]): RequestResponse[Seq[T]] = {
-    val FIRST_PAGE = 1
-
-    def extractValues(json: JsValue): RequestResponse[Seq[T]] =
-      (json \ "values")
-        .validate[Seq[T]]
-        .fold(e => FailedResponse(s"Failed to parse json ($e): $json"), a => SuccessfulResponse(a))
-
     get(request.url) match {
       case Right(json) =>
-        val nextPages = (for {
-          size <- (json \ "size").asOpt[Double]
-          pagelen <- (json \ "pagelen").asOpt[Double]
-        } yield {
-          val lastPage = math.ceil(size / pagelen).toInt
-          (FIRST_PAGE + 1 to lastPage).par
-            .map { page =>
-              val nextUrl = new URI(request.url).addQuery(s"page=$page").toString
-              get(nextUrl) match {
-                case Right(nextJson) => extractValues(nextJson)
-                case Left(error) => FailedResponse(error.detail)
-              }
-            }
-            .to[Seq]
-        }).getOrElse(Seq(SuccessfulResponse(Seq.empty)))
-
-        val values = extractValues(json)
-
-        (values +: nextPages).foldLeft[RequestResponse[Seq[T]]](SuccessfulResponse(Seq.empty[T])) { (a, b) =>
-          RequestResponse.apply(a, b)
-        }
+        SuccessfulResponse(
+          value = (json \ "values").as[Seq[T]],
+          size = (json \ "size").asOpt[Int],
+          pageLen = (json \ "pagelen").asOpt[Int],
+          page = (json \ "page").asOpt[Int],
+          next = (json \ "next").asOpt[String],
+          previous = (json \ "previous").asOpt[String]
+        )
 
       case Left(error) =>
         FailedResponse(error.detail)
