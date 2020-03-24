@@ -205,4 +205,37 @@ class UserSpecs extends FlatSpec with Matchers with Inside {
       }
     )
   }
+
+  it should "successfully parse a JSON into a UserPermission" in {
+    val input =
+      """
+        |{
+        |  "type": "repository_permission",
+        |  "user": {
+        |    "type": "user",
+        |    "display_name": "Erik van Zijst",
+        |    "uuid": "{d301aafa-d676-4ee0-88be-962be7417567}"
+        |  },
+        |  "repository": {
+        |    "type": "repository",
+        |    "name": "geordi",
+        |    "full_name": "bitbucket/geordi",
+        |    "uuid": "{85d08b4e-571d-44e9-a507-fa476535aa98}"
+        |  },
+        |  "permission": "admin"
+        |}""".stripMargin
+    val json = Json.parse(input)
+    val value = json.validate[UserPermission]
+
+    value.fold(
+      e => fail(s"$e"),
+      userPermission =>
+        inside(userPermission) {
+          case UserPermission(user, repository, permission) =>
+            user shouldBe SimpleUser("{d301aafa-d676-4ee0-88be-962be7417567}", "Erik van Zijst")
+            repository shouldBe SimpleRepository("{85d08b4e-571d-44e9-a507-fa476535aa98}", "geordi", "bitbucket/geordi")
+            permission shouldBe "admin"
+      }
+    )
+  }
 }
