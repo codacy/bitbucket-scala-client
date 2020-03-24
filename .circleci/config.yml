@@ -30,7 +30,7 @@ workflows:
           name: test
           cmd: |
             sbt coverage test coverageReport
-            bash <(curl -Ls https://coverage.codacy.com/get.sh)
+            bash <(curl -Ls https://coverage.codacy.com/get.sh) report --skip
           requires:
             - compile
             - check_format
