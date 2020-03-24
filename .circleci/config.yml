@@ -17,7 +17,7 @@ workflows:
             - codacy/checkout_and_version
       - codacy/sbt:
           name: check_format
-          cmd: sbt "scalafmt::test;test:scalafmt::test;sbt:scalafmt::test"
+          cmd: sbt scalafmt::test test:scalafmt::test sbt:scalafmt::test
           requires:
             - populate_cache
       - codacy/sbt:
