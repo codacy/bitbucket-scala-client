@@ -23,7 +23,7 @@ workflows:
       - codacy/sbt:
           name: compile
           persist_to_workspace: true
-          cmd: sbt "+compile;+test:compile"
+          cmd: sbt +compile +test:compile
           requires:
             - populate_cache
       - codacy/sbt:
