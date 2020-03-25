@@ -3,7 +3,7 @@ package com.codacy.client.bitbucket.v2.service
 import java.net.URLEncoder
 
 import com.codacy.client.bitbucket.v2.{DeployKey, OwnerInfo, Repository, Role}
-import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
+import com.codacy.client.bitbucket.client.{BitbucketClient, PageRequest, Request, RequestResponse}
 import play.api.libs.json.Json
 import com.codacy.client.bitbucket.util.UrlHelper._
 
@@ -18,14 +18,27 @@ class RepositoryServices(client: BitbucketClient) {
   def getRepositories(
       ownerInfo: OwnerInfo,
       pageLength: Option[Int] = Option(100),
+      pageRequest: Option[PageRequest],
       userRole: Option[Role] = None
   ): RequestResponse[Seq[Repository]] = {
     val encodedOwner = URLEncoder.encode(ownerInfo.value, "UTF-8")
     val baseUrl = s"$BaseUrl/${encodedOwner}"
     val role = userRole.fold("")(role => s"role=${role.value}")
-    val length = pageLength.fold("")(pagelen => s"pagelen=$pagelen")
-    val url = joinQueryParameters(baseUrl, role, length)
-    client.executePaginated(Request(url, classOf[Seq[Repository]]))
+
+    pageRequest match {
+      case Some(request) =>
+        request.cursor match {
+          case Some(cursor) =>
+            client.executeWithCursor(Request(cursor, classOf[Repository]))
+          case None =>
+            val url = joinQueryParameters(baseUrl, role)
+            client.executeWithCursor(Request(url, classOf[Repository]))
+        }
+      case None =>
+        val length = pageLength.fold("")(pagelen => s"pagelen=$pagelen")
+        val url = joinQueryParameters(baseUrl, role, length)
+        client.executePaginated(Request(url, classOf[Seq[Repository]]))
+    }
   }
 
   /**
