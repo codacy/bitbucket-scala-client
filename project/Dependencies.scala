@@ -15,9 +15,9 @@ object Dependencies {
         Seq("com.typesafe.play" %% "play-ws" % playJsonVersion, "com.typesafe.play" %% "play-json" % playJsonVersion)
       case jsonVersion =>
         Seq(
-          "com.typesafe.play" %% "play-ws" % jsonVersion,
-          "com.typesafe.play" %% "play-json" % jsonVersion,
-          "com.typesafe.play" %% "play-json-joda" % jsonVersion
+          "com.typesafe.play" %% "play-json-joda" % jsonVersion,
+          "com.typesafe.play" %% "play-ahc-ws-standalone" % "2.0.8",
+          "com.typesafe.play" %% "play-ws-standalone-json" % "2.0.8"
         )
     }
   }

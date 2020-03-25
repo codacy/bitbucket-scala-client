@@ -1,6 +1,8 @@
 package com.codacy.client.bitbucket.client
 
-import play.api.libs.ws.{WSAuthScheme, WSRequest}
+import com.codacy.client.bitbucket.WSWrapper
+import com.codacy.client.bitbucket.WSWrapper.WSRequest
+import play.api.libs.ws.WSAuthScheme
 
 /**
   * Handles request authentication.
@@ -35,7 +37,7 @@ object Authentication {
 
   class OAuth2Authenticator(credentials: OAuth2Credentials) extends Authenticator {
     override def authenticate(req: WSRequest): WSRequest =
-      req.withQueryString("access_token" -> credentials.accessToken)
+      WSWrapper.withQueryString(req, "access_token" -> credentials.accessToken)
   }
 
   class BasicAuthAuthenticator(credentials: BasicAuthCredentials) extends Authenticator {

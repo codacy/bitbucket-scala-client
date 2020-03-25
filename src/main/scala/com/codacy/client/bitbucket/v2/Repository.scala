@@ -5,7 +5,6 @@ import java.time.LocalDateTime
 import com.codacy.client.bitbucket.v2.Repository.Owner
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
-import play.twirl.api.JavaScriptFormat
 
 case class Repository(
     name: String,

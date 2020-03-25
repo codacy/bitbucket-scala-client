@@ -3,11 +3,12 @@ package com.codacy.client.bitbucket.client
 import java.net.URI
 
 import com.codacy.client.bitbucket.BodyWriteableWrapper.BodyWriteable
+import com.codacy.client.bitbucket.DefaultBodyWritables._
+import com.codacy.client.bitbucket.WSWrapper.WSClient
 import com.codacy.client.bitbucket.client.Authentication._
 import com.codacy.client.bitbucket.util.HTTPStatusCodes
 import com.codacy.client.bitbucket.util.Implicits.URIQueryParam
 import play.api.libs.json._
-import play.api.libs.ws.WSClient
 
 import scala.compat.Platform.EOL
 import scala.concurrent.Await
