@@ -8,4 +8,8 @@ object WSWrapper {
     request.withQueryStringParameters(parameters: _*)
   }
 
+  def build(materializer: akka.stream.Materializer): WSClient = {
+    play.api.libs.ws.ahc.StandaloneAhcWSClient()(materializer)
+  }
+
 }

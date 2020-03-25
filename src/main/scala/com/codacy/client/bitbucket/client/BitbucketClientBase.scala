@@ -15,11 +15,13 @@ import scala.concurrent.Await
 import scala.concurrent.duration.{Duration, SECONDS}
 import scala.util.{Failure, Properties, Success, Try}
 
-class BitbucketClient(credentials: Credentials)(wsBuilder: () => WSClient) {
+abstract class BitbucketClientBase(credentials: Credentials) {
 
   private lazy val requestTimeout = Duration(10, SECONDS)
 
   private lazy val authenticator = Authenticator.fromCredentials(credentials)
+
+  protected def buildClient(): WSClient
 
   /*
    * Does an API request and parses the json output into a class
@@ -216,7 +218,7 @@ class BitbucketClient(credentials: Credentials)(wsBuilder: () => WSClient) {
   }
 
   private def withClient[T](block: WSClient => T): Try[T] = {
-    val client: WSClient = wsBuilder()
+    val client: WSClient = buildClient()
     val result = Try(block(client))
     client.close()
     result
