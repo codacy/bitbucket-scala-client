@@ -34,6 +34,27 @@ abstract class BitbucketClientBase(credentials: Credentials) {
     }
   }
 
+  def executeWithCursor[T](request: Request[T])(implicit reader: Reads[T]): RequestResponse[Seq[T]] = {
+    get(request.url) match {
+      case Right(json) =>
+        (json \ "values")
+          .validate[Seq[T]]
+          .fold(
+            e => FailedResponse(s"Failed to parse json ($e): $json"),
+            values =>
+              SuccessfulResponse(
+                values,
+                size = (json \ "size").asOpt[Int],
+                pageLen = (json \ "pagelen").asOpt[Int],
+                page = (json \ "page").asOpt[Int],
+                next = (json \ "next").asOpt[String],
+                previous = (json \ "previous").asOpt[String]
+            )
+          )
+      case Left(error) => FailedResponse(error.detail)
+    }
+  }
+
   /*
    * Does a paginated API request and parses the json output into a sequence of classes
    */

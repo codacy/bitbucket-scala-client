@@ -12,6 +12,7 @@ sealed trait RequestResponse[+A] {
       case e: FailedResponse => e
     }
   }
+
 }
 
 case class SuccessfulResponse[A](
@@ -30,4 +31,17 @@ object RequestResponse {
   def success[A](a: A): RequestResponse[A] = SuccessfulResponse(a)
 
   def failure[A](message: String): RequestResponse[A] = FailedResponse(message: String)
+
+  def apply[A](r1: RequestResponse[Seq[A]], r2: RequestResponse[Seq[A]]): RequestResponse[Seq[A]] = {
+    r1 match {
+      case SuccessfulResponse(v1, _, _, _, _, _) =>
+        r2 match {
+          case SuccessfulResponse(v2, _, _, _, _, _) =>
+            SuccessfulResponse(v1 ++ v2)
+          case f @ FailedResponse(_) => f
+        }
+      case f @ FailedResponse(_) => f
+    }
+  }
+
 }
