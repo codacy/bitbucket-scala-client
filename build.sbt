@@ -2,9 +2,11 @@ import codacy.libs._
 
 name := """bitbucket-scala-client"""
 
-scalaVersion := crossScalaVersions.value(1)
+val scala211 = "2.11.12"
+val scala212 = "2.12.10"
 
-crossScalaVersions := Seq("2.11.12", "2.12.10")
+scalaVersion := scala212
+crossScalaVersions := Seq(scala211, scala212)
 
 scalacOptions := Seq("-deprecation", "-feature", "-unchecked", "-Ywarn-adapted-args", "-Xlint")
 
