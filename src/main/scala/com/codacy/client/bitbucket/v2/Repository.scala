@@ -19,7 +19,9 @@ case class Repository(
     has_issues: Boolean,
     is_private: Boolean,
     language: String,
-    urls: Seq[RepositoryUrl]
+    urls: Seq[RepositoryUrl],
+    uuid: String,
+    slug: String
 )
 
 object Repository {
@@ -44,7 +46,9 @@ object Repository {
       (__ \ "has_issues").read[Boolean] and
       (__ \ "is_private").read[Boolean] and
       (__ \ "language").read[String] and
-      (__ \ "links").read[Map[String, JsValue]].map(parseLinks)
+      (__ \ "links").read[Map[String, JsValue]].map(parseLinks) and
+      (__ \ "uuid" ).read[String] and
+      (__ \ "slug" ).read[String]
       ) (Repository.apply _)
   }
   // format: on
