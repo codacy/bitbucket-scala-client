@@ -9,7 +9,7 @@ class TeamServices(client: BitbucketClient) {
 
   private val BaseUrl = "https://bitbucket.org/api/2.0/teams"
 
-  def list(role: String = "member", pageRequest: Option[PageRequest]): RequestResponse[Seq[Team]] = {
+  def list(role: String = "member", pageRequest: Option[PageRequest] = None): RequestResponse[Seq[Team]] = {
     pageRequest match {
       case Some(request) =>
         request.cursor match {

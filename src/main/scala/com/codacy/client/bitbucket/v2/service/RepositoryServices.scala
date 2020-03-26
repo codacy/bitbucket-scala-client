@@ -11,15 +11,15 @@ class RepositoryServices(client: BitbucketClient) {
 
   private val BaseUrl: String = "https://bitbucket.org/api/2.0/repositories"
 
-  /*
-   * Gets the list of the user's repositories. Private repositories only appear on this list
-   * if the caller is authenticated and is authorized to view the repository.
-   */
+  /**
+    * Gets the list of the user's repositories. Private repositories only appear on this list
+    * if the caller is authenticated and is authorized to view the repository.
+    */
   def getRepositories(
       ownerInfo: OwnerInfo,
       pageLength: Option[Int] = Option(100),
-      pageRequest: Option[PageRequest],
-      userRole: Option[Role] = None
+      userRole: Option[Role] = None,
+      pageRequest: Option[PageRequest] = None
   ): RequestResponse[Seq[Repository]] = {
     val encodedOwner = URLEncoder.encode(ownerInfo.value, "UTF-8")
     val baseUrl = s"$BaseUrl/${encodedOwner}"

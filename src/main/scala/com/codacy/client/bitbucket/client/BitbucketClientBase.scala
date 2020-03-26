@@ -9,6 +9,7 @@ import com.codacy.client.bitbucket.client.Authentication._
 import com.codacy.client.bitbucket.util.HTTPStatusCodes
 import com.codacy.client.bitbucket.util.Implicits.URIQueryParam
 import play.api.libs.json._
+import play.api.libs.ws.WSClient
 
 import scala.compat.Platform.EOL
 import scala.concurrent.Await
@@ -23,9 +24,9 @@ abstract class BitbucketClientBase(credentials: Credentials) {
 
   protected def buildClient(): WSClient
 
-  /*
-   * Does an API request and parses the json output into a class
-   */
+  /**
+    * Does an API request and parses the json output into a class.
+    */
   def execute[T](request: Request[T])(implicit reader: Reads[T]): RequestResponse[T] = {
     get(request.url) match {
       case Right(json) =>
@@ -34,6 +35,15 @@ abstract class BitbucketClientBase(credentials: Credentials) {
     }
   }
 
+  /**
+    * Make an API request and parse the json output into a response. This response includes not only the objects
+    * requested but pagination information as well.
+    *
+    * @param request The information of the request to be performed
+    * @param reader A [[Reads]] to parse the json response from the API
+    * @tparam T The type of the objects in the response (excluding pagination information)
+    * @return A [[SuccessfulResponse]] or a [[FailedResponse]] depending if the request was successful or not
+    */
   def executeWithCursor[T](request: Request[T])(implicit reader: Reads[T]): RequestResponse[Seq[T]] = {
     get(request.url) match {
       case Right(json) =>
@@ -55,9 +65,9 @@ abstract class BitbucketClientBase(credentials: Credentials) {
     }
   }
 
-  /*
-   * Does a paginated API request and parses the json output into a sequence of classes
-   */
+  /**
+    * Does a paginated API request and parses the json output into a sequence of classes.
+    */
   def executePaginated[T](request: Request[Seq[T]])(implicit reader: Reads[T]): RequestResponse[Seq[T]] = {
     val FIRST_PAGE = 1
 
