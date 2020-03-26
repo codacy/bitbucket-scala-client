@@ -2,24 +2,26 @@ package com.codacy.client.bitbucket.client
 
 import java.net.URI
 
+import com.codacy.client.bitbucket.BodyWriteableWrapper.BodyWriteable
+import com.codacy.client.bitbucket.DefaultBodyWritables._
+import com.codacy.client.bitbucket.WSWrapper.WSClient
 import com.codacy.client.bitbucket.client.Authentication._
 import com.codacy.client.bitbucket.util.HTTPStatusCodes
 import com.codacy.client.bitbucket.util.Implicits.URIQueryParam
-import com.ning.http.client.AsyncHttpClientConfig
-import play.api.http.Writeable
 import play.api.libs.json._
-import play.api.libs.ws.ning.{NingAsyncHttpClientConfigBuilder, NingWSClient}
 
 import scala.compat.Platform.EOL
 import scala.concurrent.Await
 import scala.concurrent.duration.{Duration, SECONDS}
 import scala.util.{Failure, Properties, Success, Try}
 
-class BitbucketClient(credentials: Credentials) {
+abstract class BitbucketClientBase(credentials: Credentials) {
 
   private lazy val requestTimeout = Duration(10, SECONDS)
 
   private lazy val authenticator = Authenticator.fromCredentials(credentials)
+
+  protected def buildClient(): WSClient
 
   /*
    * Does an API request and parses the json output into a class
@@ -77,7 +79,7 @@ class BitbucketClient(credentials: Credentials) {
    */
   private def performRequest[D, T](method: String, request: Request[T], values: D)(
       implicit reader: Reads[T],
-      writer: Writeable[D]
+      writer: BodyWriteable[D]
   ): RequestResponse[T] = withClientRequest { client =>
     val jpromise = client
       .url(request.url)
@@ -120,7 +122,7 @@ class BitbucketClient(credentials: Credentials) {
   def postForm[D, T](
       request: Request[T],
       values: D
-  )(implicit reader: Reads[T], writer: Writeable[D]): RequestResponse[T] = {
+  )(implicit reader: Reads[T], writer: BodyWriteable[D]): RequestResponse[T] = {
     performRequest("POST", request, values)
   }
 
@@ -193,7 +195,7 @@ class BitbucketClient(credentials: Credentials) {
     }
   }
 
-  private def withClientEither[T](block: NingWSClient => Either[ResponseError, T]): Either[ResponseError, T] = {
+  private def withClientEither[T](block: WSClient => Either[ResponseError, T]): Either[ResponseError, T] = {
     withClient(block) match {
       case Success(res) => res
       case Failure(error) =>
@@ -201,7 +203,7 @@ class BitbucketClient(credentials: Credentials) {
     }
   }
 
-  private def withClientRequest[T](block: NingWSClient => RequestResponse[T]): RequestResponse[T] = {
+  private def withClientRequest[T](block: WSClient => RequestResponse[T]): RequestResponse[T] = {
     withClient(block) match {
       case Success(res) => res
       case Failure(error) =>
@@ -215,10 +217,8 @@ class BitbucketClient(credentials: Credentials) {
     }
   }
 
-  private def withClient[T](block: NingWSClient => T): Try[T] = {
-    val config = new NingAsyncHttpClientConfigBuilder().build()
-    val clientConfig = new AsyncHttpClientConfig.Builder(config).build()
-    val client = new NingWSClient(clientConfig)
+  private def withClient[T](block: WSClient => T): Try[T] = {
+    val client: WSClient = buildClient()
     val result = Try(block(client))
     client.close()
     result

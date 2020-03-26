@@ -1,5 +1,6 @@
 package com.codacy.client.bitbucket.v2.service
 
+import com.codacy.client.bitbucket.DefaultBodyWritables._
 import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
 import com.codacy.client.bitbucket.v2.AccessToken
 import com.codacy.client.bitbucket.v2.Authorization.{RefreshCredentials, RefreshToken}

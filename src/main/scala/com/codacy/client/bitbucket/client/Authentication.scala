@@ -1,7 +1,8 @@
 package com.codacy.client.bitbucket.client
 
-import play.api.libs.oauth.{ConsumerKey, OAuthCalculator, RequestToken}
-import play.api.libs.ws.{WSAuthScheme, WSRequest}
+import com.codacy.client.bitbucket.WSWrapper
+import com.codacy.client.bitbucket.WSWrapper.WSRequest
+import play.api.libs.ws.WSAuthScheme
 
 /**
   * Handles request authentication.
@@ -12,8 +13,6 @@ import play.api.libs.ws.{WSAuthScheme, WSRequest}
 object Authentication {
 
   sealed trait Credentials
-
-  case class OAuthCredentials(key: String, secretKey: String, token: String, secretToken: String) extends Credentials
 
   case class OAuth2Credentials(accessToken: String) extends Credentials
 
@@ -30,25 +29,15 @@ object Authentication {
 
     def fromCredentials(credentials: Credentials): Authenticator = {
       credentials match {
-        case c: OAuthCredentials => new OAuthAuthenticator(c)
         case c: OAuth2Credentials => new OAuth2Authenticator(c)
         case c: BasicAuthCredentials => new BasicAuthAuthenticator(c)
       }
     }
   }
 
-  class OAuthAuthenticator(credentials: OAuthCredentials) extends Authenticator {
-    private lazy val KEY = ConsumerKey(credentials.key, credentials.secretKey)
-    private lazy val TOKEN = RequestToken(credentials.token, credentials.secretToken)
-
-    private lazy val requestSigner = OAuthCalculator(KEY, TOKEN)
-
-    def authenticate(req: WSRequest): WSRequest = req.sign(requestSigner)
-  }
-
   class OAuth2Authenticator(credentials: OAuth2Credentials) extends Authenticator {
     override def authenticate(req: WSRequest): WSRequest =
-      req.withQueryString("access_token" -> credentials.accessToken)
+      WSWrapper.withQueryString(req, "access_token" -> credentials.accessToken)
   }
 
   class BasicAuthAuthenticator(credentials: BasicAuthCredentials) extends Authenticator {
