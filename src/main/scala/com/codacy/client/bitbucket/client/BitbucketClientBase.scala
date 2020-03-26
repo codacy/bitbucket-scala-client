@@ -49,6 +49,8 @@ abstract class BitbucketClientBase(credentials: Credentials) {
   ): RequestResponse[Seq[T]] = {
 
     val requestUrl = pageRequest.cursor match {
+      // Here we can just return the cursor because in BitBucket the cursor is a well-formed URL that must
+      // be used directly (according to the API documentation)
       case Some(cursor) => cursor
       case None => url
     }
