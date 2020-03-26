@@ -23,9 +23,9 @@ abstract class BitbucketClientBase(credentials: Credentials) {
 
   protected def buildClient(): WSClient
 
-  /*
-   * Does an API request and parses the json output into a class
-   */
+  /**
+    * Does an API request and parses the json output into a class.
+    */
   def execute[T](request: Request[T])(implicit reader: Reads[T]): RequestResponse[T] = {
     get(request.url) match {
       case Right(json) =>
@@ -34,9 +34,50 @@ abstract class BitbucketClientBase(credentials: Credentials) {
     }
   }
 
-  /*
-   * Does a paginated API request and parses the json output into a sequence of classes
-   */
+  /**
+    * Make an API request and parse the json output into a response. This response includes not only the objects
+    * requested but pagination information as well.
+    *
+    * @param url The url to be invoked if no cursor is provided
+    * @param pageRequest The pagination request with cursor information
+    * @param reader A [[Reads]] to parse the json response from the API
+    * @tparam T The type of the objects in the response (excluding pagination information)
+    * @return A [[SuccessfulResponse]] or a [[FailedResponse]] depending if the request was successful or not
+    */
+  def executeWithCursor[T](url: String, pageRequest: PageRequest)(
+      implicit reader: Reads[T]
+  ): RequestResponse[Seq[T]] = {
+
+    val requestUrl = pageRequest.cursor match {
+      // Here we can just return the cursor because in BitBucket the cursor is a well-formed URL that must
+      // be used directly (according to the API documentation)
+      case Some(cursor) => cursor
+      case None => url
+    }
+
+    get(requestUrl) match {
+      case Right(json) =>
+        (json \ "values")
+          .validate[Seq[T]]
+          .fold(
+            e => FailedResponse(s"Failed to parse json ($e): $json"),
+            values =>
+              SuccessfulResponse(
+                values,
+                size = (json \ "size").asOpt[Int],
+                pageLen = (json \ "pagelen").asOpt[Int],
+                page = (json \ "page").asOpt[Int],
+                next = (json \ "next").asOpt[String],
+                previous = (json \ "previous").asOpt[String]
+            )
+          )
+      case Left(error) => FailedResponse(error.detail)
+    }
+  }
+
+  /**
+    * Does a paginated API request and parses the json output into a sequence of classes.
+    */
   def executePaginated[T](request: Request[Seq[T]])(implicit reader: Reads[T]): RequestResponse[Seq[T]] = {
     val FIRST_PAGE = 1
 
@@ -66,7 +107,7 @@ abstract class BitbucketClientBase(credentials: Credentials) {
         val values = extractValues(json)
 
         (values +: nextPages).foldLeft[RequestResponse[Seq[T]]](SuccessfulResponse(Seq.empty[T])) { (a, b) =>
-          RequestResponse.apply(a, b)
+          RequestResponse.applyDiscardingPaginationInfo(a, b)
         }
 
       case Left(error) =>
