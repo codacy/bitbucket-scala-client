@@ -1,5 +1,7 @@
 package com.codacy.client.bitbucket.v2.service
 
+import java.net.URLEncoder
+
 import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
 import com.codacy.client.bitbucket.v2.{Team, UserPermission}
 
@@ -14,12 +16,11 @@ class TeamServices(client: BitbucketClient) {
   /**
     * Gets the public information associated with a team.
     *
-    * If the team's profile is private, location, website and created_on elements are omitted.
-    *
     * @param username The username or the UUID of the account surrounded by curly-braces
     */
   def getTeam(username: String): RequestResponse[Team] = {
-    client.execute(Request(s"$BaseUrl/$username", classOf[Team]))
+    val encodedUsername = URLEncoder.encode(username, "UTF-8")
+    client.execute(Request(s"$BaseUrl/$encodedUsername", classOf[Team]))
   }
 
   /**
