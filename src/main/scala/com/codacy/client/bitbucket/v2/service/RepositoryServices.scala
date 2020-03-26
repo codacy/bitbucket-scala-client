@@ -27,13 +27,8 @@ class RepositoryServices(client: BitbucketClient) {
 
     pageRequest match {
       case Some(request) =>
-        request.cursor match {
-          case Some(cursor) =>
-            client.executeWithCursor(Request(cursor, classOf[Repository]))
-          case None =>
-            val url = joinQueryParameters(baseUrl, role)
-            client.executeWithCursor(Request(url, classOf[Repository]))
-        }
+        val url = joinQueryParameters(baseUrl, role)
+        client.executeWithCursor[Repository](url, request)
       case None =>
         val length = pageLength.fold("")(pagelen => s"pagelen=$pagelen")
         val url = joinQueryParameters(baseUrl, role, length)

@@ -10,14 +10,13 @@ class TeamServices(client: BitbucketClient) {
   private val BaseUrl = "https://bitbucket.org/api/2.0/teams"
 
   def list(role: String = "member", pageRequest: Option[PageRequest] = None): RequestResponse[Seq[Team]] = {
+    val baseRequestUrl = s"$BaseUrl?role=$role"
+
     pageRequest match {
       case Some(request) =>
-        request.cursor match {
-          case Some(cursor) => client.executeWithCursor(Request(cursor, classOf[Team]))
-          case None => client.executeWithCursor(Request(s"$BaseUrl?role=$role", classOf[Team]))
-        }
+        client.executeWithCursor[Team](baseRequestUrl, request)
       case None =>
-        client.executePaginated(Request(s"$BaseUrl?role=$role", classOf[Seq[Team]]))
+        client.executePaginated(Request(baseRequestUrl, classOf[Seq[Team]]))
     }
   }
 
@@ -43,19 +42,13 @@ class TeamServices(client: BitbucketClient) {
       repositorySlug: String,
       pageRequest: Option[PageRequest] = None
   ): RequestResponse[Seq[UserPermission]] = {
+    val baseRequestUrl = s"$BaseUrl/$username/permissions/repositories/$repositorySlug"
+
     pageRequest match {
       case Some(request) =>
-        request.cursor match {
-          case Some(cursor) => client.executeWithCursor(Request(cursor, classOf[UserPermission]))
-          case None =>
-            client.executeWithCursor(
-              Request(s"$BaseUrl/$username/permissions/repositories/$repositorySlug", classOf[UserPermission])
-            )
-        }
+        client.executeWithCursor[UserPermission](baseRequestUrl, request)
       case None =>
-        client.executePaginated(
-          Request(s"$BaseUrl/$username/permissions/repositories/$repositorySlug", classOf[Seq[UserPermission]])
-        )
+        client.executePaginated(Request(baseRequestUrl, classOf[Seq[UserPermission]]))
     }
   }
 }

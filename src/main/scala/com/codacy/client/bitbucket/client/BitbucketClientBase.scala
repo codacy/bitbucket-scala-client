@@ -9,7 +9,6 @@ import com.codacy.client.bitbucket.client.Authentication._
 import com.codacy.client.bitbucket.util.HTTPStatusCodes
 import com.codacy.client.bitbucket.util.Implicits.URIQueryParam
 import play.api.libs.json._
-import play.api.libs.ws.WSClient
 
 import scala.compat.Platform.EOL
 import scala.concurrent.Await
@@ -39,13 +38,22 @@ abstract class BitbucketClientBase(credentials: Credentials) {
     * Make an API request and parse the json output into a response. This response includes not only the objects
     * requested but pagination information as well.
     *
-    * @param request The information of the request to be performed
+    * @param url The url to be invoked if no cursor is provided
+    * @param pageRequest The pagination request with cursor information
     * @param reader A [[Reads]] to parse the json response from the API
     * @tparam T The type of the objects in the response (excluding pagination information)
     * @return A [[SuccessfulResponse]] or a [[FailedResponse]] depending if the request was successful or not
     */
-  def executeWithCursor[T](request: Request[T])(implicit reader: Reads[T]): RequestResponse[Seq[T]] = {
-    get(request.url) match {
+  def executeWithCursor[T](url: String, pageRequest: PageRequest)(
+      implicit reader: Reads[T]
+  ): RequestResponse[Seq[T]] = {
+
+    val requestUrl = pageRequest.cursor match {
+      case Some(cursor) => cursor
+      case None => url
+    }
+
+    get(requestUrl) match {
       case Right(json) =>
         (json \ "values")
           .validate[Seq[T]]
@@ -97,7 +105,7 @@ abstract class BitbucketClientBase(credentials: Credentials) {
         val values = extractValues(json)
 
         (values +: nextPages).foldLeft[RequestResponse[Seq[T]]](SuccessfulResponse(Seq.empty[T])) { (a, b) =>
-          RequestResponse.apply(a, b)
+          RequestResponse.applyDiscardingPaginationInfo(a, b)
         }
 
       case Left(error) =>
