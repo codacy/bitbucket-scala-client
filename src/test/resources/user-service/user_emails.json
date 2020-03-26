@@ -1,0 +1,35 @@
+[
+  {
+    "is_primary": true,
+    "is_confirmed": true,
+    "type": "email",
+    "email": "mrfyda@gmail.com",
+    "links": {
+      "self": {
+        "href": "https://api.bitbucket.org/2.0/user/emails/mrfyda@gmail.com"
+      }
+    }
+  },
+  {
+    "is_primary": false,
+    "is_confirmed": true,
+    "type": "email",
+    "email": "rafael@qamine.com",
+    "links": {
+      "self": {
+        "href": "https://api.bitbucket.org/2.0/user/emails/rafael@qamine.com"
+      }
+    }
+  },
+  {
+    "is_primary": false,
+    "is_confirmed": true,
+    "type": "email",
+    "email": "pmaradas@gmail.com",
+    "links": {
+      "self": {
+        "href": "https://api.bitbucket.org/2.0/user/emails/pmaradas@gmail.com"
+      }
+    }
+  }
+]

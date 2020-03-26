@@ -1,0 +1,15 @@
+{
+  "type": "repository_permission",
+  "user": {
+    "type": "user",
+    "display_name": "Erik van Zijst",
+    "uuid": "{d301aafa-d676-4ee0-88be-962be7417567}"
+  },
+  "repository": {
+    "type": "repository",
+    "name": "geordi",
+    "full_name": "bitbucket/geordi",
+    "uuid": "{85d08b4e-571d-44e9-a507-fa476535aa98}"
+  },
+  "permission": "admin"
+}
