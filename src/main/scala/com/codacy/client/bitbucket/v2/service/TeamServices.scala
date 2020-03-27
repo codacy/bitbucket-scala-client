@@ -3,7 +3,7 @@ package com.codacy.client.bitbucket.v2.service
 import java.net.URLEncoder
 
 import com.codacy.client.bitbucket.client.{BitbucketClient, PageRequest, Request, RequestResponse}
-import com.codacy.client.bitbucket.v2.{Team, UserPermission}
+import com.codacy.client.bitbucket.v2.{Team, TeamPermission, UserPermission}
 
 class TeamServices(client: BitbucketClient) {
 
@@ -28,6 +28,27 @@ class TeamServices(client: BitbucketClient) {
   def getTeam(username: String): RequestResponse[Team] = {
     val encodedUsername = URLEncoder.encode(username, "UTF-8")
     client.execute(Request(s"$BaseUrl/$encodedUsername", classOf[Team]))
+  }
+
+  /**
+    * Retrieve the permissions for all teams matching the supplied username.
+    * *
+    * @param username The username or the UUID of the account surrounded by curly-braces
+    * @return A [[RequestResponse]] with the user permissions for each team
+    */
+  def getTeamUserPermissions(
+      username: String,
+      pageRequest: Option[PageRequest] = None
+  ): RequestResponse[Seq[TeamPermission]] = {
+    val encodedUsername = URLEncoder.encode(username, "UTF-8")
+    val baseRequestUrl = s"$BaseUrl/$encodedUsername/permissions"
+
+    pageRequest match {
+      case Some(request) =>
+        client.executeWithCursor[TeamPermission](baseRequestUrl, request)
+      case None =>
+        client.executePaginated(Request(baseRequestUrl, classOf[Seq[TeamPermission]]))
+    }
   }
 
   /**
