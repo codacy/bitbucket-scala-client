@@ -32,8 +32,9 @@ class TeamServices(client: BitbucketClient) {
 
   /**
     * Retrieve the permissions for all teams matching the supplied username.
-    * *
+    *
     * @param username The username or the UUID of the account surrounded by curly-braces
+    * @param pageRequest The pagination request with cursor information
     * @return A [[RequestResponse]] with the user permissions for each team
     */
   def getTeamUserPermissions(
@@ -56,14 +57,17 @@ class TeamServices(client: BitbucketClient) {
     *
     * @param username The username or the UUID of the account surrounded by curly-braces
     * @param repositorySlug The repository slug or the UUID of the repository surrounded by curly-braces
+    * @param pageRequest The pagination request with cursor information
     * @return A [[RequestResponse]] with the user permissions for the repository
     */
-  def getRepositoryUserPermissions(
+  def getTeamRepositoryUserPermissions(
       username: String,
       repositorySlug: String,
       pageRequest: Option[PageRequest] = None
   ): RequestResponse[Seq[UserPermission]] = {
-    val baseRequestUrl = s"$BaseUrl/$username/permissions/repositories/$repositorySlug"
+    val encodedUsername = URLEncoder.encode(username, "UTF-8")
+    val encodedRepositorySlug = URLEncoder.encode(repositorySlug, "UTF-8")
+    val baseRequestUrl = s"$BaseUrl/$encodedUsername/permissions/repositories/$encodedRepositorySlug"
 
     pageRequest match {
       case Some(request) =>
