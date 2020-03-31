@@ -1,15 +1,9 @@
 package com.codacy.client.bitbucket.v2
 
-import play.api.libs.functional.syntax._
-import play.api.libs.json.{__, Reads}
+import play.api.libs.json.{Format, Json}
 
-case class AccessToken(access_token: String, refresh_token: String)
+case class AccessToken(access_token: String, scopes: String, expires_in: Int, refresh_token: String, token_type: String)
 
 object AccessToken {
-  // format: off
-  implicit val reader: Reads[AccessToken] = (
-    (__ \ "access_token").read[String] and
-      (__ \ "refresh_token").read[String]
-  )(AccessToken.apply _)
-  // format: on
+  implicit val format: Format[AccessToken] = Json.format[AccessToken]
 }
