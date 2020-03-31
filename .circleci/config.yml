@@ -40,6 +40,8 @@ workflows:
       - codacy/sbt:
           name: publish
           context: CodacyAWS
-          cmd: sbt retrieveGPGKeys +publishSigned sonatypeBundleRelease
+          cmd: |
+            sbt retrieveGPGKeys +publishSigned
+            sbt -DplayVersion="2.7.4" "++2.11.12;publishSigned;sonatypeBundleRelease"
           requires:
             - tag_version
