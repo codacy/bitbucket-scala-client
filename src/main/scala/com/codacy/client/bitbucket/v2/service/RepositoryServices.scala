@@ -14,20 +14,30 @@ class RepositoryServices(client: BitbucketClient) {
   /**
     * Gets the list of the user's repositories. Private repositories only appear on this list
     * if the caller is authenticated and is authorized to view the repository.
+    *
+    * @param ownerInfo The username or the UUID of the account surrounded by curly-braces
+    * @param pageLength To be used as an alternative to the pageRequest param in order to get X repositories in just one call
+    * @param userRole The role of the user to filter the repositories
+    * @param pageRequest The cursor to get a page of repositories
+    * @param sortBy The name of the field to sort the repositories. By default it is done in ascending order and
+    *               it should be used an hyphen to reverse the order. Also, by default is ordered by last updated date
+    * @return a sequence of repositories
     */
   def getRepositories(
       ownerInfo: OwnerInfo,
       pageLength: Option[Int] = Option(100),
       userRole: Option[Role] = None,
-      pageRequest: Option[PageRequest] = None
+      pageRequest: Option[PageRequest] = None,
+      sortBy: Option[String] = Option("-updated_on")
   ): RequestResponse[Seq[Repository]] = {
     val encodedOwner = URLEncoder.encode(ownerInfo.value, "UTF-8")
     val baseUrl = s"$BaseUrl/${encodedOwner}"
     val role = userRole.fold("")(role => s"role=${role.value}")
+    val sort = sortBy.fold("")(sortField => s"sort=$sortField")
 
     pageRequest match {
       case Some(request) =>
-        val url = joinQueryParameters(baseUrl, role)
+        val url = joinQueryParameters(baseUrl, role, sort)
         client.executeWithCursor[Repository](url, request)
       case None =>
         val length = pageLength.fold("")(pagelen => s"pagelen=$pagelen")
