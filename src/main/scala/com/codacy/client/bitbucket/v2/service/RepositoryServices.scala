@@ -16,32 +16,40 @@ class RepositoryServices(client: BitbucketClient) {
     * if the caller is authenticated and is authorized to view the repository.
     *
     * @param ownerInfo The username or the UUID of the account surrounded by curly-braces
-    * @param pageLength To be used as an alternative to the pageRequest param in order to get X repositories in just one call
+    * @param pageLength The number of items of the page to be returned
     * @param userRole The role of the user to filter the repositories
     * @param pageRequest The cursor to get a page of repositories
     * @param sortBy The name of the field to sort the repositories. By default it is done in ascending order and
     *               it should be used an hyphen to reverse the order. Also, by default is ordered by last updated date
-    * @return a sequence of repositories
+    * @param repositorySlug The slug of the repository to search the repository.
+    *                       It finds any case-insensitive text that contains this string
+    * @return a [[RequestResponse]] with a sequence of repositories
     */
   def getRepositories(
       ownerInfo: OwnerInfo,
       pageLength: Option[Int] = Option(100),
       userRole: Option[Role] = None,
       pageRequest: Option[PageRequest] = None,
-      sortBy: Option[String] = Option("-updated_on")
+      sortBy: Option[String] = Option("-updated_on"),
+      repositorySlug: Option[String] = None
   ): RequestResponse[Seq[Repository]] = {
     val encodedOwner = URLEncoder.encode(ownerInfo.value, "UTF-8")
-    val baseUrl = s"$BaseUrl/${encodedOwner}"
+    val baseUrl = s"$BaseUrl/$encodedOwner"
     val role = userRole.fold("")(role => s"role=${role.value}")
     val sort = sortBy.fold("")(sortField => s"sort=$sortField")
+    val length = pageLength.fold("")(pagelen => s"pagelen=$pagelen")
+    val filterRepositorySlug =
+      repositorySlug.fold("") { slugField =>
+        val encodedSlugField = URLEncoder.encode(s""""$slugField"""", "UTF-8")
+        s"""q=slug~$encodedSlugField"""
+      }
+
+    val url = joinQueryParameters(baseUrl, role, sort, length, filterRepositorySlug)
 
     pageRequest match {
       case Some(request) =>
-        val url = joinQueryParameters(baseUrl, role, sort)
         client.executeWithCursor[Repository](url, request)
       case None =>
-        val length = pageLength.fold("")(pagelen => s"pagelen=$pagelen")
-        val url = joinQueryParameters(baseUrl, role, length)
         client.executePaginated(Request(url, classOf[Seq[Repository]]))
     }
   }
