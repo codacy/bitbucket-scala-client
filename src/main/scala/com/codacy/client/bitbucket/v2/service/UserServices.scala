@@ -1,7 +1,9 @@
 package com.codacy.client.bitbucket.v2.service
 
-import com.codacy.client.bitbucket.v2._
+import java.net.URLEncoder
+
 import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
+import com.codacy.client.bitbucket.v2._
 import play.api.libs.json.Json
 
 class UserServices(client: BitbucketClient) {
@@ -36,11 +38,16 @@ class UserServices(client: BitbucketClient) {
     )
   }
 
-  /*
-   * Creates a ssh key
-   */
-  def createKey(userId: String, key: String, keyName: String): RequestResponse[SshKey] = {
-    val url = s"https://bitbucket.org/api/2.0/users/$userId/ssh-keys"
+  /**
+    * Creates an SSH key for the specified user
+    *
+    * @param owner The username or the UUID of the account surrounded by curly-braces
+    * @param key Public key to add on the user account
+    * @param keyName Name of the created key
+    */
+  def createKey(owner: OwnerInfo, key: String, keyName: String): RequestResponse[SshKey] = {
+    val encodedOwner = URLEncoder.encode(owner.value, "UTF-8")
+    val url = s"https://bitbucket.org/api/2.0/users/$encodedOwner/ssh-keys"
 
     val values = Json.obj("key" -> key, "label" -> keyName)
 
