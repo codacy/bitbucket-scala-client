@@ -27,11 +27,11 @@ workflows:
             bash <(curl -Ls https://coverage.codacy.com/get.sh) report --skip
           requires:
             - populate_cache_compile
-            - check_format
       - codacy/tag_version:
           name: tag_version
           context: CodacyAWS
           requires:
+            - check_format
             - test
           filters:
             branches:
