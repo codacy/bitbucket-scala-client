@@ -36,8 +36,9 @@ object Authentication {
   }
 
   class OAuth2Authenticator(credentials: OAuth2Credentials) extends Authenticator {
-    override def authenticate(req: WSRequest): WSRequest =
-      WSWrapper.withQueryString(req, "access_token" -> credentials.accessToken)
+    override def authenticate(req: WSRequest): WSRequest = {
+      WSWrapper.withHttpHeaders(req, ("Authorization", s"Bearer ${credentials.accessToken}"))
+    }
   }
 
   class BasicAuthAuthenticator(credentials: BasicAuthCredentials) extends Authenticator {
