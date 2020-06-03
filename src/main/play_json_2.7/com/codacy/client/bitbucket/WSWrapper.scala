@@ -4,8 +4,8 @@ object WSWrapper {
   type WSClient = play.api.libs.ws.StandaloneWSClient
   type WSRequest = play.api.libs.ws.StandaloneWSRequest
 
-  def withQueryString(request: WSRequest, parameters: (String, String)*): WSRequest = {
-    request.withQueryStringParameters(parameters: _*)
+  def withHttpHeaders(request: WSRequest, headers: (String, String)*): WSRequest = {
+    request.withHttpHeaders(headers: _*)
   }
 
   def build(materializer: akka.stream.Materializer): WSClient = {

@@ -7,8 +7,8 @@ object WSWrapper {
   type WSClient = play.api.libs.ws.WSClient
   type WSRequest = play.api.libs.ws.WSRequest
 
-  def withQueryString(request: WSRequest, parameters: (String, String)*): WSRequest = {
-    request.withQueryString(parameters: _*)
+  def withHttpHeaders(request: WSRequest, headers: (String, String)*): WSRequest = {
+    request.withHeaders(headers: _*)
   }
 
   def build(): WSClient = {
