@@ -14,14 +14,6 @@ class UserSpecs extends FlatSpec with Matchers with Inside {
     value.fold(e => fail(s"$e"), emails => emails.length shouldBe 3)
   }
 
-  it should "successfully parse a JSON into an array of TeamWithPermission" in {
-    val rawJson = TestUtils.getTestContent("/user-service/user_permissions_teams.json")
-    val json = Json.parse(rawJson)
-    val value = json.validate[Seq[TeamWithPermission]]
-
-    value.fold(e => fail(s"$e"), teams => teams.length shouldBe 2)
-  }
-
   it should "successfully parse a JSON into a User" in {
     val rawJson = TestUtils.getTestContent("/user-service/user.json")
     val json = Json.parse(rawJson)
@@ -37,23 +29,6 @@ class UserSpecs extends FlatSpec with Matchers with Inside {
             display_name shouldBe "João Lopes"
             nickname shouldBe Some("jllopes")
             avatarUrl shouldBe Some("https://bitbucket.org/account/jllopes/avatar/")
-      }
-    )
-  }
-
-  it should "successfully parse a JSON into a UserPermission" in {
-    val rawJson = TestUtils.getTestContent("/user-service/user_permissions.json")
-    val json = Json.parse(rawJson)
-    val value = json.validate[UserPermission]
-
-    value.fold(
-      e => fail(s"$e"),
-      userPermission =>
-        inside(userPermission) {
-          case UserPermission(user, repository, permission) =>
-            user shouldBe SimpleUser("{d301aafa-d676-4ee0-88be-962be7417567}", "Erik van Zijst")
-            repository shouldBe SimpleRepository("{85d08b4e-571d-44e9-a507-fa476535aa98}", "geordi", "bitbucket/geordi")
-            permission shouldBe "admin"
       }
     )
   }

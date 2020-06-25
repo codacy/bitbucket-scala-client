@@ -29,15 +29,6 @@ class UserServices(client: BitbucketClient) {
     client.executePaginated(Request(s"https://bitbucket.org/api/2.0/user/emails", classOf[Seq[Email]]))
   }
 
-  /*
-   * Gets all the teams a user is a member of
-   */
-  def getTeams: RequestResponse[Seq[TeamWithPermission]] = {
-    client.executePaginated(
-      Request(s"https://bitbucket.org/api/2.0/user/permissions/teams", classOf[Seq[TeamWithPermission]])
-    )
-  }
-
   /**
     * Creates an SSH key for the specified user
     *

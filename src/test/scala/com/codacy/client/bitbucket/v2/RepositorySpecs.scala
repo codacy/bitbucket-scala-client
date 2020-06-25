@@ -1,4 +1,5 @@
 package com.codacy.client.bitbucket.v2
+import com.codacy.client.bitbucket.TestUtils
 import org.scalatest.{Matchers, _}
 import play.api.libs.json.Json
 
@@ -135,5 +136,13 @@ class RepositorySpecs extends FlatSpec with Matchers {
       r.name shouldBe "tweakmsg"
       r.owner.display_name shouldBe "John Mulligan"
     })
+  }
+
+  it should "successfully parse a JSON into BranchRestrictions" in {
+    val rawJson = TestUtils.getTestContent("/repository-service/branch_restrictions.json")
+    val json = Json.parse(rawJson)
+    val value = json.validate[Seq[BranchRestriction]]
+
+    value.fold(e => fail(s"$e"), branchRestrictions => branchRestrictions.length shouldBe 3)
   }
 }
