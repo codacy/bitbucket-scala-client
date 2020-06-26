@@ -2,7 +2,7 @@ package com.codacy.client.bitbucket.v2.service
 
 import java.net.URLEncoder
 
-import com.codacy.client.bitbucket.v2.{DeployKey, OwnerInfo, Repository, Role}
+import com.codacy.client.bitbucket.v2.{BranchRestriction, DeployKey, OwnerInfo, Repository, Role}
 import com.codacy.client.bitbucket.client.{BitbucketClient, PageRequest, Request, RequestResponse}
 import play.api.libs.json.Json
 import com.codacy.client.bitbucket.util.UrlHelper._
@@ -77,5 +77,30 @@ class RepositoryServices(client: BitbucketClient) {
     val values = Json.obj("key" -> key, "label" -> label)
 
     client.postJson(Request(url, classOf[DeployKey]), values)
+  }
+
+  /**
+    * Retrieve the branch restrictions for the supplied username and repositorySlug.
+    *
+    * @param username The username or the UUID of the account surrounded by curly-braces
+    * @param repositorySlug The repository slug or the UUID of the repository surrounded by curly-braces
+    * @param pageRequest The pagination request with cursor information
+    * @return A [[RequestResponse]] with the branch restrictions for the repository
+    */
+  def getRepositoryBranchRestrictions(
+      username: String,
+      repositorySlug: String,
+      pageRequest: Option[PageRequest] = None
+  ): RequestResponse[Seq[BranchRestriction]] = {
+    val encodedUsername = URLEncoder.encode(username, "UTF-8")
+    val encodedRepositorySlug = URLEncoder.encode(repositorySlug, "UTF-8")
+    val baseRequestUrl = s"$BaseUrl/$encodedUsername/$encodedRepositorySlug/branch-restrictions"
+
+    pageRequest match {
+      case Some(request) =>
+        client.executeWithCursor[BranchRestriction](baseRequestUrl, request)
+      case None =>
+        client.executePaginated(Request(baseRequestUrl, classOf[Seq[BranchRestriction]]))
+    }
   }
 }

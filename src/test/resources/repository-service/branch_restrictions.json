@@ -1,0 +1,151 @@
+[
+  {
+    "kind": "delete",
+    "users": [],
+    "links": {
+      "self": {
+        "href": "https://bitbucket.org/!api/2.0/repositories/teambatata123/ca-ganda-repo/branch-restrictions/12760534"
+      }
+    },
+    "pattern": "master",
+    "value": null,
+    "branch_match_kind": "glob",
+    "groups": [],
+    "type": "branchrestriction",
+    "id": 12760534
+  },
+  {
+    "kind": "restrict_merges",
+    "users": [
+      {
+        "display_name": "Bruno Ferreira",
+        "uuid": "{20412a94-054a-40be-a1e7-8bf541a72a5e}",
+        "links": {
+          "self": {
+            "href": "https://bitbucket.org/!api/2.0/users/%7B20412a94-054a-40be-a1e7-8bf541a72a5e%7D"
+          },
+          "html": {
+            "href": "https://bitbucket.org/%7B20412a94-054a-40be-a1e7-8bf541a72a5e%7D/"
+          },
+          "avatar": {
+            "href": "https://secure.gravatar.com/avatar/81bcc2ef3ab738db18e2421321589bb1?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBF-2.png"
+          }
+        },
+        "nickname": "bmbferreira",
+        "type": "user",
+        "account_id": "557058:952cd0f9-9c16-498f-878e-06c4b72c9c89"
+      }
+    ],
+    "links": {
+      "self": {
+        "href": "https://bitbucket.org/!api/2.0/repositories/teambatata123/ca-ganda-repo/branch-restrictions/12760533"
+      }
+    },
+    "pattern": "master",
+    "value": null,
+    "branch_match_kind": "glob",
+    "groups": [
+      {
+        "name": "Administrators",
+        "links": {
+          "self": {
+            "href": "https://bitbucket.org/!api/1.0/groups/teambatata123/administrators"
+          },
+          "html": {
+            "href": "https://bitbucket.org/teambatata123/workspace/settings/groups/administrators"
+          }
+        },
+        "account_privilege": "admin",
+        "full_slug": "teambatata123:administrators",
+        "owner": {
+          "username": "teambatata123",
+          "display_name": "team batata",
+          "type": "team",
+          "uuid": "{2275ab8c-5c74-42d1-b1fd-89aeac26f446}",
+          "links": {
+            "self": {
+              "href": "https://bitbucket.org/!api/2.0/teams/%7B2275ab8c-5c74-42d1-b1fd-89aeac26f446%7D"
+            },
+            "html": {
+              "href": "https://bitbucket.org/%7B2275ab8c-5c74-42d1-b1fd-89aeac26f446%7D/"
+            },
+            "avatar": {
+              "href": "https://bitbucket.org/account/teambatata123/avatar/"
+            }
+          }
+        },
+        "type": "group",
+        "slug": "administrators"
+      }
+    ],
+    "type": "branchrestriction",
+    "id": 12760533
+  },
+  {
+    "kind": "push",
+    "users": [
+      {
+        "display_name": "Bruno Ferreira",
+        "uuid": "{20412a94-054a-40be-a1e7-8bf541a72a5e}",
+        "links": {
+          "self": {
+            "href": "https://bitbucket.org/!api/2.0/users/%7B20412a94-054a-40be-a1e7-8bf541a72a5e%7D"
+          },
+          "html": {
+            "href": "https://bitbucket.org/%7B20412a94-054a-40be-a1e7-8bf541a72a5e%7D/"
+          },
+          "avatar": {
+            "href": "https://secure.gravatar.com/avatar/81bcc2ef3ab738db18e2421321589bb1?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBF-2.png"
+          }
+        },
+        "nickname": "bmbferreira",
+        "type": "user",
+        "account_id": "557058:952cd0f9-9c16-498f-878e-06c4b72c9c89"
+      }
+    ],
+    "links": {
+      "self": {
+        "href": "https://bitbucket.org/!api/2.0/repositories/teambatata123/ca-ganda-repo/branch-restrictions/12760532"
+      }
+    },
+    "pattern": "master",
+    "value": null,
+    "branch_match_kind": "glob",
+    "groups": [
+      {
+        "name": "Administrators",
+        "links": {
+          "self": {
+            "href": "https://bitbucket.org/!api/1.0/groups/teambatata123/administrators"
+          },
+          "html": {
+            "href": "https://bitbucket.org/teambatata123/workspace/settings/groups/administrators"
+          }
+        },
+        "account_privilege": "admin",
+        "full_slug": "teambatata123:administrators",
+        "owner": {
+          "username": "teambatata123",
+          "display_name": "team batata",
+          "type": "team",
+          "uuid": "{2275ab8c-5c74-42d1-b1fd-89aeac26f446}",
+          "links": {
+            "self": {
+              "href": "https://bitbucket.org/!api/2.0/teams/%7B2275ab8c-5c74-42d1-b1fd-89aeac26f446%7D"
+            },
+            "html": {
+              "href": "https://bitbucket.org/%7B2275ab8c-5c74-42d1-b1fd-89aeac26f446%7D/"
+            },
+            "avatar": {
+              "href": "https://bitbucket.org/account/teambatata123/avatar/"
+            }
+          }
+        },
+        "type": "group",
+        "slug": "administrators"
+      }
+    ],
+    "type": "branchrestriction",
+    "id": 12760532
+  }
+]
