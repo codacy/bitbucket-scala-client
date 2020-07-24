@@ -2,14 +2,12 @@ package com.codacy.client.bitbucket.v2.service
 
 import java.net.URLEncoder
 
-import com.codacy.client.bitbucket.v2.{BranchRestriction, DeployKey, OwnerInfo, Repository, Role}
 import com.codacy.client.bitbucket.client.{BitbucketClient, PageRequest, Request, RequestResponse}
-import play.api.libs.json.Json
 import com.codacy.client.bitbucket.util.UrlHelper._
+import com.codacy.client.bitbucket.v2._
+import play.api.libs.json.Json
 
 class RepositoryServices(client: BitbucketClient) {
-
-  private val BaseUrl: String = "https://bitbucket.org/api/2.0/repositories"
 
   /**
     * Gets the list of the user's repositories. Private repositories only appear on this list
@@ -34,7 +32,7 @@ class RepositoryServices(client: BitbucketClient) {
       repositorySlug: Option[String] = None
   ): RequestResponse[Seq[Repository]] = {
     val encodedOwner = URLEncoder.encode(ownerInfo.value, "UTF-8")
-    val baseUrl = s"$BaseUrl/$encodedOwner"
+    val baseUrl = s"${client.repositoriesBaseUrl}/$encodedOwner"
     val role = userRole.fold("")(role => s"role=${role.value}")
     val sort = sortBy.fold("")(sortField => s"sort=$sortField")
     val length = pageLength.fold("")(pagelen => s"pagelen=$pagelen")
@@ -62,17 +60,18 @@ class RepositoryServices(client: BitbucketClient) {
     * @return A [[RequestResponse]] with the repository data
     */
   def getRepository(workspace: String, repositorySlug: String): RequestResponse[Repository] = {
-    val encodedWorkspace = URLEncoder.encode(workspace, "UTF-8")
-    client.execute(Request(s"$BaseUrl/$encodedWorkspace/$repositorySlug", classOf[Repository]))
+    val repositoryUrl = generateRepositoryUrl(workspace, repositorySlug)
+    client.execute(Request(repositoryUrl, classOf[Repository]))
   }
 
   def createKey(
       username: String,
-      repo: String,
+      repositorySlug: String,
       key: String,
       label: String = "Codacy Key"
   ): RequestResponse[DeployKey] = {
-    val url = s"$BaseUrl/$username/$repo/deploy-keys"
+    val repositoryUrl = generateRepositoryUrl(username, repositorySlug)
+    val url = s"$repositoryUrl/deploy-keys"
 
     val values = Json.obj("key" -> key, "label" -> label)
 
@@ -92,9 +91,8 @@ class RepositoryServices(client: BitbucketClient) {
       repositorySlug: String,
       pageRequest: Option[PageRequest] = None
   ): RequestResponse[Seq[BranchRestriction]] = {
-    val encodedUsername = URLEncoder.encode(username, "UTF-8")
-    val encodedRepositorySlug = URLEncoder.encode(repositorySlug, "UTF-8")
-    val baseRequestUrl = s"$BaseUrl/$encodedUsername/$encodedRepositorySlug/branch-restrictions"
+    val repositoryUrl = generateRepositoryUrl(username, repositorySlug)
+    val baseRequestUrl = s"$repositoryUrl/branch-restrictions"
 
     pageRequest match {
       case Some(request) =>
@@ -102,5 +100,11 @@ class RepositoryServices(client: BitbucketClient) {
       case None =>
         client.executePaginated(Request(baseRequestUrl, classOf[Seq[BranchRestriction]]))
     }
+  }
+
+  private def generateRepositoryUrl(owner: String, repo: String): String = {
+    val encodedOwner = URLEncoder.encode(owner, "UTF-8")
+    val encodedRepo = URLEncoder.encode(repo, "UTF-8")
+    s"${client.repositoriesBaseUrl}/$encodedOwner/$encodedRepo"
   }
 }

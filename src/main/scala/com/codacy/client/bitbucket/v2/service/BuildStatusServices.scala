@@ -1,5 +1,7 @@
 package com.codacy.client.bitbucket.v2.service
 
+import java.net.URLEncoder
+
 import com.codacy.client.bitbucket.DefaultBodyWritables._
 import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
 import com.codacy.client.bitbucket.v2.BuildStatus
@@ -12,7 +14,9 @@ class BuildStatusServices(client: BitbucketClient) {
    *
    */
   def getBuildStatus(owner: String, repository: String, commit: String, key: String): RequestResponse[BuildStatus] = {
-    val url = s"https://bitbucket.org/api/2.0/repositories/$owner/$repository/commit/$commit/statuses/build/$key"
+    val commitBuildStatusesUrl = generateCommitBuildStatusesUrl(owner, repository, commit)
+    val encodedKey = URLEncoder.encode(key, "UTF-8")
+    val url = s"$commitBuildStatusesUrl/$encodedKey"
 
     client.execute(Request(url, classOf[BuildStatus]))
   }
@@ -27,7 +31,7 @@ class BuildStatusServices(client: BitbucketClient) {
       commit: String,
       buildStatus: BuildStatus
   ): RequestResponse[BuildStatus] = {
-    val url = s"https://bitbucket.org/api/2.0/repositories/$owner/$repository/commit/$commit/statuses/build"
+    val commitBuildStatusesUrl = generateCommitBuildStatusesUrl(owner, repository, commit)
 
     val values = Map(
       "state" -> Seq(buildStatus.state.toString),
@@ -37,7 +41,7 @@ class BuildStatusServices(client: BitbucketClient) {
       "description" -> Seq(buildStatus.description)
     )
 
-    client.postForm(Request(url, classOf[BuildStatus]), values)
+    client.postForm(Request(commitBuildStatusesUrl, classOf[BuildStatus]), values)
   }
 
   /*
@@ -50,8 +54,9 @@ class BuildStatusServices(client: BitbucketClient) {
       commit: String,
       buildStatus: BuildStatus
   ): RequestResponse[BuildStatus] = {
-    val url =
-      s"https://bitbucket.org/api/2.0/repositories/$owner/$repository/commit/$commit/statuses/build/${buildStatus.key}"
+    val commitBuildStatusesUrl = generateCommitBuildStatusesUrl(owner, repository, commit)
+    val encodedBuildStatusKey = URLEncoder.encode(buildStatus.key, "UTF-8")
+    val url = s"$commitBuildStatusesUrl/$encodedBuildStatusKey"
 
     val payload = Json.obj(
       "state" -> buildStatus.state,
@@ -61,5 +66,12 @@ class BuildStatusServices(client: BitbucketClient) {
     )
 
     client.putJson(Request(url, classOf[BuildStatus]), payload)
+  }
+
+  private def generateCommitBuildStatusesUrl(owner: String, repository: String, commit: String): String = {
+    val encodedOwner = URLEncoder.encode(owner, "UTF-8")
+    val encodedRepository = URLEncoder.encode(repository, "UTF-8")
+    val encodedCommit = URLEncoder.encode(commit, "UTF-8")
+    s"${client.repositoriesBaseUrl}/$encodedOwner/$encodedRepository/commit/$encodedCommit/statuses/build"
   }
 }

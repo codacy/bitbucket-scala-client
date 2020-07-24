@@ -17,6 +17,12 @@ import scala.util.{Failure, Properties, Success, Try}
 
 abstract class BitbucketClientBase(credentials: Credentials) {
 
+  val apiBaseUrl = "https://bitbucket.org/api/2.0"
+  val userBaseUrl = s"$apiBaseUrl/user"
+  val usersBaseUrl = s"$apiBaseUrl/users"
+  val repositoriesBaseUrl = s"$apiBaseUrl/repositories"
+  val workspacesBaseUrl = s"$apiBaseUrl/workspaces"
+
   private lazy val requestTimeout = Duration(10, SECONDS)
 
   private lazy val authenticator = Authenticator.fromCredentials(credentials)

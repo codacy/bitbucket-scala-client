@@ -12,21 +12,22 @@ class UserServices(client: BitbucketClient) {
    * Gets the basic information associated with the token owner account.
    */
   def getUser: RequestResponse[User] = {
-    client.execute(Request("https://api.bitbucket.org/2.0/user", classOf[User]))
-  }
-
-  /*
-   * Gets the basic information associated with an account.
-   */
-  def getUser(userId: String): RequestResponse[User] = {
-    client.execute(Request(s"https://api.bitbucket.org/2.0/users/$userId", classOf[User]))
+    client.execute(Request(client.userBaseUrl, classOf[User]))
   }
 
   /*
    * Gets all the emails of an account
    */
   def getEmails: RequestResponse[Seq[Email]] = {
-    client.executePaginated(Request(s"https://bitbucket.org/api/2.0/user/emails", classOf[Seq[Email]]))
+    client.executePaginated(Request(s"${client.userBaseUrl}/emails", classOf[Seq[Email]]))
+  }
+
+  /*
+   * Gets the basic information associated with an account.
+   */
+  def getUser(userId: String): RequestResponse[User] = {
+    val encodedUserId = URLEncoder.encode(userId, "UTF-8")
+    client.execute(Request(s"${client.usersBaseUrl}/$encodedUserId", classOf[User]))
   }
 
   /**
@@ -38,7 +39,7 @@ class UserServices(client: BitbucketClient) {
     */
   def createKey(owner: OwnerInfo, key: String, keyName: String): RequestResponse[SshKey] = {
     val encodedOwner = URLEncoder.encode(owner.value, "UTF-8")
-    val url = s"https://bitbucket.org/api/2.0/users/$encodedOwner/ssh-keys"
+    val url = s"${client.usersBaseUrl}/$encodedOwner/ssh-keys"
 
     val values = Json.obj("key" -> key, "label" -> keyName)
 
