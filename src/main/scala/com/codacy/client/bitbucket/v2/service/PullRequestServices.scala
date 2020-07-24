@@ -17,11 +17,12 @@ class PullRequestServices(client: BitbucketClient) {
   def getPullRequests(
       owner: String,
       repository: String,
-      states: Seq[String] = Seq("OPEN")
+      states: Seq[String] = Seq("OPEN"),
+      size: Int = 50
   ): RequestResponse[Seq[PullRequest]] = {
     val pullRequestsUrl = generatePullRequestsUrl(owner, repository)
     val encodedStates = states.map(state => URLEncoder.encode(state, "UTF-8"))
-    val url = s"$pullRequestsUrl?pagelen=50&state=${encodedStates.mkString("&state=")}"
+    val url = s"$pullRequestsUrl?pagelen=$size&state=${encodedStates.mkString("&state=")}"
 
     client.executePaginated(Request(url, classOf[Seq[PullRequest]]))
   }
@@ -30,9 +31,14 @@ class PullRequestServices(client: BitbucketClient) {
    * Gets the list of commits of a pull request
    *
    */
-  def getPullRequestCommits(owner: String, repository: String, prId: Long): RequestResponse[Seq[SimpleCommit]] = {
+  def getPullRequestCommits(
+      owner: String,
+      repository: String,
+      prId: Long,
+      size: Int = 100
+  ): RequestResponse[Seq[SimpleCommit]] = {
     val pullRequestsUrl = generatePullRequestsUrl(owner, repository)
-    val url = s"$pullRequestsUrl/$prId/commits?pagelen=100"
+    val url = s"$pullRequestsUrl/$prId/commits?pagelen=$size"
 
     client.executePaginated(Request(url, classOf[Seq[SimpleCommit]]))
   }
