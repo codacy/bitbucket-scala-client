@@ -7,15 +7,12 @@ import com.codacy.client.bitbucket.v2.{Workspace, WorkspacePermission}
 
 class WorkspaceServices(client: BitbucketClient) {
 
-  private val BaseUrl = "https://bitbucket.org/api/2.0/workspaces"
-
   def list(pageRequest: Option[PageRequest] = None): RequestResponse[Seq[Workspace]] = {
-
     pageRequest match {
       case Some(request) =>
-        client.executeWithCursor[Workspace](BaseUrl, request)
+        client.executeWithCursor[Workspace](client.workspacesBaseUrl, request)
       case None =>
-        client.executePaginated(Request(BaseUrl, classOf[Seq[Workspace]]))
+        client.executePaginated(Request(client.workspacesBaseUrl, classOf[Seq[Workspace]]))
     }
   }
 
@@ -26,7 +23,7 @@ class WorkspaceServices(client: BitbucketClient) {
     */
   def getWorkspace(username: String): RequestResponse[Workspace] = {
     val encodedUsername = URLEncoder.encode(username, "UTF-8")
-    client.execute(Request(s"$BaseUrl/$encodedUsername", classOf[Workspace]))
+    client.execute(Request(s"${client.workspacesBaseUrl}/$encodedUsername", classOf[Workspace]))
   }
 
   /**
@@ -41,7 +38,7 @@ class WorkspaceServices(client: BitbucketClient) {
       pageRequest: Option[PageRequest] = None
   ): RequestResponse[Seq[WorkspacePermission]] = {
     val encodedUsername = URLEncoder.encode(username, "UTF-8")
-    val baseRequestUrl = s"$BaseUrl/$encodedUsername/permissions"
+    val baseRequestUrl = s"${client.workspacesBaseUrl}/$encodedUsername/permissions"
 
     pageRequest match {
       case Some(request) =>
