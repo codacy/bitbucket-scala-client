@@ -15,7 +15,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration.{Duration, SECONDS}
 import scala.util.{Failure, Properties, Success, Try}
 
-abstract class BitbucketClientBase(client: WSClient, credentials: Credentials) {
+abstract class BitbucketClientBase(val client: WSClient, credentials: Credentials) {
 
   val apiBaseUrl = "https://bitbucket.org/api/2.0"
   val userBaseUrl = s"$apiBaseUrl/user"
