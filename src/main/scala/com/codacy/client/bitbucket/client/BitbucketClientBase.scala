@@ -15,7 +15,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration.{Duration, SECONDS}
 import scala.util.{Failure, Properties, Success, Try}
 
-abstract class BitbucketClientBase(credentials: Credentials) {
+abstract class BitbucketClientBase(val client: WSClient, credentials: Credentials) {
 
   val apiBaseUrl = "https://bitbucket.org/api/2.0"
   val userBaseUrl = s"$apiBaseUrl/user"
@@ -26,8 +26,6 @@ abstract class BitbucketClientBase(credentials: Credentials) {
   private lazy val requestTimeout = Duration(10, SECONDS)
 
   private lazy val authenticator = Authenticator.fromCredentials(credentials)
-
-  protected def buildClient(): WSClient
 
   /**
     * Does an API request and parses the json output into a class.
@@ -243,7 +241,7 @@ abstract class BitbucketClientBase(credentials: Credentials) {
   }
 
   private def withClientEither[T](block: WSClient => Either[ResponseError, T]): Either[ResponseError, T] = {
-    withClient(block) match {
+    Try(block(client)) match {
       case Success(res) => res
       case Failure(error) =>
         Left(ResponseError("Request failed", getFullStackTrace(error), error.getMessage))
@@ -251,7 +249,7 @@ abstract class BitbucketClientBase(credentials: Credentials) {
   }
 
   private def withClientRequest[T](block: WSClient => RequestResponse[T]): RequestResponse[T] = {
-    withClient(block) match {
+    Try(block(client)) match {
       case Success(res) => res
       case Failure(error) =>
         val statusMessage =
@@ -262,13 +260,6 @@ abstract class BitbucketClientBase(credentials: Credentials) {
           """.stripMargin
         FailedResponse(statusMessage)
     }
-  }
-
-  private def withClient[T](block: WSClient => T): Try[T] = {
-    val client: WSClient = buildClient()
-    val result = Try(block(client))
-    client.close()
-    result
   }
 
   private def getFullStackTrace(throwableOpt: Throwable, accumulator: String = ""): String = {
