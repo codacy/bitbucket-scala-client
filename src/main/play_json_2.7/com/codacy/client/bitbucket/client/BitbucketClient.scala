@@ -5,6 +5,7 @@ import com.codacy.client.bitbucket.WSWrapper
 import com.codacy.client.bitbucket.WSWrapper.WSClient
 import com.codacy.client.bitbucket.client.Authentication.Credentials
 
-class BitbucketClient(credentials: Credentials, materializer: Materializer) extends BitbucketClientBase(credentials) {
-  override protected def buildClient(): WSClient = WSWrapper.build(materializer)
-}
+class BitbucketClient(materializer: Materializer)(
+    client: WSClient = WSWrapper.build(materializer),
+    credentials: Credentials
+) extends BitbucketClientBase(client, credentials)

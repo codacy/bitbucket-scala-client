@@ -4,8 +4,5 @@ import com.codacy.client.bitbucket.WSWrapper
 import com.codacy.client.bitbucket.WSWrapper.WSClient
 import com.codacy.client.bitbucket.client.Authentication.Credentials
 
-import scala.util.Try
-
-class BitbucketClient(credentials: Credentials) extends BitbucketClientBase(credentials) {
-  override protected def buildClient(): WSClient = WSWrapper.build()
-}
+class BitbucketClient(client: WSClient = WSWrapper.build(), credentials: Credentials)
+    extends BitbucketClientBase(client, credentials)
