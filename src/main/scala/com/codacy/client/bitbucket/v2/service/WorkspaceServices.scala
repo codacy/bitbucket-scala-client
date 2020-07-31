@@ -30,21 +30,13 @@ class WorkspaceServices(client: BitbucketClient) {
     * Retrieve the permissions for all workspaces matching the supplied username.
     *
     * @param username The username or the UUID of the account surrounded by curly-braces
-    * @param pageRequest The pagination request with cursor information
+    * @param pageRequest The pagination request with cursor information.
     * @return A [[RequestResponse]] with the user permissions for each workspace
     */
-  def getWorkspacePermissions(
-      username: String,
-      pageRequest: Option[PageRequest] = None
-  ): RequestResponse[Seq[WorkspacePermission]] = {
+  def getWorkspacePermissions(username: String, pageRequest: PageRequest): RequestResponse[Seq[WorkspacePermission]] = {
     val encodedUsername = URLEncoder.encode(username, "UTF-8")
     val baseRequestUrl = s"${client.workspacesBaseUrl}/$encodedUsername/permissions"
 
-    pageRequest match {
-      case Some(request) =>
-        client.executeWithCursor[WorkspacePermission](baseRequestUrl, request)
-      case None =>
-        client.executePaginated(Request(baseRequestUrl, classOf[Seq[WorkspacePermission]]))
-    }
+    client.executeWithCursor[WorkspacePermission](baseRequestUrl, pageRequest)
   }
 }
