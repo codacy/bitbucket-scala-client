@@ -9,6 +9,7 @@ import com.codacy.client.bitbucket.client.Authentication._
 import com.codacy.client.bitbucket.util.HTTPStatusCodes
 import com.codacy.client.bitbucket.util.Implicits.URIQueryParam
 import play.api.libs.json._
+import com.codacy.client.bitbucket.util.UrlHelper._
 
 import scala.compat.Platform.EOL
 import scala.concurrent.Await
@@ -48,15 +49,15 @@ abstract class BitbucketClientBase(val client: WSClient, credentials: Credential
     * @tparam T The type of the objects in the response (excluding pagination information)
     * @return A [[SuccessfulResponse]] or a [[FailedResponse]] depending if the request was successful or not
     */
-  def executeWithCursor[T](url: String, pageRequest: PageRequest)(
+  def executeWithCursor[T](url: String, pageRequest: PageRequest, pageLength: Option[Int] = None)(
       implicit reader: Reads[T]
   ): RequestResponse[Seq[T]] = {
-
+    val pageLengthParameter = pageLength.fold("")(pagelen => s"pagelen=$pagelen")
     val requestUrl = pageRequest.cursor match {
       // Here we can just return the cursor because in BitBucket the cursor is a well-formed URL that must
       // be used directly (according to the API documentation)
       case Some(cursor) => cursor
-      case None => url
+      case None => joinQueryParameters(url, pageLengthParameter)
     }
 
     get(requestUrl) match {
