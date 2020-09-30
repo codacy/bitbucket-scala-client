@@ -1,18 +1,20 @@
 package com.codacy.client.bitbucket.v2.service
 
 import java.net.URLEncoder
-
+import com.codacy.client.bitbucket.util.UrlHelper._
 import com.codacy.client.bitbucket.client.{BitbucketClient, PageRequest, Request, RequestResponse}
 import com.codacy.client.bitbucket.v2.{Workspace, WorkspacePermission}
 
 class WorkspaceServices(client: BitbucketClient) {
 
-  def list(pageRequest: Option[PageRequest] = None): RequestResponse[Seq[Workspace]] = {
+  def list(pageRequest: Option[PageRequest] = None, pageLength: Option[Int] = None): RequestResponse[Seq[Workspace]] = {
     pageRequest match {
       case Some(request) =>
-        client.executeWithCursor[Workspace](client.workspacesBaseUrl, request)
+        client.executeWithCursor[Workspace](client.workspacesBaseUrl, request, pageLength)
       case None =>
-        client.executePaginated(Request(client.workspacesBaseUrl, classOf[Seq[Workspace]]))
+        val length = pageLength.fold("")(pagelen => s"pagelen=$pagelen")
+        val urlWithPageLength = joinQueryParameters(client.workspacesBaseUrl, length)
+        client.executePaginated(Request(urlWithPageLength, classOf[Seq[Workspace]]))
     }
   }
 
