@@ -41,4 +41,22 @@ class WorkspaceServices(client: BitbucketClient) {
 
     client.executeWithCursor[WorkspacePermission](baseRequestUrl, pageRequest)
   }
+
+  /**
+    * Retrieve the permissions for a user on a workspace.
+    *
+    * @param username The username or the UUID of the account surrounded by curly-braces
+    * @param userUuid The user UUID of the account surrounded by curly-braces
+    * @return A [[RequestResponse]] with the user permissions for each workspace
+    */
+  def getWorkspacePermissionForUserByUuid(
+      username: String,
+      userUuid: String
+  ): RequestResponse[Option[WorkspacePermission]] = {
+    val encodedUsername = URLEncoder.encode(username, "UTF-8")
+    val baseRequestUrl = s"""${client.workspacesBaseUrl}/$encodedUsername/permissions?q=user.uuid="$userUuid""""
+
+    val requestResponse = client.executePaginated(Request(baseRequestUrl, classOf[Seq[WorkspacePermission]]))
+    requestResponse.map(_.headOption)
+  }
 }
