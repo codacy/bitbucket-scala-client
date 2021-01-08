@@ -54,7 +54,8 @@ class WorkspaceServices(client: BitbucketClient) {
       userUuid: String
   ): RequestResponse[Option[WorkspacePermission]] = {
     val encodedUsername = URLEncoder.encode(username, "UTF-8")
-    val baseRequestUrl = s"""${client.workspacesBaseUrl}/$encodedUsername/permissions?q=user.uuid="$userUuid""""
+    val userUuidEncoded = URLEncoder.encode(s""""$userUuid"""", "UTF-8")
+    val baseRequestUrl = s"""${client.workspacesBaseUrl}/$encodedUsername/permissions?q=user.uuid=$userUuidEncoded"""
 
     val requestResponse = client.executePaginated(Request(baseRequestUrl, classOf[Seq[WorkspacePermission]]))
     requestResponse.map(_.headOption)
@@ -71,8 +72,9 @@ class WorkspaceServices(client: BitbucketClient) {
       username: String,
       accountId: String
   ): RequestResponse[Option[WorkspacePermission]] = {
-    val baseRequestUrl = URLEncoder
-      .encode(s"""${client.workspacesBaseUrl}/$username/permissions?q=user.account_id="$accountId"""", "UTF-8")
+    val encodedUsername = URLEncoder.encode(username, "UTF-8")
+    val accountIdEncoded = URLEncoder.encode(s""""$accountId"""", "UTF-8")
+    val baseRequestUrl = s"${client.workspacesBaseUrl}/$encodedUsername/permissions?q=user.account_id=$accountIdEncoded"
     val requestResponse = client.executePaginated(Request(baseRequestUrl, classOf[Seq[WorkspacePermission]]))
     requestResponse.map(_.headOption)
   }
