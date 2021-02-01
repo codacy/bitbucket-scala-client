@@ -3,7 +3,7 @@ package com.codacy.client.bitbucket.v2.service
 import java.net.URLEncoder
 import com.codacy.client.bitbucket.util.UrlHelper._
 import com.codacy.client.bitbucket.client.{BitbucketClient, PageRequest, Request, RequestResponse}
-import com.codacy.client.bitbucket.v2.{Workspace, WorkspacePermission}
+import com.codacy.client.bitbucket.v2.{User, Workspace, WorkspacePermission}
 
 class WorkspaceServices(client: BitbucketClient) {
 
@@ -15,6 +15,23 @@ class WorkspaceServices(client: BitbucketClient) {
         val length = pageLength.fold("")(pagelen => s"pagelen=$pagelen")
         val urlWithPageLength = joinQueryParameters(client.workspacesBaseUrl, length)
         client.executePaginated(Request(urlWithPageLength, classOf[Seq[Workspace]]))
+    }
+  }
+
+  def listAdmins(
+      pageRequest: Option[PageRequest] = None,
+      pageLength: Option[Int] = None,
+      username: String
+  ): RequestResponse[Seq[User]] = {
+    val encodedUsername = URLEncoder.encode(username, "UTF-8")
+    val baseRequestUrl = s"""${client.workspacesBaseUrl}/$encodedUsername/members?q=permission=$encodedUsername"""
+    pageRequest match {
+      case Some(request) =>
+        client.executeWithCursor[User](baseRequestUrl, request, pageLength)
+      case None =>
+        val length = pageLength.fold("")(pagelen => s"pagelen=$pagelen")
+        val urlWithPageLength = joinQueryParameters(baseRequestUrl, length)
+        client.executePaginated(Request(urlWithPageLength, classOf[Seq[User]]))
     }
   }
 
