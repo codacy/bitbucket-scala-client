@@ -24,7 +24,7 @@ class WorkspaceServices(client: BitbucketClient) {
       username: String
   ): RequestResponse[Seq[User]] = {
     val encodedUsername = URLEncoder.encode(username, "UTF-8")
-    val baseRequestUrl = s"""${client.workspacesBaseUrl}/$encodedUsername/members?q=permission=$encodedUsername"""
+    val baseRequestUrl = s"""${client.workspacesBaseUrl}/$encodedUsername/members?q=permission="owner""""
     pageRequest match {
       case Some(request) =>
         client.executeWithCursor[User](baseRequestUrl, request, pageLength)
