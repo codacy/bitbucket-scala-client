@@ -1,0 +1,40 @@
+{
+  "links": {
+    "self": {
+      "href": "https://api.bitbucket.org/2.0/workspaces/qamine/members/%7B899b778f-d7f5-4664-bbf7-5a6f88b0728f%7D"
+    }
+  },
+  "type": "workspace_membership",
+  "user": {
+    "display_name": "Carlos Pinho",
+    "uuid": "{899b778f-d7f5-4664-bbf7-5a6f88b0728f}",
+    "links": {
+      "self": {
+        "href": "https://api.bitbucket.org/2.0/users/%7B899b778f-d7f5-4664-bbf7-5a6f88b0728f%7D"
+      },
+      "avatar": {
+        "href": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/557058:b648273b-dcd8-4c95-be5c-484cf165069d/b8532d8d-3e36-4394-8c9d-afb0e26f98e8/128"
+      }
+    },
+    "nickname": "Carlos Pinho",
+    "type": "user",
+    "account_id": "557058:b648273b-dcd8-4c95-be5c-484cf165069d"
+  },
+  "workspace": {
+    "slug": "qamine",
+    "type": "workspace",
+    "name": "Qamine",
+    "links": {
+      "self": {
+        "href": "https://api.bitbucket.org/2.0/workspaces/qamine"
+      },
+      "html": {
+        "href": "https://bitbucket.org/qamine/"
+      },
+      "avatar": {
+        "href": "https://bitbucket.org/workspaces/qamine/avatar/?ts=1543528117"
+      }
+    },
+    "uuid": "{5d2c203c-3e96-4cdb-9d8a-b1f3641d047b}"
+  }
+}
