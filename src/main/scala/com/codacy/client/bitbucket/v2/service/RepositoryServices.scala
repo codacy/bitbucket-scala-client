@@ -9,12 +9,14 @@ import play.api.libs.json.Json
 
 class RepositoryServices(client: BitbucketClient) {
 
+  private val DEFAULT_PAGE_LENGTH = 100
+
   /**
     * Gets the list of the user's repositories. Private repositories only appear on this list
     * if the caller is authenticated and is authorized to view the repository.
     *
     * @param ownerInfo The username or the UUID of the account surrounded by curly-braces
-    * @param pageLength The number of items of the page to be returned
+    * @param pageLength The number of items of the page to be returned, if None defaults to 100
     * @param userRole The role of the user to filter the repositories
     * @param pageRequest The cursor to get a page of repositories
     * @param sortBy The name of the field to sort the repositories. By default it is done in ascending order and
@@ -25,7 +27,7 @@ class RepositoryServices(client: BitbucketClient) {
     */
   def getRepositories(
       ownerInfo: OwnerInfo,
-      pageLength: Option[Int] = Option(100),
+      pageLength: Option[Int] = Option(DEFAULT_PAGE_LENGTH),
       userRole: Option[Role] = None,
       pageRequest: Option[PageRequest] = None,
       sortBy: Option[String] = Option("-updated_on"),
@@ -35,7 +37,8 @@ class RepositoryServices(client: BitbucketClient) {
     val baseUrl = s"${client.repositoriesBaseUrl}/$encodedOwner"
     val role = userRole.fold("")(role => s"role=${role.value}")
     val sort = sortBy.fold("")(sortField => s"sort=$sortField")
-    val length = pageLength.fold("")(pagelen => s"pagelen=$pagelen")
+    //Defaults to 10 if not set. We set our own default here instead to keep consistency with other providers
+    val length = s"pagelen=${pageLength.getOrElse(DEFAULT_PAGE_LENGTH)}"
     val filterRepositorySlug =
       repositorySlug.fold("") { slugField =>
         val encodedSlugField = URLEncoder.encode(s""""$slugField"""", "UTF-8")
