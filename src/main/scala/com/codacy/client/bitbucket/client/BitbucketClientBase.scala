@@ -256,7 +256,7 @@ abstract class BitbucketClientBase(val client: WSClient, credentials: Credential
         val statusMessage =
           s"""
              |Failed request:
-             |
+             |$error
              |${getFullStackTrace(error)}
           """.stripMargin
         FailedResponse(statusMessage)
