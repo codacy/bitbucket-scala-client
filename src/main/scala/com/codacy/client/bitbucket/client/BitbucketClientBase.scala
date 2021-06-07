@@ -24,7 +24,7 @@ abstract class BitbucketClientBase(val client: WSClient, credentials: Credential
   val repositoriesBaseUrl = s"$apiBaseUrl/repositories"
   val workspacesBaseUrl = s"$apiBaseUrl/workspaces"
 
-  private lazy val requestTimeout = Duration(10, SECONDS)
+  private lazy val requestTimeout = Duration(20, SECONDS)
 
   private lazy val authenticator = Authenticator.fromCredentials(credentials)
 
