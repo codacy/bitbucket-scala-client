@@ -10,7 +10,8 @@ crossScalaVersions := Seq(scala211, scala212)
 
 scalacOptions := Seq("-deprecation", "-feature", "-unchecked", "-Ywarn-adapted-args", "-Xlint")
 
-resolvers += "Typesafe maven repository" at "http://repo.typesafe.com/typesafe/maven-releases/"
+resolvers +=
+  "Typesafe maven repository" at "https://repo.typesafe.com/typesafe/maven-releases/"
 
 libraryDependencies ++= Dependencies.playWsJson(scalaVersion.value) ++ Seq(scalatest % Test)
 
