@@ -1,4 +1,4 @@
-package com.codacy.client.bitbucket
+package com.codacy.client.bitbucket.client
 
 import play.api.libs.json.JsonValidationError
 

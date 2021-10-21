@@ -1,4 +1,4 @@
-package com.codacy.client.bitbucket
+package com.codacy.client.bitbucket.client
 
 object WSWrapper {
   type WSClient = play.api.libs.ws.StandaloneWSClient

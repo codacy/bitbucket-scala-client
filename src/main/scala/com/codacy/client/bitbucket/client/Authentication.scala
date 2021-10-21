@@ -1,7 +1,6 @@
 package com.codacy.client.bitbucket.client
 
-import com.codacy.client.bitbucket.WSWrapper
-import com.codacy.client.bitbucket.WSWrapper.WSRequest
+import WSWrapper.WSRequest
 import play.api.libs.ws.WSAuthScheme
 
 /**

@@ -58,7 +58,7 @@ class PageRequestSpec extends WordSpec with Matchers with EitherValues with Opti
 
       //ASSERT
       actualResult.left.value should equal(
-        s"""Value "$cursorValue" is not a valid cursor: Hostname does not match Bitbucket Server API"""
+        s"""Value "$cursorValue" is not a valid cursor: Hostname does not match Bitbucket Cloud API"""
       )
     }
   }
