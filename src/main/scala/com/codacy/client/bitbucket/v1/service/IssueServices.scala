@@ -1,6 +1,6 @@
 package com.codacy.client.bitbucket.v1.service
 
-import com.codacy.client.bitbucket.DefaultBodyWritables._
+import com.codacy.client.bitbucket.client.DefaultBodyWritables._
 import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
 import com.codacy.client.bitbucket.v1.Issue
 import play.api.libs.json.{JsString, Json}

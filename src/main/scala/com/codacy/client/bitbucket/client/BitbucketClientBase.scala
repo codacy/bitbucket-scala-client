@@ -2,9 +2,9 @@ package com.codacy.client.bitbucket.client
 
 import java.net.URI
 
-import com.codacy.client.bitbucket.BodyWriteableWrapper.BodyWriteable
-import com.codacy.client.bitbucket.DefaultBodyWritables._
-import com.codacy.client.bitbucket.WSWrapper.WSClient
+import BodyWriteableWrapper.BodyWriteable
+import DefaultBodyWritables._
+import WSWrapper.WSClient
 import com.codacy.client.bitbucket.client.Authentication._
 import com.codacy.client.bitbucket.util.HTTPStatusCodes
 import com.codacy.client.bitbucket.util.Implicits.URIQueryParam
@@ -16,9 +16,13 @@ import scala.concurrent.Await
 import scala.concurrent.duration.{Duration, SECONDS}
 import scala.util.{Failure, Properties, Success, Try}
 
+object BitbucketClientBase {
+  val apiBaseUrl = "https://bitbucket.org/api/2.0"
+}
+
 abstract class BitbucketClientBase(val client: WSClient, credentials: Credentials) {
 
-  val apiBaseUrl = "https://bitbucket.org/api/2.0"
+  val apiBaseUrl = BitbucketClientBase.apiBaseUrl
   val userBaseUrl = s"$apiBaseUrl/user"
   val usersBaseUrl = s"$apiBaseUrl/users"
   val repositoriesBaseUrl = s"$apiBaseUrl/repositories"

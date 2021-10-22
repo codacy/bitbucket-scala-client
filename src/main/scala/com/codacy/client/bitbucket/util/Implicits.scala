@@ -1,8 +1,8 @@
 package com.codacy.client.bitbucket.util
 
-import java.net.URI
+import com.codacy.client.bitbucket.client.JsResultHelper
 
-import com.codacy.client.bitbucket.JsResultHelper
+import java.net.URI
 import play.api.libs.json.{Json, Reads, Writes}
 
 import scala.language.implicitConversions

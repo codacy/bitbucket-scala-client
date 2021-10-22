@@ -12,7 +12,7 @@ workflows:
       - codacy/sbt:
           name: populate_cache_compile
           persist_to_workspace: true
-          cmd: sbt coverage +test:compile
+          cmd: sbt coverage test:compile
           requires:
             - codacy/checkout_and_version
       - codacy/sbt:
@@ -40,8 +40,6 @@ workflows:
       - codacy/sbt:
           name: publish
           context: CodacyAWS
-          cmd: |
-            sbt retrieveGPGKeys +publishSigned
-            sbt -DplayVersion="2.7.4" "++2.11.12;publishSigned;sonatypeBundleRelease"
+          cmd: sbt retrieveGPGKeys publishSigned sonatypeBundleRelease
           requires:
             - tag_version
