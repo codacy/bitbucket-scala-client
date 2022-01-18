@@ -1,12 +1,13 @@
 package com.codacy.client.bitbucket.v2.service
 
 import java.net.URLEncoder
-
-import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
+import com.codacy.client.bitbucket.client.{BitbucketClient, PageRequest, Request, RequestResponse}
 import com.codacy.client.bitbucket.v2.{PullRequest, PullRequestComment, PullRequestReviewers, SimpleCommit}
 import play.api.libs.json._
 
 class PullRequestServices(client: BitbucketClient) {
+
+  private val DEFAULT_PAGE_LENGTH = 50
 
   /*
    * Gets the list of a repository pull requests
@@ -17,14 +18,22 @@ class PullRequestServices(client: BitbucketClient) {
   def getPullRequests(
       owner: String,
       repository: String,
-      states: Seq[String] = Seq("OPEN"),
-      size: Int = 50
+      pageRequest: Option[PageRequest],
+      pageSize: Option[Int],
+      states: Seq[String] = Seq("OPEN")
   ): RequestResponse[Seq[PullRequest]] = {
     val pullRequestsUrl = generatePullRequestsUrl(owner, repository)
     val encodedStates = states.map(state => URLEncoder.encode(state, "UTF-8"))
-    val url = s"$pullRequestsUrl?pagelen=$size&state=${encodedStates.mkString("&state=")}"
+    val url = s"$pullRequestsUrl?state=${encodedStates.mkString("&state=")}"
 
-    client.executePaginated(Request(url, classOf[Seq[PullRequest]]))
+    pageRequest match {
+      case Some(page) =>
+        client.executeWithCursor[PullRequest](url, page, pageSize)
+      case None =>
+        val pageLen = pageSize.getOrElse(DEFAULT_PAGE_LENGTH)
+        client.executePaginated(Request(s"$url&pagelen=$pageLen", classOf[Seq[PullRequest]]))
+    }
+
   }
 
   /*
