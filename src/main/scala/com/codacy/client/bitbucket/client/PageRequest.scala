@@ -8,13 +8,15 @@ class PageRequest private (cursorValue: Option[String]) {
 
 object PageRequest {
 
+  def apply(): PageRequest = new PageRequest(None)
+
   def apply(
       cursor: Option[String],
       apiBaseUrl: String = BitbucketClientBase.apiBaseUrl
   ): Either[String, PageRequest] = {
 
     cursor match {
-      case None => Right(new PageRequest(None))
+      case None => Right(PageRequest())
       case Some(cursorValue) =>
         for {
           cursorURI <- validateURI(cursorValue, s"""Value "$cursorValue" is not a valid cursor: Malformed URL""")
