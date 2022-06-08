@@ -33,7 +33,8 @@ class UserServices(client: BitbucketClient) {
     * returns the workspace and their effective role
     */
   def getWorkspaceMembership(workspaceUUID: String): RequestResponse[WorkspacePermission] = {
-    val workspaceQuery = s"""workspace.uuid="$workspaceUUID""""
+    val workspaceUUIDEncoded = URLEncoder.encode(s""""$workspaceUUID"""", "UTF-8")
+    val workspaceQuery = s"""workspace.uuid=$workspaceUUIDEncoded"""
 
     client.executeWithCursor[WorkspacePermission](
       s"""${client.userBaseUrl}/permissions/workspaces?q=$workspaceQuery""",
