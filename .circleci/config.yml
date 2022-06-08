@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  codacy: codacy/base@2.14.8
+  codacy: codacy/base@7.2.0
 
 workflows:
   version: 2
@@ -9,37 +9,54 @@ workflows:
     jobs:
       - codacy/checkout_and_version:
           write_sbt_version: true
-      - codacy/sbt:
-          name: populate_cache_compile
+      - codacy/sbt_docker:
+          name: test
           persist_to_workspace: true
-          cmd: sbt coverage test:compile
+          steps:
+            - run:
+                name: Enable Coverage
+                command: sbt coverage
+            - run:
+                name: Check scalafmt on scala files
+                command: sbt scalafmtCheckAll
+            - run:
+                name: Check scalafmt on sbt files
+                command: sbt scalafmtSbtCheck
+            - run:
+                name: Check scalafmt on sbt files
+                command: sbt scalafmtSbtCheck
+            - run:
+                name: Run tests
+                command: sbt test
+            - run:
+                name: Generate coverage report
+                command: sbt coverageReport
+            - run:
+                name: Send Coverage results to Codacy
+                command: bash <(curl -Ls https://coverage.codacy.com/get.sh) report --skip
           requires:
             - codacy/checkout_and_version
-      - codacy/sbt:
-          name: check_format
-          cmd: sbt scalafmt::test test:scalafmt::test sbt:scalafmt::test
-          requires:
-            - populate_cache_compile
-      - codacy/sbt:
-          name: test
-          cmd: |
-            sbt coverage test coverageReport
-            bash <(curl -Ls https://coverage.codacy.com/get.sh) report --skip
-          requires:
-            - populate_cache_compile
       - codacy/tag_version:
           name: tag_version
           context: CodacyAWS
           requires:
-            - check_format
             - test
           filters:
             branches:
               only:
                 - master
-      - codacy/sbt:
+      - codacy/sbt_docker:
           name: publish
           context: CodacyAWS
-          cmd: sbt retrieveGPGKeys publishSigned sonatypeBundleRelease
+          steps:
+            - run:
+                name: Retrieve GPG Keys
+                command: sbt retrieveGPGKeys
+            - run:
+                name: Create publish bundle
+                command: sbt publishSigned
+            - run:
+                name: Release bundle to Sonatype
+                command: sbt sonatypeBundleRelease
           requires:
             - tag_version
