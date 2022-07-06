@@ -158,7 +158,6 @@ class PullRequestSpecs extends FlatSpec with Matchers {
         |   "username":"jllopes",
         |   "website":"",
         |   "display_name":"João Lopes",
-        |   "account_id":"123abc456def789ghi101jkl",
         |   "links":
         |   {
         |     "hooks":
@@ -218,7 +217,7 @@ class PullRequestSpecs extends FlatSpec with Matchers {
 
     value.fold(e => fail(s"Failed parsing pull request json: $e"), pr => {
       pr.id shouldBe 3
-      pr.author.value.account_id shouldBe "123abc456def789ghi101jkl"
+      pr.author.value.uuid shouldBe "{c19f822b-0e29-433a-87a5-ec8ace58aa67}"
     })
   }
 

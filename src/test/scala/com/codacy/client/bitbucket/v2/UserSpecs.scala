@@ -23,9 +23,8 @@ class UserSpecs extends FlatSpec with Matchers with Inside {
       e => fail(s"$e"),
       user =>
         inside(user) {
-          case User(account_id, uuid, display_name, nickname, avatarUrl) =>
-            account_id shouldBe "123abc456def789ghi101jkl"
-            uuid.value shouldBe "{c19f822b-0e29-433a-87a5-ec8ace58aa67}"
+          case User(uuid, display_name, nickname, avatarUrl) =>
+            uuid shouldBe "{c19f822b-0e29-433a-87a5-ec8ace58aa67}"
             display_name shouldBe "João Lopes"
             nickname shouldBe Some("jllopes")
             avatarUrl shouldBe Some("https://bitbucket.org/account/jllopes/avatar/")
