@@ -57,7 +57,6 @@ class IssueSpecs extends FlatSpec with Matchers {
         |    "reporter": {
         |        "username": "reporter",
         |        "display_name": "reporter",
-        |        "account_id": "123abc456def789ghi101jkl",
         |        "links": {
         |            "self": {
         |                "href": "https://bitbucket.org/!api/2.0/users/reporter"
@@ -87,7 +86,6 @@ class IssueSpecs extends FlatSpec with Matchers {
         |    "assignee": {
         |        "username": "jllopes",
         |        "display_name": "João Lopes",
-        |        "account_id": "123abc456def789ghi101jkl",
         |        "links": {
         |            "self": {
         |                "href": "https://bitbucket.org/!api/2.0/users/jllopes"
@@ -118,7 +116,7 @@ class IssueSpecs extends FlatSpec with Matchers {
 
     value.fold(e => fail(s"$e"), r => {
       r.id shouldBe 7
-      r.reporter.account_id shouldBe "123abc456def789ghi101jkl"
+      r.reporter.uuid shouldBe "c19f822b-0e29-433a-87a5-ec8ace58aa67"
     })
   }
 
