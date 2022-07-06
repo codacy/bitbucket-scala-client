@@ -6,7 +6,7 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
 case class PullRequest(
-    id: Long,
+    id: Int,
     title: String,
     description: String,
     author: Option[User],
@@ -62,7 +62,7 @@ object PullRequest {
 
   // format: off
   implicit val reader: Reads[PullRequest] = (
-    (__ \ "id").read[Long] and
+    (__ \ "id").read[Int] and
       (__ \ "title").read[String] and
       (__ \ "description").read[String] and
       (__ \ "author").readNullable[User] and
