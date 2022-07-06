@@ -1,30 +1,44 @@
 package com.codacy.client.bitbucket.v2.service
 
 import java.net.URLEncoder
-
-import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
+import com.codacy.client.bitbucket.client.{BitbucketClient, PageRequest, Request, RequestResponse}
+import com.codacy.client.bitbucket.util.UrlHelper
 import com.codacy.client.bitbucket.v2.{PullRequest, PullRequestComment, PullRequestReviewers, SimpleCommit}
 import play.api.libs.json._
 
 class PullRequestServices(client: BitbucketClient) {
 
-  /*
-   * Gets the list of a repository pull requests
-   *
-   * States: OPEN | MERGED | DECLINED
-   *
-   */
-  def getPullRequests(
-      owner: String,
-      repository: String,
-      states: Seq[String] = Seq("OPEN"),
-      size: Int = 50
-  ): RequestResponse[Seq[PullRequest]] = {
-    val pullRequestsUrl = generatePullRequestsUrl(owner, repository)
-    val encodedStates = states.map(state => URLEncoder.encode(state, "UTF-8"))
-    val url = s"$pullRequestsUrl?pagelen=$size&state=${encodedStates.mkString("&state=")}"
+  private val DEFAULT_PAGE_LENGTH = 50
 
-    client.executePaginated(Request(url, classOf[Seq[PullRequest]]))
+  /**
+    * Returns all pull requests on the specified repository.
+    * By default only open pull requests are returned. This can be controlled using the states parameter.
+    *
+    * @param workspace This can either be the workspace ID (slug) or the workspace UUID surrounded by curly-braces, for example: {workspace UUID}
+    * @param repositorySlug This can either be the repository slug or the UUID of the repository, surrounded by curly-braces, for example: {repository UUID}
+    * @param pageLength The number of items of the page to be returned, it defaults to [[DEFAULT_PAGE_LENGTH]]
+    * @param pageRequest The cursor to get a page of repositories
+    * @param states Only return pull requests that are in these states. Valid values: MERGED, SUPERSEDED, OPEN, DECLINED
+    */
+  def getPullRequests(
+      workspace: String,
+      repositorySlug: String,
+      pageLength: Int = DEFAULT_PAGE_LENGTH,
+      pageRequest: Option[PageRequest] = None,
+      states: Seq[String] = Seq("OPEN")
+  ): RequestResponse[Seq[PullRequest]] = {
+    val pullRequestsUrl = generatePullRequestsUrl(workspace, repositorySlug)
+    val statesParams = states.map(state => s"state=$state")
+    val url = UrlHelper.joinQueryParameters(pullRequestsUrl, statesParams: _*)
+
+    pageRequest match {
+      case Some(request) =>
+        client.executeWithCursor[PullRequest](url, request, Some(pageLength))
+      case None =>
+        client.executePaginated(
+          Request(UrlHelper.joinQueryParameters(url, s"pagelen=$pageLength"), classOf[Seq[PullRequest]])
+        )
+    }
   }
 
   /*
@@ -153,10 +167,10 @@ class PullRequestServices(client: BitbucketClient) {
     client.execute(Request(url, classOf[PullRequestReviewers]))
   }
 
-  private def generatePullRequestsUrl(owner: String, repo: String): String = {
-    val encodedOwner = URLEncoder.encode(owner, "UTF-8")
-    val encodedRepo = URLEncoder.encode(repo, "UTF-8")
-    s"${client.repositoriesBaseUrl}/$encodedOwner/$encodedRepo/pullrequests"
+  private def generatePullRequestsUrl(workspace: String, repoSlug: String): String = {
+    val encodedWorkspace = URLEncoder.encode(workspace, "UTF-8")
+    val encodedSlug = URLEncoder.encode(repoSlug, "UTF-8")
+    s"${client.repositoriesBaseUrl}/$encodedWorkspace/$encodedSlug/pullrequests"
   }
 
 }
