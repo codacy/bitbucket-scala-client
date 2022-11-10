@@ -1,5 +1,3 @@
-import codacy.libs._
-
 name := """bitbucket-scala-client"""
 
 val scala212 = "2.12.10"
@@ -11,7 +9,7 @@ scalacOptions := Seq("-deprecation", "-feature", "-unchecked", "-Ywarn-adapted-a
 resolvers +=
   "Typesafe maven repository" at "https://repo.typesafe.com/typesafe/maven-releases/"
 
-libraryDependencies ++= Dependencies.playJson ++ Seq(scalatest % Test)
+libraryDependencies ++= Dependencies.playJson ++ Seq("org.scalatest" %% "scalatest" % "3.0.8" % Test)
 
 organizationName := "Codacy"
 
