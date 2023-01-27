@@ -48,6 +48,7 @@ workflows:
       - codacy/sbt_docker:
           name: publish
           context: CodacyAWS
+          use_sbt_native_client: false
           steps:
             - run:
                 name: Retrieve GPG Keys
