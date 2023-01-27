@@ -2,7 +2,7 @@ package com.codacy.client.bitbucket.v2.service
 
 import java.net.URLEncoder
 
-import com.codacy.client.bitbucket.client.{BitbucketClient, PageRequest, Request, RequestResponse}
+import com.codacy.client.bitbucket.client.{BitbucketClient, PageRequest, Request, RequestResponse, SuccessfulResponse}
 import com.codacy.client.bitbucket.util.UrlHelper._
 import com.codacy.client.bitbucket.v2._
 import play.api.libs.json.Json
@@ -82,26 +82,21 @@ class RepositoryServices(client: BitbucketClient) {
   }
 
   /**
-    * Retrieve the branch restrictions for the supplied username and repositorySlug.
+    * Checks if username has repository:admin permission by calling the /branch-restriction endpoint
+    * https://developer.atlassian.com/cloud/bitbucket/rest/api-group-branch-restrictions/#api-repositories-workspace-repo-slug-branch-restrictions-get
     *
     * @param username The username or the UUID of the account surrounded by curly-braces
     * @param repositorySlug The repository slug or the UUID of the repository surrounded by curly-braces
-    * @param pageRequest The pagination request with cursor information
-    * @return A [[RequestResponse]] with the branch restrictions for the repository
     */
-  def getRepositoryBranchRestrictions(
-      username: String,
-      repositorySlug: String,
-      pageRequest: Option[PageRequest] = None
-  ): RequestResponse[Seq[BranchRestriction]] = {
+  def hasRepositoryAdminPermission(username: String, repositorySlug: String): Boolean = {
     val repositoryUrl = generateRepositoryUrl(username, repositorySlug)
     val baseRequestUrl = s"$repositoryUrl/branch-restrictions"
 
-    pageRequest match {
-      case Some(request) =>
-        client.executeWithCursor[BranchRestriction](baseRequestUrl, request)
-      case None =>
-        client.executePaginated(Request(baseRequestUrl, classOf[Seq[BranchRestriction]]))
+    val response = client.execute(Request(baseRequestUrl, classOf[Seq[BranchRestriction]]))
+
+    response match {
+      case _: SuccessfulResponse[_] => true
+      case _ => false
     }
   }
 
