@@ -3,7 +3,7 @@ package com.codacy.client.bitbucket.v2.service
 import java.net.URLEncoder
 import com.codacy.client.bitbucket.util.UrlHelper._
 import com.codacy.client.bitbucket.client.{BitbucketClient, PageRequest, Request, RequestResponse}
-import com.codacy.client.bitbucket.v2.{User, UserIdentifiers, Workspace, WorkspacePermission}
+import com.codacy.client.bitbucket.v2.{UserIdentifiers, Workspace, WorkspacePermission}
 
 class WorkspaceServices(client: BitbucketClient) {
 

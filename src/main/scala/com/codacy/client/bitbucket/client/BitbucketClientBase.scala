@@ -217,7 +217,7 @@ abstract class BitbucketClientBase(val client: WSClient, credentials: Credential
       .get()
     val result = Await.result(jpromise, requestTimeout)
 
-    val value = if (Seq(HTTPStatusCodes.OK, HTTPStatusCodes.CREATED).contains(result.status)) {
+    val value = if (result.status == HTTPStatusCodes.OK || result.status == HTTPStatusCodes.CREATED) {
       val body = result.body
       parseJson(body)
     } else {
