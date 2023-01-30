@@ -5,7 +5,7 @@ import java.net.URLEncoder
 import com.codacy.client.bitbucket.client.{BitbucketClient, PageRequest, Request, RequestResponse, SuccessfulResponse}
 import com.codacy.client.bitbucket.util.UrlHelper._
 import com.codacy.client.bitbucket.v2._
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 
 class RepositoryServices(client: BitbucketClient) {
 
@@ -92,7 +92,7 @@ class RepositoryServices(client: BitbucketClient) {
     val repositoryUrl = generateRepositoryUrl(username, repositorySlug)
     val baseRequestUrl = s"$repositoryUrl/branch-restrictions"
 
-    val response = client.execute(Request(baseRequestUrl, classOf[Seq[BranchRestriction]]))
+    val response = client.execute(Request(baseRequestUrl, classOf[JsValue]))
 
     response match {
       case _: SuccessfulResponse[_] => true
