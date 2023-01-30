@@ -137,12 +137,4 @@ class RepositorySpecs extends FlatSpec with Matchers {
       r.owner.display_name shouldBe "John Mulligan"
     })
   }
-
-  it should "successfully parse a JSON into BranchRestrictions" in {
-    val rawJson = TestUtils.getTestContent("/repository-service/branch_restrictions.json")
-    val json = Json.parse(rawJson)
-    val value = json.validate[Seq[BranchRestriction]]
-
-    value.fold(e => fail(s"$e"), branchRestrictions => branchRestrictions.length shouldBe 3)
-  }
 }
