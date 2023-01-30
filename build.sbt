@@ -31,6 +31,4 @@ scmInfo := Some(
 pgpPassphrase := Option(System.getenv("SONATYPE_GPG_PASSPHRASE"))
   .map(_.toCharArray)
 
-publicMvnPublish
-
 name := s"${name.value}_playjson${Dependencies.playVersion.split('.').take(2).mkString}"

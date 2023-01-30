@@ -46,10 +46,13 @@ workflows:
               only:
                 - master
       - codacy/sbt_docker:
-          name: publish
+          name: publish_sonatype
           context: CodacyAWS
           use_sbt_native_client: false
           steps:
+            - run:
+                name: Add sonatype setting
+                command: echo 'publicMvnPublish' > publishing.sbt
             - run:
                 name: Retrieve GPG Keys
                 command: sbt retrieveGPGKeys
@@ -59,5 +62,18 @@ workflows:
             - run:
                 name: Release bundle to Sonatype
                 command: sbt sonatypeBundleRelease
+          requires:
+            - tag_version
+      - codacy/sbt_docker:
+          name: publish_s3
+          context: CodacyAWS
+          use_sbt_native_client: false
+          steps:
+            - run:
+                name: Add s3 publishing setting
+                command: echo 'privateMvnPublish' > publishing.sbt
+            - run:
+                name: Publish to S3
+                command: sbt publish
           requires:
             - tag_version
