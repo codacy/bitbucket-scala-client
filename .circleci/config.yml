@@ -66,6 +66,7 @@ workflows:
             - tag_version
       - codacy/sbt_docker:
           name: publish_s3
+          aws_profile: maven
           context: CodacyAWS
           use_sbt_native_client: false
           steps:
