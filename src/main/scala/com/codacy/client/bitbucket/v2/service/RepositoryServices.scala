@@ -67,6 +67,24 @@ class RepositoryServices(client: BitbucketClient) {
     client.execute(Request(repositoryUrl, classOf[Repository]))
   }
 
+  /**
+    * Looks for common ancestor of two commits
+    *
+    * @param username       The username or the UUID of the account surrounded by curly-braces
+    * @param repositorySlug The repository slug or the UUID of the repository surrounded by curly-braces
+    * @param firstCommitSha First of the two commit SHAs
+    * @param secondCommitSha Second of the two commit SHAs
+    */
+  def getMergeBase(
+      username: String,
+      repositorySlug: String,
+      firstCommitSha: String,
+      secondCommitSha: String
+  ): RequestResponse[SimpleCommit] = {
+    val url = s"${generateRepositoryUrl(username, repositorySlug)}/merge-base/$firstCommitSha..$secondCommitSha"
+    client.execute(Request(url, classOf[SimpleCommit]))
+  }
+
   def createKey(
       username: String,
       repositorySlug: String,
