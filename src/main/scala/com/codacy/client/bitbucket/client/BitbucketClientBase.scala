@@ -276,4 +276,22 @@ abstract class BitbucketClientBase(val client: WSClient, credentials: Credential
       .getOrElse(accumulator)
   }
 
+  def getRaw(url: String): RequestResponse[String] =
+    withClientEither { client =>
+      val jpromise = client
+        .url(url)
+        .authenticate(authenticator)
+        .withFollowRedirects(follow = true)
+        .get()
+      val result = Await.result(jpromise, requestTimeout)
+
+      if (result.status == HTTPStatusCodes.OK || result.status == HTTPStatusCodes.CREATED) {
+        Right(result.body)
+      } else {
+        Left(ResponseError(java.util.UUID.randomUUID().toString, result.statusText, result.statusText))
+      }
+    } match {
+      case Right(response) => SuccessfulResponse(response)
+      case Left(error) => FailedResponse(error.detail)
+    }
 }
