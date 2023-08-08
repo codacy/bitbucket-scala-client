@@ -45,6 +45,16 @@ class CommitServices(client: BitbucketClient) {
     client.delete(url)
   }
 
+  // https://developer.atlassian.com/cloud/bitbucket/rest/api-group-commits/#api-repositories-workspace-repo-slug-diff-spec-get
+  def getCommitDiff(
+      workspace: String,
+      repository: String,
+      fromCommitSha: String,
+      toCommitSha: String
+  ): RequestResponse[String] = {
+    client.getRaw(s"${client.repositoriesBaseUrl}/$workspace/$repository/diff/$fromCommitSha..$toCommitSha")
+  }
+
   private def generateCommitCommentUrl(author: String, repository: String, commit: String): String = {
     val encodedAuthor = URLEncoder.encode(author, "UTF-8")
     val encodedRepository = URLEncoder.encode(repository, "UTF-8")
