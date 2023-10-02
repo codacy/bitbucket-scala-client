@@ -1,7 +1,14 @@
 package com.codacy.client.bitbucket.v2.service
 
 import java.net.URLEncoder
-import com.codacy.client.bitbucket.client.{BitbucketClient, PageRequest, Request, RequestResponse}
+import com.codacy.client.bitbucket.client.{
+  BitbucketClient,
+  FailedResponse,
+  PageRequest,
+  Request,
+  RequestResponse,
+  SuccessfulResponse
+}
 import com.codacy.client.bitbucket.util.UrlHelper
 import com.codacy.client.bitbucket.v2.{PullRequest, PullRequestComment, PullRequestReviewers, SimpleCommit}
 import play.api.libs.json._
@@ -39,6 +46,20 @@ class PullRequestServices(client: BitbucketClient) {
           Request(UrlHelper.joinQueryParameters(url, s"pagelen=$pageLength"), classOf[Seq[PullRequest]])
         )
     }
+  }
+
+  /**
+    * Returns a specific pullRequest for a specified repository.
+    * @param workspace      This can either be the workspace ID (slug) or the workspace UUID surrounded by curly-braces, for example: {workspace UUID}
+    * @param repositorySlug This can either be the repository slug or the UUID of the repository, surrounded by curly-braces, for example: {repository UUID}
+    * @param prId           The id of the specific pr to retrieve.
+    * @return               The PullRequest that contains the data for the required id, the result is wrapped in a RequestResponse type.
+    */
+  def getPullRequest(workspace: String, repositorySlug: String, prId: Int): RequestResponse[PullRequest] = {
+
+    client.execute[PullRequest](
+      Request(generateSpecificPullRequestUrl(workspace, repositorySlug, prId), classOf[PullRequest])
+    )
   }
 
   /*
@@ -171,6 +192,12 @@ class PullRequestServices(client: BitbucketClient) {
     val encodedWorkspace = URLEncoder.encode(workspace, "UTF-8")
     val encodedSlug = URLEncoder.encode(repoSlug, "UTF-8")
     s"${client.repositoriesBaseUrl}/$encodedWorkspace/$encodedSlug/pullrequests"
+  }
+
+  private def generateSpecificPullRequestUrl(workspace: String, repoSlug: String, pullRequestId: Int): String = {
+    val encodedWorkspace = URLEncoder.encode(workspace, "UTF-8")
+    val encodedSlug = URLEncoder.encode(repoSlug, "UTF-8")
+    s"${client.repositoriesBaseUrl}/$encodedWorkspace/$encodedSlug/pullrequests/$pullRequestId"
   }
 
 }
