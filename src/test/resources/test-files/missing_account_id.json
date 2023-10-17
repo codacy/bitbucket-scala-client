@@ -1,0 +1,50 @@
+{
+  "values": [
+    {
+      "type": "workspace_membership",
+      "user": {
+        "display_name": "test-org",
+        "links": {
+          "self": {
+            "href": "https://bitbucket.org/!api/2.0/workspaces/%7B5c8f4a7e-3005-4482-ac51-45g435433f5e6%7D"
+          },
+          "avatar": {
+            "href": "https://bitbucket.org/account/test-org/avatar/"
+          },
+          "html": {
+            "href": "https://bitbucket.org/%7B5c8f4a7e-3005-4482-ac51-1234f5e6%7D/"
+          }
+        },
+        "type": "team",
+        "uuid": "{5c8f4a7e-3005-4482-ac51-45g433245e6}",
+        "username": "Missing account_id for this user !"
+      },
+      "workspace": {
+        "type": "workspace",
+        "uuid": "{5c8f4a7e-3005-4482-ac51-32432f5e6}",
+        "name": "test-org",
+        "slug": "test-org",
+        "links": {
+          "avatar": {
+            "href": "https://bitbucket.org/workspaces/test-org/avatar/?ts=1681501681"
+          },
+          "html": {
+            "href": "https://bitbucket.org/test-org/"
+          },
+          "self": {
+            "href": "https://bitbucket.org/!api/2.0/workspaces/test-org"
+          }
+        }
+      },
+      "links": {
+        "self": {
+          "href": "https://bitbucket.org/!api/2.0/workspaces/test-org/members/%15g3441341237D"
+        }
+      }
+    }
+  ],
+  "pagelen": 50,
+  "size": 54,
+  "page": 1,
+  "next": "https://bitbucket.org/api/2.0/workspaces/test-org/members?q=permission%3D%22owner%22&page=2"
+}

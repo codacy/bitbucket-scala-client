@@ -3,7 +3,7 @@ package com.codacy.client.bitbucket.v2.service
 import java.net.URLEncoder
 import com.codacy.client.bitbucket.util.UrlHelper._
 import com.codacy.client.bitbucket.client.{BitbucketClient, PageRequest, Request, RequestResponse}
-import com.codacy.client.bitbucket.v2.{UserIdentifiers, Workspace, WorkspacePermission}
+import com.codacy.client.bitbucket.v2.{UserIdentifiers, UserIdentifiersApi, Workspace, WorkspacePermission}
 
 class WorkspaceServices(client: BitbucketClient) {
 
@@ -26,13 +26,19 @@ class WorkspaceServices(client: BitbucketClient) {
     val encodedUsername = URLEncoder.encode(username, "UTF-8")
     val permissionToFilter = URLEncoder.encode("""permission="owner"""", "UTF-8")
     val baseRequestUrl = s"""${client.workspacesBaseUrl}/$encodedUsername/members?q=$permissionToFilter"""
-    pageRequest match {
+    val unfiltered = pageRequest match {
       case Some(request) =>
-        client.executeWithCursor[UserIdentifiers](baseRequestUrl, request, pageLength)
+        client.executeWithCursor[UserIdentifiersApi](baseRequestUrl, request, pageLength)
       case None =>
         val length = pageLength.fold("")(pagelen => s"pagelen=$pagelen")
         val urlWithPageLength = joinQueryParameters(baseRequestUrl, length)
-        client.executePaginated(Request(urlWithPageLength, classOf[Seq[UserIdentifiers]]))
+        client.executePaginated(Request(urlWithPageLength, classOf[Seq[UserIdentifiersApi]]))
+    }
+
+    unfiltered.map { identifiersApis =>
+      identifiersApis.collect {
+        case UserIdentifiersApi(Some(accountId), uuid, "user") => UserIdentifiers(accountId, uuid)
+      }
     }
   }
 
