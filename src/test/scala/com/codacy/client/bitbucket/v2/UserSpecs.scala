@@ -42,7 +42,7 @@ class UserSpecs extends FlatSpec with Matchers with Inside {
       userId =>
         inside(userId) {
           case UserIdentifiers(account_id, uuid) =>
-            account_id shouldBe "557058:b648273b-dcd8-4c95-be5c-484cf165069d"
+            account_id shouldBe Some("557058:b648273b-dcd8-4c95-be5c-484cf165069d")
             uuid shouldBe Some("{899b778f-d7f5-4664-bbf7-5a6f88b0728f}")
       }
     )
