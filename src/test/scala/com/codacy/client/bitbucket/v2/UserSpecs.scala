@@ -2,7 +2,7 @@ package com.codacy.client.bitbucket.v2
 import com.codacy.client.bitbucket.TestUtils
 import org.scalatest.OptionValues._
 import org.scalatest.{Matchers, _}
-import play.api.libs.json.Json
+import play.api.libs.json.{JsError, JsSuccess, Json}
 
 class UserSpecs extends FlatSpec with Matchers with Inside {
 
@@ -46,5 +46,17 @@ class UserSpecs extends FlatSpec with Matchers with Inside {
             uuid shouldBe Some("{899b778f-d7f5-4664-bbf7-5a6f88b0728f}")
       }
     )
+  }
+
+  it should "not fail for missing account_id field for user" in {
+    val jsonBody = TestUtils.getTestContent("/test-files/missing_account_id.json")
+    val jsValue = Json.parse(jsonBody) \ "values"
+    val value1 = jsValue.validate[Seq[UserIdentifiers]]
+    value1 match {
+      case JsSuccess(value, _) =>
+        value shouldEqual Seq(UserIdentifiers(None, Some("{5c8f4a7e-3005-4482-ac51-45g433245e6}")))
+      case JsError(errors) => fail(s"$errors")
+    }
+
   }
 }
