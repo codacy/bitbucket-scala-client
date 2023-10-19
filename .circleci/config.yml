@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  codacy: codacy/base@10.1.0
+  codacy: codacy/base@10.9.0
 
 workflows:
   version: 2
@@ -27,7 +27,7 @@ workflows:
                 command: sbt scalafmtSbtCheck
             - run:
                 name: Run tests
-                command: sbt test
+                command: sbt crossTest
             - run:
                 name: Generate coverage report
                 command: sbt coverageReport
@@ -58,7 +58,7 @@ workflows:
                 command: sbt retrieveGPGKeys
             - run:
                 name: Create publish bundle
-                command: sbt publishSigned
+                command: sbt crossPublishSigned
             - run:
                 name: Release bundle to Sonatype
                 command: sbt sonatypeBundleRelease
@@ -75,6 +75,6 @@ workflows:
                 command: echo 'privateMvnPublish' > publishing.sbt
             - run:
                 name: Publish to S3
-                command: sbt publish
+                command: sbt crossPublish
           requires:
             - tag_version
