@@ -31,6 +31,8 @@ libraryDependencies ++= {
   }
 }
 
+ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-java8-compat" % VersionScheme.Always
+
 organizationName := "Codacy"
 
 organizationHomepage := Some(new URL("https://www.codacy.com"))
