@@ -14,6 +14,7 @@ import com.codacy.client.bitbucket.util.UrlHelper._
 import scala.compat.Platform.EOL
 import scala.concurrent.Await
 import scala.concurrent.duration.{Duration, SECONDS}
+import scala.collection.parallel.immutable.ParRange
 import scala.util.{Failure, Properties, Success, Try}
 
 object BitbucketClientBase {
@@ -102,20 +103,18 @@ abstract class BitbucketClientBase(val client: WSClient, credentials: Credential
           pagelen <- (json \ "pagelen").asOpt[Double]
         } yield {
           val lastPage = math.ceil(size / pagelen).toInt
-          (FIRST_PAGE + 1 to lastPage).par
-            .map { page =>
-              val nextUrl = new URI(request.url).addQuery(s"page=$page").toString
-              get(nextUrl) match {
-                case Right(nextJson) => extractValues(nextJson)
-                case Left(error) => FailedResponse(error.detail)
-              }
+          new ParRange(FIRST_PAGE + 1 to lastPage).map { page =>
+            val nextUrl = new URI(request.url).addQuery(s"page=$page").toString
+            get(nextUrl) match {
+              case Right(nextJson) => extractValues(nextJson)
+              case Left(error) => FailedResponse(error.detail)
             }
-            .to[Seq]
+          }.toSeq
         }).getOrElse(Seq(SuccessfulResponse(Seq.empty)))
 
         val values = extractValues(json)
 
-        (values +: nextPages).foldLeft[RequestResponse[Seq[T]]](SuccessfulResponse(Seq.empty[T])) { (a, b) =>
+        (Seq(values) ++ nextPages).foldLeft[RequestResponse[Seq[T]]](SuccessfulResponse(Seq.empty[T])) { (a, b) =>
           RequestResponse.applyDiscardingPaginationInfo(a, b)
         }
 

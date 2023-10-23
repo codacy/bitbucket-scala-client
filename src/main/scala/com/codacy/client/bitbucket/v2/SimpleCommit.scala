@@ -23,7 +23,7 @@ object SimpleCommit {
       parents = (json \ "parents" \\ "hash").flatMap(_.asOpt[String])
       date <- (json \ "date").asOpt[LocalDateTime]
       message <- (json \ "message").asOpt[String]
-    } yield SimpleCommit(hash, username, parents, date, message))
+    } yield SimpleCommit(hash, username, parents.toSeq, date, message))
       .map(JsSuccess(_))
       .getOrElse(JsError("could not read commit"))
   }
