@@ -84,6 +84,6 @@ object PullRequest {
     links.flatMap {
       case (linkTypeStr, link) =>
         ApiUrlType.find(linkTypeStr).map(ApiUrl(_, link))
-    }(collection.breakOut)
+    }.toSeq
   }
 }
