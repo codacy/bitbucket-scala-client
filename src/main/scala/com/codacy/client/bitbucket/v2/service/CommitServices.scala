@@ -1,9 +1,8 @@
 package com.codacy.client.bitbucket.v2.service
 
 import java.net.URLEncoder
-
 import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
-import com.codacy.client.bitbucket.v2.CommitComment
+import com.codacy.client.bitbucket.v2.{CommitComment, SimpleCommitSha}
 import play.api.libs.json.{JsNumber, JsObject, JsString, Json}
 
 class CommitServices(client: BitbucketClient) {
@@ -55,10 +54,21 @@ class CommitServices(client: BitbucketClient) {
     client.getRaw(s"${client.repositoriesBaseUrl}/$workspace/$repository/diff/$fromCommitSha..$toCommitSha")
   }
 
+  def getCommitSha(workspace: String, repository: String, commitSha: String): RequestResponse[SimpleCommitSha] = {
+    client
+      .execute(Request(generateGetCommitUrl(workspace, repository, commitSha, client), classOf[SimpleCommitSha]))
+  }
+
   private def generateCommitCommentUrl(author: String, repository: String, commit: String): String = {
     val encodedAuthor = URLEncoder.encode(author, "UTF-8")
     val encodedRepository = URLEncoder.encode(repository, "UTF-8")
     val encodedCommit = URLEncoder.encode(commit, "UTF-8")
     s"${client.repositoriesBaseUrl}/$encodedAuthor/$encodedRepository/commit/$encodedCommit/comments"
+  }
+
+  private def generateGetCommitUrl(owner: String, repo: String, commitSha: String, client: BitbucketClient): String = {
+    val encodedOwner = URLEncoder.encode(owner, "UTF-8")
+    val encodedRepo = URLEncoder.encode(repo, "UTF-8")
+    s"${client.apiBaseUrl}/repositories/$encodedOwner/$encodedRepo/commit/$commitSha"
   }
 }
