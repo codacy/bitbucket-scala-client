@@ -1,14 +1,7 @@
 package com.codacy.client.bitbucket.v2.service
 
 import java.net.URLEncoder
-import com.codacy.client.bitbucket.client.{
-  BitbucketClient,
-  FailedResponse,
-  PageRequest,
-  Request,
-  RequestResponse,
-  SuccessfulResponse
-}
+import com.codacy.client.bitbucket.client.{BitbucketClient, PageRequest, RequestResponse}
 import com.codacy.client.bitbucket.util.UrlHelper
 import com.codacy.client.bitbucket.v2.{PullRequest, PullRequestComment, PullRequestReviewers, SimpleCommit}
 import play.api.libs.json._
@@ -39,12 +32,8 @@ class PullRequestServices(client: BitbucketClient) {
     val url = UrlHelper.joinQueryParameters(pullRequestsUrl, statesParams: _*)
 
     pageRequest match {
-      case Some(request) =>
-        client.executeWithCursor[PullRequest](url, request, Some(pageLength))
-      case None =>
-        client.executePaginated(
-          Request(UrlHelper.joinQueryParameters(url, s"pagelen=$pageLength"), classOf[Seq[PullRequest]])
-        )
+      case Some(request) => client.executeWithCursor[PullRequest](url, request, Some(pageLength))
+      case None => client.executePaginated[PullRequest](UrlHelper.joinQueryParameters(url, s"pagelen=$pageLength"))
     }
   }
 
@@ -55,12 +44,8 @@ class PullRequestServices(client: BitbucketClient) {
     * @param prId           The id of the specific pr to retrieve.
     * @return               The PullRequest that contains the data for the required id, the result is wrapped in a RequestResponse type.
     */
-  def getPullRequest(workspace: String, repositorySlug: String, prId: Int): RequestResponse[PullRequest] = {
-
-    client.execute[PullRequest](
-      Request(generateSpecificPullRequestUrl(workspace, repositorySlug, prId), classOf[PullRequest])
-    )
-  }
+  def getPullRequest(workspace: String, repositorySlug: String, prId: Int): RequestResponse[PullRequest] =
+    client.execute[PullRequest](generateSpecificPullRequestUrl(workspace, repositorySlug, prId))
 
   /*
    * Gets the list of commits of a pull request
@@ -75,7 +60,7 @@ class PullRequestServices(client: BitbucketClient) {
     val pullRequestsUrl = generatePullRequestsUrl(owner, repository)
     val url = s"$pullRequestsUrl/$prId/commits?pagelen=$size"
 
-    client.executePaginated(Request(url, classOf[Seq[SimpleCommit]]))
+    client.executePaginated[SimpleCommit](url)
   }
 
   private[this] def postNewComment(
@@ -86,7 +71,7 @@ class PullRequestServices(client: BitbucketClient) {
   ): RequestResponse[PullRequestComment] = {
     val pullRequestsUrl = generatePullRequestsUrl(owner, repository)
     val url = s"$pullRequestsUrl/$prId/comments"
-    client.postJson(Request(url, classOf[PullRequestComment]), values)
+    client.postJson[PullRequestComment](url, values)
   }
 
   def create(
@@ -104,13 +89,13 @@ class PullRequestServices(client: BitbucketClient) {
       "destination" -> Json.obj("branch" -> Json.obj("name" -> destinationBranch))
     )
 
-    client.postJson(Request(pullRequestsUrl, classOf[JsObject]), payload)
+    client.postJson[JsObject](pullRequestsUrl, payload)
   }
 
   def postApprove(owner: String, repository: String, prId: Long): RequestResponse[JsObject] = {
     val pullRequestsUrl = generatePullRequestsUrl(owner, repository)
     val url = s"$pullRequestsUrl/$prId/approve"
-    client.postJson(Request(url, classOf[JsObject]), JsNull)
+    client.postJson[JsObject](url, JsNull)
   }
 
   def deleteApprove(owner: String, repository: String, prId: Long): RequestResponse[Boolean] = {
@@ -122,13 +107,13 @@ class PullRequestServices(client: BitbucketClient) {
   def merge(owner: String, repository: String, prId: Long): RequestResponse[JsObject] = {
     val pullRequestsUrl = generatePullRequestsUrl(owner, repository)
     val url = s"$pullRequestsUrl/$prId/merge"
-    client.postJson(Request(url, classOf[JsObject]), JsNull)
+    client.postJson[JsObject](url, JsNull)
   }
 
   def decline(owner: String, repository: String, prId: Long): RequestResponse[JsObject] = {
     val pullRequestsUrl = generatePullRequestsUrl(owner, repository)
     val url = s"$pullRequestsUrl/$prId/decline"
-    client.postJson(Request(url, classOf[JsObject]), JsNull)
+    client.postJson[JsObject](url, JsNull)
   }
 
   def createLineComment(
@@ -177,7 +162,7 @@ class PullRequestServices(client: BitbucketClient) {
     val url = s"$pullRequestsUrl/$pullRequestId/comments"
 
     client
-      .executePaginated(Request(url, classOf[Seq[PullRequestComment]]))
+      .executePaginated[PullRequestComment](url)
       .map(_.filterNot(_.deleted))
   }
 
@@ -185,7 +170,7 @@ class PullRequestServices(client: BitbucketClient) {
     val pullRequestsUrl = generatePullRequestsUrl(owner, repository)
     val url = s"$pullRequestsUrl/$prId"
 
-    client.execute(Request(url, classOf[PullRequestReviewers]))
+    client.execute[PullRequestReviewers](url)
   }
 
   private def generatePullRequestsUrl(workspace: String, repoSlug: String): String = {

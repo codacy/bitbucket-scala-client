@@ -5,7 +5,6 @@ import com.codacy.client.bitbucket.client.{
   BitbucketClient,
   FailedResponse,
   PageRequest,
-  Request,
   RequestResponse,
   SuccessfulResponse
 }
@@ -17,16 +16,14 @@ class UserServices(client: BitbucketClient) {
   /**
     * Gets the basic information associated with the token owner account.
     */
-  def getUser: RequestResponse[User] = {
-    client.execute(Request(client.userBaseUrl, classOf[User]))
-  }
+  def getUser: RequestResponse[User] =
+    client.execute[User](client.userBaseUrl)
 
   /**
     * Gets all the emails of an account
     */
-  def getEmails: RequestResponse[Seq[Email]] = {
-    client.executePaginated(Request(s"${client.userBaseUrl}/emails", classOf[Seq[Email]]))
-  }
+  def getEmails: RequestResponse[Seq[Email]] =
+    client.executePaginated[Email](s"${client.userBaseUrl}/emails")
 
   /**
     * Search for workspaceUUID among the workspaces that the current user is member of
@@ -56,7 +53,7 @@ class UserServices(client: BitbucketClient) {
     */
   def getUser(userId: String): RequestResponse[User] = {
     val encodedUserId = URLEncoder.encode(userId, "UTF-8")
-    client.execute(Request(s"${client.usersBaseUrl}/$encodedUserId", classOf[User]))
+    client.execute[User](s"${client.usersBaseUrl}/$encodedUserId")
   }
 
   /**
@@ -72,7 +69,7 @@ class UserServices(client: BitbucketClient) {
 
     val values = Json.obj("key" -> key, "label" -> keyName)
 
-    client.postJson(Request(url, classOf[SshKey]), values)
+    client.postJson[SshKey](url, values)
   }
 
 }

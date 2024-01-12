@@ -3,7 +3,7 @@ package com.codacy.client.bitbucket.v2.service
 import java.net.URLEncoder
 
 import com.codacy.client.bitbucket.client.DefaultBodyWritables._
-import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
+import com.codacy.client.bitbucket.client.{BitbucketClient, RequestResponse}
 import com.codacy.client.bitbucket.v2.BuildStatus
 import play.api.libs.json.Json
 
@@ -18,7 +18,7 @@ class BuildStatusServices(client: BitbucketClient) {
     val encodedKey = URLEncoder.encode(key, "UTF-8")
     val url = s"$commitBuildStatusesUrl/$encodedKey"
 
-    client.execute(Request(url, classOf[BuildStatus]))
+    client.execute[BuildStatus](url)
   }
 
   /*
@@ -41,7 +41,7 @@ class BuildStatusServices(client: BitbucketClient) {
       "description" -> Seq(buildStatus.description)
     )
 
-    client.postForm(Request(commitBuildStatusesUrl, classOf[BuildStatus]), values)
+    client.postForm[Map[String, Seq[String]], BuildStatus](commitBuildStatusesUrl, values)
   }
 
   /*
@@ -65,7 +65,7 @@ class BuildStatusServices(client: BitbucketClient) {
       "description" -> buildStatus.description
     )
 
-    client.putJson(Request(url, classOf[BuildStatus]), payload)
+    client.putJson[BuildStatus](url, payload)
   }
 
   private def generateCommitBuildStatusesUrl(owner: String, repository: String, commit: String): String = {

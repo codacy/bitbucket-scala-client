@@ -1,8 +1,7 @@
 package com.codacy.client.bitbucket.v2.service
 
 import java.net.URLEncoder
-
-import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
+import com.codacy.client.bitbucket.client.{BitbucketClient, RequestResponse}
 import com.codacy.client.bitbucket.v2
 import play.api.libs.json.Json
 
@@ -10,7 +9,7 @@ class HookServices(client: BitbucketClient) {
 
   def list(author: String, repo: String): RequestResponse[Seq[v2.Webhook]] = {
     val servicesUrl = generateHooksUrl(author, repo)
-    client.executePaginated(Request(servicesUrl, classOf[Seq[v2.Webhook]]))
+    client.executePaginated[v2.Webhook](servicesUrl)
   }
 
   def create(
@@ -22,7 +21,7 @@ class HookServices(client: BitbucketClient) {
   ): RequestResponse[v2.Webhook] = {
     val servicesUrl = generateHooksUrl(author, repo)
     val payload = Json.obj("active" -> true, "description" -> description, "url" -> hookUrl, "events" -> events)
-    client.postJson(Request(servicesUrl, classOf[v2.Webhook]), payload)
+    client.postJson[v2.Webhook](servicesUrl, payload)
   }
 
   def update(
@@ -37,7 +36,7 @@ class HookServices(client: BitbucketClient) {
     val servicesUrl = generateHooksUrl(author, repo)
     val encodedUuid = URLEncoder.encode(uuid, "UTF-8")
     val payload = Json.obj("active" -> active, "description" -> description, "url" -> hookUrl, "events" -> events)
-    client.putJson(Request(s"$servicesUrl/$encodedUuid", classOf[v2.Webhook]), payload)
+    client.putJson[v2.Webhook](s"$servicesUrl/$encodedUuid", payload)
   }
 
   def delete(author: String, repo: String, uuid: String): RequestResponse[Boolean] = {

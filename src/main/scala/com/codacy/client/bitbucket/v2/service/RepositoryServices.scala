@@ -2,7 +2,7 @@ package com.codacy.client.bitbucket.v2.service
 
 import java.net.URLEncoder
 
-import com.codacy.client.bitbucket.client.{BitbucketClient, PageRequest, Request, RequestResponse, SuccessfulResponse}
+import com.codacy.client.bitbucket.client.{BitbucketClient, PageRequest, RequestResponse, SuccessfulResponse}
 import com.codacy.client.bitbucket.util.UrlHelper._
 import com.codacy.client.bitbucket.v2._
 import play.api.libs.json.{JsValue, Json}
@@ -48,10 +48,8 @@ class RepositoryServices(client: BitbucketClient) {
     val url = joinQueryParameters(baseUrl, role, sort, length, filterRepositorySlug)
 
     pageRequest match {
-      case Some(request) =>
-        client.executeWithCursor[Repository](url, request)
-      case None =>
-        client.executePaginated(Request(url, classOf[Seq[Repository]]))
+      case Some(request) => client.executeWithCursor[Repository](url, request)
+      case None => client.executePaginated[Repository](url)
     }
   }
 
@@ -63,8 +61,7 @@ class RepositoryServices(client: BitbucketClient) {
     * @return A [[RequestResponse]] with the repository data
     */
   def getRepository(workspace: String, repositorySlug: String): RequestResponse[Repository] = {
-    val repositoryUrl = generateRepositoryUrl(workspace, repositorySlug)
-    client.execute(Request(repositoryUrl, classOf[Repository]))
+    client.execute[Repository](generateRepositoryUrl(workspace, repositorySlug))
   }
 
   /**
@@ -82,7 +79,7 @@ class RepositoryServices(client: BitbucketClient) {
       secondCommitSha: String
   ): RequestResponse[SimpleCommit] = {
     val url = s"${generateRepositoryUrl(username, repositorySlug)}/merge-base/$firstCommitSha..$secondCommitSha"
-    client.execute(Request(url, classOf[SimpleCommit]))
+    client.execute[SimpleCommit](url)
   }
 
   def createKey(
@@ -96,7 +93,7 @@ class RepositoryServices(client: BitbucketClient) {
 
     val values = Json.obj("key" -> key, "label" -> label)
 
-    client.postJson(Request(url, classOf[DeployKey]), values)
+    client.postJson[DeployKey](url, values)
   }
 
   /**
@@ -110,9 +107,7 @@ class RepositoryServices(client: BitbucketClient) {
     val repositoryUrl = generateRepositoryUrl(username, repositorySlug)
     val baseRequestUrl = s"$repositoryUrl/branch-restrictions"
 
-    val response = client.execute(Request(baseRequestUrl, classOf[JsValue]))
-
-    response match {
+    client.execute[JsValue](baseRequestUrl) match {
       case _: SuccessfulResponse[_] => true
       case _ => false
     }

@@ -1,14 +1,14 @@
 package com.codacy.client.bitbucket.v2.service
 
 import java.net.URLEncoder
-import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
+import com.codacy.client.bitbucket.client.{BitbucketClient, RequestResponse}
 import com.codacy.client.bitbucket.v2.{CommitComment, SimpleCommit, SimpleCommitSha}
 import play.api.libs.json.{JsNumber, JsObject, JsString, Json}
 
 class CommitServices(client: BitbucketClient) {
 
   def getCommit(author: String, repository: String, commit: String): RequestResponse[SimpleCommit] =
-    client.execute(Request(generateCommitUrl(author, repository, commit), classOf[SimpleCommit]))
+    client.execute[SimpleCommit](generateCommitUrl(author, repository, commit))
 
   def createComment(
       author: String,
@@ -29,12 +29,12 @@ class CommitServices(client: BitbucketClient) {
 
     val values = JsObject(params.toSeq :+ "content" -> Json.obj("raw" -> JsString(body)))
 
-    client.postJson(Request(commitCommentUrl, classOf[CommitComment]), values)
+    client.postJson[CommitComment](commitCommentUrl, values)
   }
 
   def listComments(author: String, repository: String, commit: String): RequestResponse[Seq[CommitComment]] =
     client
-      .executePaginated(Request(generateCommentUrl(author, repository, commit), classOf[Seq[CommitComment]]))
+      .executePaginated[CommitComment](generateCommentUrl(author, repository, commit))
       .map(_.filterNot(_.deleted))
 
   def deleteComment(author: String, repository: String, commit: String, commentId: Long): RequestResponse[Boolean] =
@@ -50,7 +50,7 @@ class CommitServices(client: BitbucketClient) {
     client.getRaw(s"${client.repositoriesBaseUrl}/$workspace/$repository/diff/$fromCommitSha..$toCommitSha")
 
   def getCommitSha(workspace: String, repository: String, commitSha: String): RequestResponse[SimpleCommitSha] =
-    client.execute(Request(generateCommitUrl(workspace, repository, commitSha), classOf[SimpleCommitSha]))
+    client.execute[SimpleCommitSha](generateCommitUrl(workspace, repository, commitSha))
 
   private def generateCommitUrl(author: String, repository: String, commitSha: String, paths: String*): String = {
     val encodedAuthor = URLEncoder.encode(author, "UTF-8")

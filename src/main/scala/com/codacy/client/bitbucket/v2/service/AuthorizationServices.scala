@@ -1,7 +1,7 @@
 package com.codacy.client.bitbucket.v2.service
 
 import com.codacy.client.bitbucket.client.DefaultBodyWritables._
-import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
+import com.codacy.client.bitbucket.client.{BitbucketClient, RequestResponse}
 import com.codacy.client.bitbucket.v2.AccessToken
 import com.codacy.client.bitbucket.v2.Authorization.{RefreshCredentials, RefreshToken}
 
@@ -18,6 +18,6 @@ class AuthorizationServices(client: BitbucketClient) {
       case c: RefreshToken => Map("grant_type" -> Seq(c.grant_type), "refresh_token" -> Seq(c.refresh_token))
     }
 
-    client.postForm(Request(authorizationUrl, classOf[AccessToken]), values)
+    client.postForm[Map[String, Seq[String]], AccessToken](authorizationUrl, values)
   }
 }

@@ -36,13 +36,12 @@ abstract class BitbucketClientBase(val client: WSClient, credentials: Credential
   /**
     * Does an API request and parses the json output into a class.
     */
-  def execute[T](request: Request[T])(implicit reader: Reads[T]): RequestResponse[T] = {
-    get(request.url) match {
+  def execute[T: Reads](url: String): RequestResponse[T] =
+    get(url) match {
       case Right(json) =>
-        json.validate[T].fold(e => FailedResponse(s"Failed to parse json ($e): $json"), a => SuccessfulResponse(a))
+        json.validate[T].fold(e => FailedResponse(s"Failed to parse json ($e): $json"), SuccessfulResponse(_))
       case Left(error) => FailedResponse(error.detail)
     }
-  }
 
   /**
     * Make an API request and parse the json output into a response. This response includes not only the objects
@@ -88,7 +87,7 @@ abstract class BitbucketClientBase(val client: WSClient, credentials: Credential
   /**
     * Does a paginated API request and parses the json output into a sequence of classes.
     */
-  def executePaginated[T](request: Request[Seq[T]])(implicit reader: Reads[T]): RequestResponse[Seq[T]] = {
+  def executePaginated[T: Reads](url: String): RequestResponse[Seq[T]] = {
     val FIRST_PAGE = 1
 
     def extractValues(json: JsValue): RequestResponse[Seq[T]] =
@@ -96,7 +95,7 @@ abstract class BitbucketClientBase(val client: WSClient, credentials: Credential
         .validate[Seq[T]]
         .fold(e => FailedResponse(s"Failed to parse json ($e): $json"), a => SuccessfulResponse(a))
 
-    get(request.url) match {
+    get(url) match {
       case Right(json) =>
         val nextPages = (for {
           size <- (json \ "size").asOpt[Double]
@@ -104,12 +103,12 @@ abstract class BitbucketClientBase(val client: WSClient, credentials: Credential
         } yield {
           val lastPage = math.ceil(size / pagelen).toInt
           new ParRange(FIRST_PAGE + 1 to lastPage).map { page =>
-            val nextUrl = new URI(request.url).addQuery(s"page=$page").toString
+            val nextUrl = new URI(url).addQuery(s"page=$page").toString
             get(nextUrl) match {
               case Right(nextJson) => extractValues(nextJson)
               case Left(error) => FailedResponse(error.detail)
             }
-          }.toSeq
+          }
         }).getOrElse(Seq(SuccessfulResponse(Seq.empty)))
 
         val values = extractValues(json)
@@ -123,80 +122,66 @@ abstract class BitbucketClientBase(val client: WSClient, credentials: Credential
     }
   }
 
-  /*
-   * Does an API request
-   */
-  private def performRequest[D, T](method: String, request: Request[T], values: D)(
-      implicit reader: Reads[T],
-      writer: BodyWriteable[D]
-  ): RequestResponse[T] = withClientRequest { client =>
-    val jpromise = client
-      .url(request.url)
-      .authenticate(authenticator)
-      .withFollowRedirects(follow = true)
-      .withMethod(method)
-      .withBody(values)
-      .execute()
-    val result = Await.result(jpromise, requestTimeout)
+  private def performRequest[D: BodyWriteable, T: Reads](method: String, url: String, values: D): RequestResponse[T] =
+    withClientRequest { client =>
+      val builtRequest = client
+        .url(url)
+        .authenticate(authenticator)
+        .withFollowRedirects(follow = true)
+        .withMethod(method)
+        .withBody(values)
 
-    val value = if (Seq(HTTPStatusCodes.OK, HTTPStatusCodes.CREATED).contains(result.status)) {
-      val body = result.body
+      val result = Await.result(builtRequest.execute(), requestTimeout)
 
-      val jsValue = parseJson(body)
-      jsValue match {
-        case Right(json) =>
-          json.validate[T] match {
-            case s: JsSuccess[T] =>
-              SuccessfulResponse(s.value)
-            case e: JsError =>
-              val msg =
-                s"""
+      val value = if (Seq(HTTPStatusCodes.OK, HTTPStatusCodes.CREATED).contains(result.status)) {
+        parseJson(result.body) match {
+          case Right(json) =>
+            json.validate[T] match {
+              case s: JsSuccess[T] =>
+                SuccessfulResponse(s.value)
+              case e: JsError =>
+                val msg =
+                  s"""
                    |Failed to validate json:
                    |$json
                    |JsError errors:
                    |${e.errors.mkString(System.lineSeparator)}
                 """.stripMargin
-              FailedResponse(msg)
-          }
-        case Left(message) =>
-          FailedResponse(message.detail)
+                FailedResponse(msg)
+            }
+          case Left(message) =>
+            FailedResponse(message.detail)
+        }
+      } else {
+        FailedResponse(result.statusText)
       }
-    } else {
-      FailedResponse(result.statusText)
+
+      value
     }
 
-    value
-  }
+  def getJson[T: Reads](url: String): RequestResponse[T] =
+    performRequest("GET", url, JsNull)
 
-  def postForm[D, T](
-      request: Request[T],
-      values: D
-  )(implicit reader: Reads[T], writer: BodyWriteable[D]): RequestResponse[T] = {
-    performRequest("POST", request, values)
-  }
+  def postForm[D: BodyWriteable, T: Reads](url: String, values: D): RequestResponse[T] =
+    performRequest("POST", url, values)
 
-  def postJson[T](request: Request[T], values: JsValue)(implicit reader: Reads[T]): RequestResponse[T] = {
-    performRequest("POST", request, values)
-  }
+  def postJson[T: Reads](url: String, values: JsValue): RequestResponse[T] =
+    performRequest("POST", url, values)
 
-  def putForm[T](request: Request[T], values: Map[String, Seq[String]])(
-      implicit reader: Reads[T]
-  ): RequestResponse[T] = {
-    performRequest("PUT", request, values)
-  }
+  def putForm[T: Reads](url: String, values: Map[String, Seq[String]]): RequestResponse[T] =
+    performRequest("PUT", url, values)
 
-  def putJson[T](request: Request[T], values: JsValue)(implicit reader: Reads[T]): RequestResponse[T] = {
-    performRequest("PUT", request, values)
-  }
+  def putJson[T: Reads](url: String, values: JsValue): RequestResponse[T] =
+    performRequest("PUT", url, values)
 
   /* copy paste from post ... */
   def delete[T](url: String): RequestResponse[Boolean] = withClientRequest { client =>
-    val jpromise = client
+    val builtRequest = client
       .url(url)
       .authenticate(authenticator)
       .withFollowRedirects(follow = true)
-      .delete()
-    val result = Await.result(jpromise, requestTimeout)
+
+    val result = Await.result(builtRequest.delete(), requestTimeout)
 
     val value =
       if (Seq(HTTPStatusCodes.OK, HTTPStatusCodes.CREATED, HTTPStatusCodes.NO_CONTENT).contains(result.status)) {
@@ -209,16 +194,15 @@ abstract class BitbucketClientBase(val client: WSClient, credentials: Credential
   }
 
   private def get(url: String): Either[ResponseError, JsValue] = withClientEither { client =>
-    val jpromise = client
+    val builtRequest = client
       .url(url)
       .authenticate(authenticator)
       .withFollowRedirects(follow = true)
-      .get()
-    val result = Await.result(jpromise, requestTimeout)
+
+    val result = Await.result(builtRequest.get(), requestTimeout)
 
     val value = if (result.status == HTTPStatusCodes.OK || result.status == HTTPStatusCodes.CREATED) {
-      val body = result.body
-      parseJson(body)
+      parseJson(result.body)
     } else {
       Left(ResponseError(java.util.UUID.randomUUID().toString, result.statusText, result.statusText))
     }
@@ -252,7 +236,7 @@ abstract class BitbucketClientBase(val client: WSClient, credentials: Credential
     }
   }
 
-  private def withClientRequest[T](block: WSClient => RequestResponse[T]): RequestResponse[T] = {
+  private def withClientRequest[T](block: WSClient => RequestResponse[T]): RequestResponse[T] =
     Try(block(client)) match {
       case Success(res) => res
       case Failure(error) =>
@@ -264,25 +248,23 @@ abstract class BitbucketClientBase(val client: WSClient, credentials: Credential
           """.stripMargin
         FailedResponse(statusMessage)
     }
-  }
 
-  private def getFullStackTrace(throwableOpt: Throwable, accumulator: String = ""): String = {
+  private def getFullStackTrace(throwableOpt: Throwable, accumulator: String = ""): String =
     Option(throwableOpt)
       .map { throwable =>
         val newAccumulator = s"$accumulator${Properties.lineSeparator}${throwable.getStackTrace.mkString("", EOL, EOL)}"
         getFullStackTrace(throwable.getCause, newAccumulator)
       }
       .getOrElse(accumulator)
-  }
 
   def getRaw(url: String): RequestResponse[String] =
     withClientEither { client =>
-      val jpromise = client
+      val builtRequest = client
         .url(url)
         .authenticate(authenticator)
         .withFollowRedirects(follow = true)
-        .get()
-      val result = Await.result(jpromise, requestTimeout)
+
+      val result = Await.result(builtRequest.get(), requestTimeout)
 
       if (result.status == HTTPStatusCodes.OK || result.status == HTTPStatusCodes.CREATED) {
         Right(result.body)

@@ -33,9 +33,6 @@ object RequestResponse {
   @deprecated("Build a SuccessfulResponse object instead of using this", "12.0.0")
   def success[A](a: A): RequestResponse[A] = SuccessfulResponse(a)
 
-  @deprecated("Build a FailedResponse object instead of using this", "12.0.0")
-  def failure[A](message: String): RequestResponse[A] = FailedResponse(message: String)
-
   @deprecated("This should be either removed or re-implemented to support pagination", "12.0.0")
   def applyDiscardingPaginationInfo[A](
       r1: RequestResponse[Seq[A]],

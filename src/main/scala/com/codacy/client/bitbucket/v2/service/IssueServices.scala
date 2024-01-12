@@ -1,11 +1,10 @@
 package com.codacy.client.bitbucket.v2.service
 
 import java.net.URLEncoder
-
 import com.codacy.client.bitbucket.client.DefaultBodyWritables._
-import com.codacy.client.bitbucket.client.{BitbucketClient, Request, RequestResponse}
+import com.codacy.client.bitbucket.client.{BitbucketClient, RequestResponse}
 import com.codacy.client.bitbucket.v2.Issue
-import play.api.libs.json.{JsString, Json}
+import play.api.libs.json._
 
 class IssueServices(client: BitbucketClient) {
 
@@ -16,7 +15,7 @@ class IssueServices(client: BitbucketClient) {
 
     val values = Json.obj("title" -> JsString(title), "content" -> Json.obj("raw" -> JsString(body)))
 
-    client.postForm(Request(url, classOf[Issue]), values)
+    client.postForm[JsObject, Issue](url, values)
   }
 
 }
