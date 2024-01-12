@@ -2,8 +2,6 @@ package com.codacy.client.bitbucket.v2
 
 import play.api.libs.json._
 
-import java.time.LocalDateTime
-
 case class SimpleCommitSha(value: String)
 
 object SimpleCommitSha {
