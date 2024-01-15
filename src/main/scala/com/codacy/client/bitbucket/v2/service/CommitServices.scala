@@ -2,13 +2,13 @@ package com.codacy.client.bitbucket.v2.service
 
 import java.net.URLEncoder
 import com.codacy.client.bitbucket.client.{BitbucketClient, RequestResponse}
-import com.codacy.client.bitbucket.v2.{CommitComment, SimpleCommit, SimpleCommitSha}
+import com.codacy.client.bitbucket.v2.{BaseCommit, CommitComment, SimpleCommitSha}
 import play.api.libs.json.{JsNumber, JsObject, JsString, Json}
 
 class CommitServices(client: BitbucketClient) {
 
-  def getCommit(author: String, repository: String, commit: String): RequestResponse[SimpleCommit] =
-    client.execute[SimpleCommit](generateCommitUrl(author, repository, commit))
+  def getCommit(author: String, repository: String, commit: String): RequestResponse[BaseCommit] =
+    client.execute[BaseCommit](generateCommitUrl(author, repository, commit))
 
   def createComment(
       author: String,
