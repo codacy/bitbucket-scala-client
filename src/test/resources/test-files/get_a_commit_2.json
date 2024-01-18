@@ -1,0 +1,97 @@
+{
+  "type": "commit",
+  "hash": "62de4d69c4ef7d6bc7a0725da9694b8c0d70b42b",
+  "date": "2023-10-04T07:47:43+00:00",
+  "author": {
+    "type": "author",
+    "raw": "integrationtest <integration.test@codacy.com>",
+    "user": {
+      "display_name": "integrationtest",
+      "links": {
+        "self": {
+          "href": "https://bitbucket.org/!api/2.0/users/%7B33caa461-1dd0-425d-a569-281bfdfe7431%7D"
+        },
+        "avatar": {
+          "href": "https://secure.gravatar.com/avatar/14eb94da37830f3dc181afb0eb562086?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FI-1.png"
+        },
+        "html": {
+          "href": "https://bitbucket.org/%7B33caa461-1dd0-425d-a569-281bfdfe7431%7D/"
+        }
+      },
+      "type": "user",
+      "uuid": "{33caa461-1dd0-425d-a569-281bfdfe7431}",
+      "account_id": "5e7e1b2c0c8c030c39aa03d6",
+      "nickname": "integrationtest"
+    }
+  },
+  "message": "test 2",
+  "summary": {
+    "type": "rendered",
+    "raw": "test 2",
+    "markup": "markdown",
+    "html": "<p>test 2</p>"
+  },
+  "links": {
+    "self": {
+      "href": "https://bitbucket.org/!api/2.0/repositories/integrationtestsadmin/integration-test-repo1/commit/62de4d69c4ef7d6bc7a0725da9694b8c0d70b42b"
+    },
+    "html": {
+      "href": "https://bitbucket.org/integrationtestsadmin/integration-test-repo1/commits/62de4d69c4ef7d6bc7a0725da9694b8c0d70b42b"
+    },
+    "diff": {
+      "href": "https://bitbucket.org/!api/2.0/repositories/integrationtestsadmin/integration-test-repo1/diff/62de4d69c4ef7d6bc7a0725da9694b8c0d70b42b"
+    },
+    "approve": {
+      "href": "https://bitbucket.org/!api/2.0/repositories/integrationtestsadmin/integration-test-repo1/commit/62de4d69c4ef7d6bc7a0725da9694b8c0d70b42b/approve"
+    },
+    "comments": {
+      "href": "https://bitbucket.org/!api/2.0/repositories/integrationtestsadmin/integration-test-repo1/commit/62de4d69c4ef7d6bc7a0725da9694b8c0d70b42b/comments"
+    },
+    "statuses": {
+      "href": "https://bitbucket.org/!api/2.0/repositories/integrationtestsadmin/integration-test-repo1/commit/62de4d69c4ef7d6bc7a0725da9694b8c0d70b42b/statuses"
+    },
+    "patch": {
+      "href": "https://bitbucket.org/!api/2.0/repositories/integrationtestsadmin/integration-test-repo1/patch/62de4d69c4ef7d6bc7a0725da9694b8c0d70b42b"
+    }
+  },
+  "parents": [
+    {
+      "hash": "16ee7641208c284c2a16b67dcfdfd6e4be54c58b",
+      "links": {
+        "self": {
+          "href": "https://bitbucket.org/!api/2.0/repositories/integrationtestsadmin/integration-test-repo1/commit/16ee7641208c284c2a16b67dcfdfd6e4be54c58b"
+        },
+        "html": {
+          "href": "https://bitbucket.org/integrationtestsadmin/integration-test-repo1/commits/16ee7641208c284c2a16b67dcfdfd6e4be54c58b"
+        }
+      },
+      "type": "commit"
+    }
+  ],
+  "rendered": {
+    "message": {
+      "type": "rendered",
+      "raw": "test 2",
+      "markup": "markdown",
+      "html": "<p>test 2</p>"
+    }
+  },
+  "repository": {
+    "type": "repository",
+    "full_name": "integrationtestsadmin/integration-test-repo1",
+    "links": {
+      "self": {
+        "href": "https://bitbucket.org/!api/2.0/repositories/integrationtestsadmin/integration-test-repo1"
+      },
+      "html": {
+        "href": "https://bitbucket.org/integrationtestsadmin/integration-test-repo1"
+      },
+      "avatar": {
+        "href": "https://bytebucket.org/ravatar/%7B91601b90-9742-4ec1-b950-a091f8f57587%7D?ts=default"
+      }
+    },
+    "name": "integration-test-repo1",
+    "uuid": "{91601b90-9742-4ec1-b950-a091f8f57587}"
+  },
+  "participants": []
+}
