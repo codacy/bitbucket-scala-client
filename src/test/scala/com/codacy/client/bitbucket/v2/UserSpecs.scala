@@ -1,7 +1,7 @@
 package com.codacy.client.bitbucket.v2
 import com.codacy.client.bitbucket.TestUtils
 import org.scalatest.{Matchers, _}
-import play.api.libs.json.{JsError, JsSuccess, Json}
+import play.api.libs.json._
 
 class UserSpecs extends FlatSpec with Matchers with Inside {
 
