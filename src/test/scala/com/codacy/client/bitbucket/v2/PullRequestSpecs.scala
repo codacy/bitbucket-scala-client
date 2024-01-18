@@ -1,6 +1,6 @@
 package com.codacy.client.bitbucket.v2
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest._
 import play.api.libs.json.Json
 import org.scalatest.OptionValues._
 
