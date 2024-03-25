@@ -12,12 +12,12 @@ case class Repository(
     description: String,
     scm: String,
     created_on: LocalDateTime,
-    updated_on: LocalDateTime,
+    updated_on: Option[LocalDateTime],
     owner: Owner,
-    size: Long,
-    has_issues: Boolean,
+    size: Option[Long],
+    has_issues: Option[Boolean],
     is_private: Boolean,
-    language: String,
+    language: Option[String],
     urls: Seq[RepositoryUrl],
     uuid: String,
     slug: String
@@ -36,15 +36,15 @@ object Repository {
   implicit val reader: Reads[Repository] = {
     ((__ \ "name").read[String] and
       (__ \ "full_name").read[String] and
-      (__ \ "description").read[String] and
+      (__ \ "description").read[String] and 
       (__ \ "scm").read[String] and
       (__ \ "created_on").read[LocalDateTime] and
-      (__ \ "updated_on").read[LocalDateTime] and
+      (__ \ "updated_on").readNullable[LocalDateTime] and
       (__ \ "owner").read[Owner] and
-      (__ \ "size").read[Long] and
-      (__ \ "has_issues").read[Boolean] and
+      (__ \ "size").readNullable[Long] and
+      (__ \ "has_issues").readNullable[Boolean] and
       (__ \ "is_private").read[Boolean] and
-      (__ \ "language").read[String] and
+      (__ \ "language").readNullable[String] and
       (__ \ "links").read[Map[String, JsValue]].map(parseLinks) and
       (__ \ "uuid" ).read[String] and
       (__ \ "slug" ).read[String]
