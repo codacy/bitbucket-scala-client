@@ -1,0 +1,98 @@
+{
+  "type": "repository",
+  "full_name": "adinsbitbucket2/atacso-new",
+  "links": {
+    "self": {
+      "href": "https://bitbucket.org/!api/2.0/repositories/adinsbitbucket2/atacso-new"
+    },
+    "html": {
+      "href": "https://bitbucket.org/adinsbitbucket2/atacso-new"
+    },
+    "avatar": {
+      "href": "https://bytebucket.org/ravatar/%7Ba0eed669-d61c-429d-91d7-9c140adf32c5%7D?ts=default"
+    },
+    "pullrequests": {
+      "href": "https://bitbucket.org/!api/2.0/repositories/adinsbitbucket2/atacso-new/pullrequests"
+    },
+    "commits": {
+      "href": "https://bitbucket.org/!api/2.0/repositories/adinsbitbucket2/atacso-new/commits"
+    },
+    "forks": {
+      "href": "https://bitbucket.org/!api/2.0/repositories/adinsbitbucket2/atacso-new/forks"
+    },
+    "watchers": {
+      "href": "https://bitbucket.org/!api/2.0/repositories/adinsbitbucket2/atacso-new/watchers"
+    },
+    "branches": {
+      "href": "https://bitbucket.org/!api/2.0/repositories/adinsbitbucket2/atacso-new/refs/branches"
+    },
+    "tags": {
+      "href": "https://bitbucket.org/!api/2.0/repositories/adinsbitbucket2/atacso-new/refs/tags"
+    },
+    "downloads": {
+      "href": "https://bitbucket.org/!api/2.0/repositories/adinsbitbucket2/atacso-new/downloads"
+    },
+    "source": {
+      "href": "https://bitbucket.org/!api/2.0/repositories/adinsbitbucket2/atacso-new/src"
+    },
+    "clone": [
+      {
+        "name": "https",
+        "href": "https://willisadins@bitbucket.org/adinsbitbucket2/atacso-new.git"
+      }, {
+        "name": "ssh",
+        "href": "git@bitbucket.org:adinsbitbucket2/atacso-new.git"
+      }
+    ],
+    "hooks": {
+      "href": "https://bitbucket.org/!api/2.0/repositories/adinsbitbucket2/atacso-new/hooks"
+    }
+  },
+  "name": "ATACSO New",
+  "slug": "atacso-new",
+  "description": "",
+  "scm": "git",
+  "website": null,
+  "owner": {
+    "display_name": "AdInsBitBucket2",
+    "links": {
+      "self": {
+        "href": "https://bitbucket.org/!api/2.0/workspaces/%7Bee3b0b8f-7a8b-4aa3-b09e-76b0b1068b42%7D"
+      },
+      "avatar": {
+        "href": "https://bitbucket.org/account/adinsbitbucket2/avatar/"
+      },
+      "html": {
+        "href": "https://bitbucket.org/%7Bee3b0b8f-7a8b-4aa3-b09e-76b0b1068b42%7D/"
+      }
+    },
+    "type": "team",
+    "uuid": "{ee3b0b8f-7a8b-4aa3-b09e-76b0b1068b42}",
+    "username": "adinsbitbucket2"
+  },
+  "workspace": {
+    "type": "workspace",
+    "uuid": "{ee3b0b8f-7a8b-4aa3-b09e-76b0b1068b42}",
+    "name": "AdInsBitBucket2",
+    "slug": "adinsbitbucket2",
+    "links": {
+      "avatar": {
+        "href": "https://bitbucket.org/workspaces/adinsbitbucket2/avatar/?ts=1709775650"
+      },
+      "html": {
+        "href": "https://bitbucket.org/adinsbitbucket2/"
+      },
+      "self": {
+        "href": "https://bitbucket.org/!api/2.0/workspaces/adinsbitbucket2"
+      }
+    }
+  },
+  "is_private": false,
+  "created_on": "2024-03-05T08:07:33.038149+00:00",
+  "uuid": "{a0eed669-d61c-429d-91d7-9c140adf32c5}",
+  "override_settings": {
+    "default_merge_strategy": true,
+    "branching_model": true
+  },
+  "parent": null
+}

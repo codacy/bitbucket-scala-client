@@ -1,6 +1,7 @@
 package com.codacy.client.bitbucket.v2
+import com.codacy.client.bitbucket.TestUtils
 import org.scalatest.{Matchers, _}
-import play.api.libs.json.Json
+import play.api.libs.json.{JsSuccess, Json}
 
 class RepositorySpecs extends FlatSpec with Matchers {
 
@@ -135,5 +136,11 @@ class RepositorySpecs extends FlatSpec with Matchers {
       r.name shouldBe "tweakmsg"
       r.owner.display_name shouldBe "John Mulligan"
     })
+  }
+
+  it should "parse minimal repository without optional fields" in {
+    val rawJson = TestUtils.getTestContent("/test-files/minimal_repository.json")
+    val value = Json.parse(rawJson).validate[Repository]
+    value shouldBe a[JsSuccess[_]]
   }
 }
