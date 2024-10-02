@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  codacy: codacy/base@10.9.0
+  codacy: codacy/base@12.0.0
 
 workflows:
   version: 2
@@ -19,9 +19,6 @@ workflows:
             - run:
                 name: Check scalafmt on scala files
                 command: sbt scalafmtCheckAll
-            - run:
-                name: Check scalafmt on sbt files
-                command: sbt scalafmtSbtCheck
             - run:
                 name: Check scalafmt on sbt files
                 command: sbt scalafmtSbtCheck
