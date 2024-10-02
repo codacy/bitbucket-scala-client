@@ -3,6 +3,9 @@ version: 2.1
 orbs:
   codacy: codacy/base@10.9.0
 
+references:
+  cache_prefix: &cache_prefix sbt-cache-20240918
+
 workflows:
   version: 2
   build:
@@ -11,6 +14,11 @@ workflows:
           write_sbt_version: true
       - codacy/sbt_docker:
           name: test
+          context: ExternalSystems
+          cache_prefix: *cache_prefix
+          save_cache: true
+          aws_profile: maven
+          use_sbt_native_client: true
           persist_to_workspace: true
           steps:
             - run:
