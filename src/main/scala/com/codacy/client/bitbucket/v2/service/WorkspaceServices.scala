@@ -94,10 +94,10 @@ class WorkspaceServices(client: BitbucketClient) {
     */
   def getWorkspacePermissionForUserByAccountId(
       username: String,
-      accountId: String
+      accountIds: String
   ): RequestResponse[Option[WorkspacePermission]] = {
     val encodedUsername = URLEncoder.encode(username, "UTF-8")
-    val accountIdEncoded = URLEncoder.encode(s""""$accountId"""", "UTF-8")
+    val accountIdEncoded = URLEncoder.encode(s""""$accountIds"""", "UTF-8")
     val baseRequestUrl = s"${client.workspacesBaseUrl}/$encodedUsername/permissions?q=user.account_id=$accountIdEncoded"
     val requestResponse = client.executePaginated[WorkspacePermission](baseRequestUrl)
     requestResponse.map(_.headOption)
