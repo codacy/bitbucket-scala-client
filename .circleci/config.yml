@@ -1,7 +1,10 @@
 version: 2.1
 
 orbs:
-  codacy: codacy/base@10.9.0
+  codacy: codacy/base@11.2.0
+
+references:
+  cache_prefix: &cache_prefix sbt-cache-20240918
 
 workflows:
   version: 2
@@ -9,8 +12,13 @@ workflows:
     jobs:
       - codacy/checkout_and_version:
           write_sbt_version: true
-      - codacy/sbt_docker:
+      - codacy/sbt:
           name: test
+          context: ExternalSystems
+          cache_prefix: *cache_prefix
+          save_cache: true
+          aws_profile: maven
+          use_sbt_native_client: true
           persist_to_workspace: true
           steps:
             - run:
@@ -19,9 +27,6 @@ workflows:
             - run:
                 name: Check scalafmt on scala files
                 command: sbt scalafmtCheckAll
-            - run:
-                name: Check scalafmt on sbt files
-                command: sbt scalafmtSbtCheck
             - run:
                 name: Check scalafmt on sbt files
                 command: sbt scalafmtSbtCheck
@@ -45,7 +50,7 @@ workflows:
             branches:
               only:
                 - master
-      - codacy/sbt_docker:
+      - codacy/sbt:
           name: publish_sonatype
           context: CodacyAWS
           use_sbt_native_client: false
@@ -64,7 +69,7 @@ workflows:
                 command: sbt sonatypeBundleRelease
           requires:
             - tag_version
-      - codacy/sbt_docker:
+      - codacy/sbt:
           name: publish_s3
           aws_profile: maven
           context: CodacyAWS
