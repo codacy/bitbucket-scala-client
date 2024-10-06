@@ -119,10 +119,12 @@ class RepositoryServices(client: BitbucketClient) {
     s"${client.repositoriesBaseUrl}/$encodedOwner/$encodedRepo"
   }
 
-  def getProjectRepositories(workspaceId: String,
-                             projectKey : String,
-                             pageRequest: Option[PageRequest],
-                             pageLength: Option[Int]) : RequestResponse[Seq[Repository]] = {
+  def getProjectRepositories(
+      workspaceId: String,
+      projectKey: String,
+      pageRequest: Option[PageRequest],
+      pageLength: Option[Int]
+  ): RequestResponse[Seq[Repository]] = {
     val encodedProjectKey = URLEncoder.encode(projectKey, "UTF-8")
 
     val url = s"${client.repositoriesBaseUrl}/$workspaceId?q=project.key=%22$encodedProjectKey%22"
