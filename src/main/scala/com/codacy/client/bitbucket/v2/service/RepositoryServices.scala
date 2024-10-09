@@ -126,8 +126,8 @@ class RepositoryServices(client: BitbucketClient) {
       pageLength: Option[Int]
   ): RequestResponse[Seq[Repository]] = {
     val encodedProjectKey = URLEncoder.encode(projectKey, "UTF-8")
+    val url = s"""${client.repositoriesBaseUrl}/$workspaceId?q=project.key="$encodedProjectKey""""
 
-    val url = s"${client.repositoriesBaseUrl}/$workspaceId?q=project.key=%22$encodedProjectKey%22"
     pageRequest match {
       case Some(request) =>
         client.executeWithCursor[Repository](url, request, pageLength)
