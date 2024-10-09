@@ -132,6 +132,7 @@ class RepositoryServices(client: BitbucketClient) {
 
     val url = joinQueryParameters(s"""${client.repositoriesBaseUrl}/$workspaceId""", filterProjectKey, length)
 
+    println(url)
     pageRequest match {
       case Some(request) => client.executeWithCursor[Repository](url, request, pageLength)
       case None =>  client.executePaginated[Repository](url)
