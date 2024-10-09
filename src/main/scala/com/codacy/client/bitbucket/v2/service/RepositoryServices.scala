@@ -135,7 +135,7 @@ class RepositoryServices(client: BitbucketClient) {
     println(url)
     pageRequest match {
       case Some(request) => client.executeWithCursor[Repository](url, request, pageLength)
-      case None =>  client.executePaginated[Repository](url)
+      case None => client.executePaginated[Repository](url)
     }
   }
 
