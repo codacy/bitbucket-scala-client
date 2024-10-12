@@ -104,11 +104,11 @@ class WorkspaceServices(client: BitbucketClient) {
   }
 
   def getWorkspaceProjects(
-      workspace: String,
+      workspaceId: String,
       pageRequest: Option[PageRequest] = None,
       pageLength: Option[Int] = None
   ): RequestResponse[Seq[Project]] = {
-    val url = s"${client.workspacesBaseUrl}/$workspace/projects"
+    val url = s"${client.workspacesBaseUrl}/$workspaceId/projects"
 
     pageRequest match {
       case Some(request) =>
