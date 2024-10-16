@@ -127,6 +127,7 @@ class RepositorySpecs extends FlatSpec with Matchers {
                   |    "type": "repository",
                   |    "slug": "tweakmsg",
                   |    "is_private": false,
+                  |    "project": {"name": "tweakmsg", "key": "TWEAKMSG"},
                   |    "description": "Mercurial (hg) extension to allow commenting on commit messages.  Mainly written for practice reading & working with mercurial internals.\r\n"
                   |}""".stripMargin
     val json = Json.parse(input)
@@ -135,6 +136,7 @@ class RepositorySpecs extends FlatSpec with Matchers {
     value.fold(e => fail(s"$e"), r => {
       r.name shouldBe "tweakmsg"
       r.owner.display_name shouldBe "John Mulligan"
+      r.project.map(_.name) shouldBe Some("tweakmsg")
     })
   }
 

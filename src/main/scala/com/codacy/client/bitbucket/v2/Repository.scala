@@ -20,7 +20,8 @@ case class Repository(
     language: Option[String],
     urls: Seq[RepositoryUrl],
     uuid: String,
-    slug: String
+    slug: String,
+    project: Option[Project]
 )
 
 object Repository {
@@ -31,6 +32,9 @@ object Repository {
     Reads
       .localDateTimeReads(dateFormat)
       .orElse(Reads.localDateTimeReads(dateFormatWithoutMillis))
+
+  implicit val projectReads: Reads[Project] =
+    ((__ \ "name").read[String] and (__ \ "key").read[String])(Project.apply _)
 
   // format: off
   implicit val reader: Reads[Repository] = {
@@ -47,7 +51,8 @@ object Repository {
       (__ \ "language").readNullable[String] and
       (__ \ "links").read[Map[String, JsValue]].map(parseLinks) and
       (__ \ "uuid" ).read[String] and
-      (__ \ "slug" ).read[String]
+      (__ \ "slug" ).read[String] and
+      (__ \ "project").readNullable[Project]
       ) (Repository.apply _)
   }
   // format: on
