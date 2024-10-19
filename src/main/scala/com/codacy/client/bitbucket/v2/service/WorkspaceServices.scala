@@ -110,14 +110,7 @@ class WorkspaceServices(client: BitbucketClient) {
   ): RequestResponse[Seq[Project]] = {
     val url = s"${client.workspacesBaseUrl}/$workspaceId/projects"
 
-    pageRequest match {
-      case Some(request) =>
-        client.executeWithCursor[Project](url, request, pageLength)
-      case None =>
-        val length = pageLength.fold("")(pagelen => s"pagelen=$pagelen")
-        val urlWithPageLength = joinQueryParameters(url, length)
-        client.executePaginated[Project](urlWithPageLength)
-    }
+    client.executeWithCursor[Project](url, pageRequest.getOrElse(PageRequest()), pageLength)
   }
 
 }

@@ -126,17 +126,13 @@ class RepositoryServices(client: BitbucketClient) {
       pageLength: Option[Int]
   ): RequestResponse[Seq[Repository]] = {
 
-    val length = s"pagelen=${pageLength.getOrElse(DEFAULT_PAGE_LENGTH)}"
-
     val encodedProjectKey = URLEncoder.encode(s""""$projectKey"""", "UTF-8")
     val filterProjectKey = s"""q=project.key=$encodedProjectKey"""
 
-    val url = joinQueryParameters(s"""${client.repositoriesBaseUrl}/$workspaceId""", filterProjectKey, length)
+    val url = joinQueryParameters(s"""${client.repositoriesBaseUrl}/$workspaceId""", filterProjectKey)
 
-    pageRequest match {
-      case Some(request) => client.executeWithCursor[Repository](url, request, pageLength)
-      case None => client.executePaginated[Repository](url)
-    }
+    client.executeWithCursor[Repository](url, pageRequest.getOrElse(PageRequest()), pageLength)
+
   }
 
 }
