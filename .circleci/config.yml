@@ -59,14 +59,8 @@ workflows:
                 name: Add sonatype setting
                 command: echo 'publicMvnPublish' > publishing.sbt
             - run:
-                name: Retrieve GPG Keys
-                command: sbt retrieveGPGKeys
-            - run:
-                name: Create publish bundle
-                command: sbt crossPublishSigned
-            - run:
-                name: Release bundle to Sonatype
-                command: sbt sonatypeBundleRelease
+                name: Publish to Sonatype
+                command: sbt "retrieveGPGKeys; crossPublishSigned; sonatypeCentralRelease"
           requires:
             - tag_version
       - codacy/sbt:
