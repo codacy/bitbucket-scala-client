@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  codacy: codacy/base@11.2.0
+  codacy: codacy/base@12.2.0
 
 references:
   cache_prefix: &cache_prefix sbt-cache-20240918
