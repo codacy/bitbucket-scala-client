@@ -19,7 +19,7 @@ resolvers +=
   "Typesafe maven repository" at "https://repo.typesafe.com/typesafe/maven-releases/"
 
 libraryDependencies ++= Dependencies.playJson(playJsonVersion.value) ++ Seq(
-  "org.scalatest" %% "scalatest" % "3.0.8" % Test
+  "org.scalatest" %% "scalatest" % "3.0.9" % Test
 )
 
 libraryDependencies ++= {
