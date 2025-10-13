@@ -4,7 +4,7 @@ val scala212 = "2.12.20"
 val scala213 = "2.13.11"
 val scalaVersions = Seq(scala212, scala213)
 
-val play27 = "2.7.4"
+val play27 = "2.10.8"
 val play28 = "2.8.2"
 
 lazy val playJsonVersion = settingKey[String]("The version of play-json used for building.")
