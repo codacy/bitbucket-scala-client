@@ -4,7 +4,7 @@ orbs:
   codacy: codacy/base@12.2.0
 
 references:
-  cache_prefix: &cache_prefix sbt-cache-20240918
+  cache_prefix: &cache_prefix sbt-cache-20250206
 
 workflows:
   version: 2

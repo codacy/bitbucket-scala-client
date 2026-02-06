@@ -7,13 +7,23 @@ import com.codacy.client.bitbucket.v2.{Project, UserIdentifiers, UserIdentifiers
 
 class WorkspaceServices(client: BitbucketClient) {
 
+  //TODO: It seems that the new endpoint returns data differently, will need to check better
+  //* we might now have info about the       "administrator": true,
+  //   * "type": "workspace_access",
+  // This endpoint now have a "workspace" that wrapps the uuid, slug, etc
+
+  /**
+    * Gets the list of workspaces accessible by the authenticated user.
+    * Uses the new user/workspaces endpoint (replaces deprecated workspaces).
+    *
+    */
   def list(pageRequest: Option[PageRequest] = None, pageLength: Option[Int] = None): RequestResponse[Seq[Workspace]] = {
     pageRequest match {
       case Some(request) =>
-        client.executeWithCursor[Workspace](client.workspacesBaseUrl, request, pageLength)
+        client.executeWithCursor[Workspace](client.userWorkspacesBaseUrl, request, pageLength)
       case None =>
         val length = pageLength.fold("")(pagelen => s"pagelen=$pagelen")
-        val urlWithPageLength = joinQueryParameters(client.workspacesBaseUrl, length)
+        val urlWithPageLength = joinQueryParameters(client.userWorkspacesBaseUrl, length)
         client.executePaginated[Workspace](urlWithPageLength)
     }
   }
