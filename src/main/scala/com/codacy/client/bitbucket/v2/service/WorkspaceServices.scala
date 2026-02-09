@@ -3,18 +3,32 @@ package com.codacy.client.bitbucket.v2.service
 import java.net.URLEncoder
 import com.codacy.client.bitbucket.util.UrlHelper._
 import com.codacy.client.bitbucket.client.{BitbucketClient, PageRequest, RequestResponse}
-import com.codacy.client.bitbucket.v2.{Project, UserIdentifiers, UserIdentifiersApi, Workspace, WorkspacePermission}
+import com.codacy.client.bitbucket.v2.{
+  Project,
+  UserIdentifiers,
+  UserIdentifiersApi,
+  Workspace,
+  WorkspaceAccess,
+  WorkspacePermission
+}
 
 class WorkspaceServices(client: BitbucketClient) {
 
-  def list(pageRequest: Option[PageRequest] = None, pageLength: Option[Int] = None): RequestResponse[Seq[Workspace]] = {
+  /**
+    * Gets the list of workspaces accessible by the authenticated user.
+    * Uses the new /user/workspaces endpoint (replaces deprecated /workspaces).
+    */
+  def list(
+      pageRequest: Option[PageRequest] = None,
+      pageLength: Option[Int] = None
+  ): RequestResponse[Seq[WorkspaceAccess]] = {
     pageRequest match {
       case Some(request) =>
-        client.executeWithCursor[Workspace](client.workspacesBaseUrl, request, pageLength)
+        client.executeWithCursor[WorkspaceAccess](client.userWorkspacesBaseUrl, request, pageLength)
       case None =>
         val length = pageLength.fold("")(pagelen => s"pagelen=$pagelen")
-        val urlWithPageLength = joinQueryParameters(client.workspacesBaseUrl, length)
-        client.executePaginated[Workspace](urlWithPageLength)
+        val urlWithPageLength = joinQueryParameters(client.userWorkspacesBaseUrl, length)
+        client.executePaginated[WorkspaceAccess](urlWithPageLength)
     }
   }
 

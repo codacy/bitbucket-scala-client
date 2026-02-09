@@ -1,13 +1,7 @@
 package com.codacy.client.bitbucket.v2.service
 
 import java.net.URLEncoder
-import com.codacy.client.bitbucket.client.{
-  BitbucketClient,
-  FailedResponse,
-  PageRequest,
-  RequestResponse,
-  SuccessfulResponse
-}
+import com.codacy.client.bitbucket.client.{BitbucketClient, RequestResponse}
 import com.codacy.client.bitbucket.v2._
 import play.api.libs.json.Json
 
@@ -26,26 +20,13 @@ class UserServices(client: BitbucketClient) {
     client.executePaginated[Email](s"${client.userBaseUrl}/emails")
 
   /**
-    * Search for workspaceUUID among the workspaces that the current user is member of
-    * returns the workspace and their effective role
+    * Get the current user's permission on a specific workspace.
+    * Uses the new /user/workspaces/{workspace}/permission endpoint
+    * (replaces deprecated /user/permissions/workspaces).
     */
   def getWorkspaceMembership(workspaceUUID: String): RequestResponse[WorkspacePermission] = {
     val workspaceUUIDEncoded = URLEncoder.encode(s""""$workspaceUUID"""", "UTF-8")
-    val workspaceQuery = s"""workspace.uuid=$workspaceUUIDEncoded"""
-
-    client.executeWithCursor[WorkspacePermission](
-      s"""${client.userBaseUrl}/permissions/workspaces?q=$workspaceQuery""",
-      PageRequest()
-    ) match {
-      case SuccessfulResponse(membership +: _, _, _, _, _, _) =>
-        if (membership.team.uuid == workspaceUUID) {
-          SuccessfulResponse(membership)
-        } else {
-          FailedResponse(s"UUIDs don't match. Queried $workspaceUUID but received ${membership.team.uuid}")
-        }
-      case error: FailedResponse => error
-      case _ => FailedResponse(s"Couldn't find $workspaceUUID for the current user")
-    }
+    client.execute[WorkspacePermission](s"${client.userBaseUrl}/workspaces/$workspaceUUIDEncoded/permission")
   }
 
   /**
