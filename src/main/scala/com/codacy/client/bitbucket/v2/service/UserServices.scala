@@ -25,7 +25,7 @@ class UserServices(client: BitbucketClient) {
     * (replaces deprecated /user/permissions/workspaces).
     */
   def getWorkspaceMembership(workspaceUUID: String): RequestResponse[WorkspacePermission] = {
-    val workspaceUUIDEncoded = URLEncoder.encode(s""""$workspaceUUID"""", "UTF-8")
+    val workspaceUUIDEncoded = URLEncoder.encode(workspaceUUID, "UTF-8")
     client.execute[WorkspacePermission](s"${client.userBaseUrl}/workspaces/$workspaceUUIDEncoded/permission")
   }
 
