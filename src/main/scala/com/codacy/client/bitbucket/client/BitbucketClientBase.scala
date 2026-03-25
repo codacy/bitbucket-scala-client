@@ -18,7 +18,7 @@ import scala.collection.parallel.immutable.ParRange
 import scala.util.{Failure, Properties, Success, Try}
 
 object BitbucketClientBase {
-  val apiBaseUrl = "https://bitbucket.org/api/2.0"
+  val apiBaseUrl = "https://api.bitbucket.org/2.0"
 }
 
 abstract class BitbucketClientBase(val client: WSClient, credentials: Credentials) {
