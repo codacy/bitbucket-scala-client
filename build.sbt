@@ -1,17 +1,14 @@
 name := """bitbucket-scala-client"""
 
-val scala212 = "2.12.20"
-val scala213 = "2.13.11"
-val scalaVersions = Seq(scala212, scala213)
+val scala213 = "2.13.18"
 
-val play27 = "2.7.4"
-val play28 = "2.8.2"
+val playJson28 = "2.8.2"
+val playJson210 = "2.10.8"
 
 lazy val playJsonVersion = settingKey[String]("The version of play-json used for building.")
-ThisBuild / playJsonVersion := play27
+ThisBuild / playJsonVersion := playJson28
 
-ThisBuild / scalaVersion := scala212
-ThisBuild / crossScalaVersions := scalaVersions
+ThisBuild / scalaVersion := scala213
 
 scalacOptions := Seq("-deprecation", "-feature", "-unchecked", "-Xlint")
 
@@ -19,17 +16,9 @@ resolvers +=
   "Typesafe maven repository" at "https://repo.typesafe.com/typesafe/maven-releases/"
 
 libraryDependencies ++= Dependencies.playJson(playJsonVersion.value) ++ Seq(
-  "org.scalatest" %% "scalatest" % "3.0.8" % Test
+  "org.scalatest" %% "scalatest" % "3.0.8" % Test,
+  "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.4"
 )
-
-libraryDependencies ++= {
-  CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((2, major)) if major <= 12 =>
-      Seq()
-    case _ =>
-      Seq("org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.4")
-  }
-}
 
 ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-java8-compat" % VersionScheme.Always
 
@@ -57,32 +46,29 @@ name := s"${name.value}_playjson${playJsonVersion.value.split('.').take(2).mkStr
 
 /**
   * Given a command it creates an alias to run the command
-  * on the entire matrix of play and scala versions.
+  * across all supported play-json versions.
   * If the command has `:` in it (like test:compile)
   * the alias becomes crossTestCompile instead of crossTest:compile
   * (which is not an allowed sbt alias name)
   */
 def addCrossAlias(command: String) = {
-  val matrix = Seq(scala212 -> Seq(play27, play28), scala213 -> Seq(play28))
+  val playVersions = Seq(playJson28, playJson210)
 
   addCommandAlias(
     s"cross${command.split(':').map(_.capitalize).mkString}",
-    matrix
-      .flatMap {
-        case (scalaV, playVersions) =>
-          s"""set ThisBuild / scalaVersion := "$scalaV"""" +: playVersions
-            .flatMap(playV => Seq(s"""set ThisBuild / playJsonVersion := "$playV"""", command))
-      }
+    playVersions
+      .flatMap(playV => Seq(s"""set ThisBuild / playJsonVersion := "$playV"""", command))
       .mkString(";")
   )
 }
 
 // List of crossX aliases.
 // Add a command here if you want to call it for
-// the entire playVersion / scalaVersion matrix
+// every supported play-json version
 addCrossAlias("update")
 addCrossAlias("compile")
 addCrossAlias("test:compile")
 addCrossAlias("test")
 addCrossAlias("publish")
+addCrossAlias("publishLocal")
 addCrossAlias("publishSigned")
