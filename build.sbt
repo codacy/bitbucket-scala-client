@@ -54,7 +54,13 @@ scmInfo := Some(
 pgpPassphrase := Option(System.getenv("SONATYPE_GPG_PASSPHRASE"))
   .map(_.toCharArray)
 
-name := s"${name.value}_playjson${playJsonVersion.value.split('.').take(2).mkString}"
+def playSuffix(playJsonVersion: String): String =
+  if (playJsonVersion.startsWith("2.7.")) "27"
+  else if (playJsonVersion.startsWith("2.8.")) "28"
+  else if (playJsonVersion.startsWith("2.10.")) "29"
+  else sys.error("Missing play suffix. Add a mapping from this play-json version to its Play version.")
+
+name := s"${name.value}_playjson${playSuffix(playJsonVersion.value)}"
 
 /**
   * Given a command it creates an alias to run the command
