@@ -6,6 +6,7 @@ val scalaVersions = Seq(scala212, scala213)
 
 val play27 = "2.7.4"
 val play28 = "2.8.2"
+val play29 = "2.10.7"
 
 lazy val playJsonVersion = settingKey[String]("The version of play-json used for building.")
 ThisBuild / playJsonVersion := play27
@@ -53,7 +54,13 @@ scmInfo := Some(
 pgpPassphrase := Option(System.getenv("SONATYPE_GPG_PASSPHRASE"))
   .map(_.toCharArray)
 
-name := s"${name.value}_playjson${playJsonVersion.value.split('.').take(2).mkString}"
+def playSuffix(playJsonVersion: String): String =
+  if (playJsonVersion.startsWith("2.7.")) "27"
+  else if (playJsonVersion.startsWith("2.8.")) "28"
+  else if (playJsonVersion.startsWith("2.10.")) "29"
+  else sys.error("Missing play suffix. Add a mapping from this play-json version to its Play version.")
+
+name := s"${name.value}_playjson${playSuffix(playJsonVersion.value)}"
 
 /**
   * Given a command it creates an alias to run the command
@@ -63,7 +70,7 @@ name := s"${name.value}_playjson${playJsonVersion.value.split('.').take(2).mkStr
   * (which is not an allowed sbt alias name)
   */
 def addCrossAlias(command: String) = {
-  val matrix = Seq(scala212 -> Seq(play27, play28), scala213 -> Seq(play28))
+  val matrix = Seq(scala212 -> Seq(play27, play28), scala213 -> Seq(play28, play29))
 
   addCommandAlias(
     s"cross${command.split(':').map(_.capitalize).mkString}",
@@ -85,4 +92,5 @@ addCrossAlias("compile")
 addCrossAlias("test:compile")
 addCrossAlias("test")
 addCrossAlias("publish")
+addCrossAlias("publishLocal")
 addCrossAlias("publishSigned")
