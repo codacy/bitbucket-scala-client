@@ -6,6 +6,7 @@ val scalaVersions = Seq(scala212, scala213)
 
 val play27 = "2.7.4"
 val play28 = "2.8.2"
+val play29 = "2.10.7"
 
 lazy val playJsonVersion = settingKey[String]("The version of play-json used for building.")
 ThisBuild / playJsonVersion := play27
@@ -63,7 +64,7 @@ name := s"${name.value}_playjson${playJsonVersion.value.split('.').take(2).mkStr
   * (which is not an allowed sbt alias name)
   */
 def addCrossAlias(command: String) = {
-  val matrix = Seq(scala212 -> Seq(play27, play28), scala213 -> Seq(play28))
+  val matrix = Seq(scala212 -> Seq(play27, play28), scala213 -> Seq(play28, play29))
 
   addCommandAlias(
     s"cross${command.split(':').map(_.capitalize).mkString}",
@@ -85,4 +86,5 @@ addCrossAlias("compile")
 addCrossAlias("test:compile")
 addCrossAlias("test")
 addCrossAlias("publish")
+addCrossAlias("publishLocal")
 addCrossAlias("publishSigned")
