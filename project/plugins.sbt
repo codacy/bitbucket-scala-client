@@ -1,4 +1,4 @@
-addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "0.2.0")
+addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "0.6.4")
 
 addSbtPlugin("com.codacy" % "codacy-sbt-plugin" % "25.2.4")
 
