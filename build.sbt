@@ -14,6 +14,8 @@ ThisBuild / playJsonVersion := play27
 ThisBuild / scalaVersion := scala212
 ThisBuild / crossScalaVersions := scalaVersions
 
+privateMvnPublish
+
 scalacOptions := Seq("-deprecation", "-feature", "-unchecked", "-Xlint")
 
 resolvers +=
