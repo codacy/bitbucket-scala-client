@@ -51,28 +51,11 @@ workflows:
               only:
                 - master
       - codacy/sbt:
-          name: publish_sonatype
-          context: CodacyAWS
-          no_output_timeout: "30m"
-          use_sbt_native_client: false
-          steps:
-            - run:
-                name: Add sonatype setting
-                command: echo 'publicMvnPublish' > publishing.sbt
-            - run:
-                name: Publish to Sonatype
-                command: sbt "retrieveGPGKeys; crossPublishSigned; sonatypeCentralRelease"
-          requires:
-            - tag_version
-      - codacy/sbt:
           name: publish_s3
           aws_profile: maven
           context: CodacyAWS
           use_sbt_native_client: false
           steps:
-            - run:
-                name: Add s3 publishing setting
-                command: echo 'privateMvnPublish' > publishing.sbt
             - run:
                 name: Publish to S3
                 command: sbt crossPublish
